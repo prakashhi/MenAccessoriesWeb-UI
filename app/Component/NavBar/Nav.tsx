@@ -5,29 +5,21 @@ import { FcLike } from "react-icons/fc";
 import { FaUser } from "react-icons/fa";
 import { FaShoppingCart } from "react-icons/fa";
 import { UsePanel } from "@/context/SerchPanelContext";
-
+import Link from "next/link";
 
 export default function Nav() {
- 
-    const {setState} = UsePanel()
-     
-
-  const hadleOpenSearch = () => {
-    setState((prev) => ({ ...prev, isSearchPanel: true }));
-  };
-
-
-
   return (
     <React.Fragment>
-      <nav className="bg-black p-2 py-3 ">
+      <nav className="bg-black p-2 py-5 w-full">
         <div className="flex flex-row items-center justify-between mx-3">
           <div className="rounded-md ">
-            <CiSearch
-              onClick={hadleOpenSearch}
-              className="text-white cursor-pointer rounded-md hover:bg-white transition duration-700 ease-in-out hover:text-black"
-              size={25}
-            />
+            <Link href={"/SearchBar"}>
+              <CiSearch
+                // onClick={hadleOpenSearch}
+                className="text-white cursor-pointer rounded-md hover:bg-white transition duration-700 ease-in-out hover:text-black"
+                size={25}
+              />
+            </Link>
           </div>
 
           <div>
@@ -39,7 +31,9 @@ export default function Nav() {
           <div className="flex flex-row gap-5">
             <FcLike className="bg-black  cursor-pointer rounded-md " />
             <FaUser className="cursor-pointer rounded-md " color="white" />
-            <FaShoppingCart className="cursor-pointer  rounded-md  text-white" />
+            <Link href={'/Cart'}>
+              <FaShoppingCart className="cursor-pointer  rounded-md  text-white" />
+            </Link>
           </div>
         </div>
       </nav>

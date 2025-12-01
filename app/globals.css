@@ -4,12 +4,33 @@
 @source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 @custom-variant dark (&:is(.dark *));
 
-
-#LogoText
-{
-    font-family: cursive;
+#LogoText {
+  font-family: cursive;
 }
-#HeaderText
-{
-    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+#HeaderText {
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+}
+
+/* Width */
+::-webkit-scrollbar {
+  height: 8px;        /* horizontal scrollbar height */
+  width: 8px;         /* vertical scrollbar width */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+/* Thumb */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Thumb Hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

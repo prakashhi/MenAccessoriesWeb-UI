@@ -14,6 +14,11 @@ export const ProductData = [
       { name: "Premium Bifold Wallet", img: Wallet, price: 999 },
       { name: "Vintage Brown Wallet", img: Wallet, price: 899 },
       { name: "Minimalist Black Wallet", img: Wallet, price: 749 },
+      { name: "Classic Leather Wallet", img: Wallet, price: 799 },
+      { name: "Slim Card Holder Wallet", img: Wallet, price: 599 },
+      { name: "Premium Bifold Wallet", img: Wallet, price: 999 },
+      { name: "Vintage Brown Wallet", img: Wallet, price: 899 },
+      { name: "Minimalist Black Wallet", img: Wallet, price: 749 },
     ],
   },
 
