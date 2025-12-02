@@ -4,6 +4,8 @@ import "./globals.css";
 import HeroProvider from "./HeroProvider";
 import { SearchPanelContextProvider } from "@/context/SerchPanelContext";
 
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
