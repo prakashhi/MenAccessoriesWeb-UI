@@ -2,11 +2,12 @@
 import Nav from "../Component/NavBar/Nav";
 import Footer from "../Component/Footer/Footer";
 import Image from "next/image";
+import { Button } from "@heroui/react";
 import { MdOutlineDeleteForever } from "react-icons/md";
 
 import { UsePanel } from "@/context/SerchPanelContext";
 import { useCallback, useMemo, useState, useEffect } from "react";
-import Link from 'next/link'
+import Link from "next/link";
 
 export default function page() {
   const [total, setTotal] = useState(0);
@@ -36,60 +37,91 @@ export default function page() {
                   fontFamily: "Inter, sans-serif",
                   fontWeight: 800,
                 }}
-                className="lg:text-2xl"
+                className="lg:text-2xl mt-10 underline"
               >
                 Cart
               </span>
 
-              <div className="grid  lg:gap-5 gap-3 w-full  ">
-                {cartProduct.length > 0 ? (
-                  cartProduct.map((val, i) => (
-                    <div
-                      key={i}
-                      className="flex justify-around items-center   p-3"
-                    >
-                      <Image
-                        className=""
-                        src={val.img}
-                        width={100}
-                        height={100}
-                        alt={`${i}`}
-                      />
+              <div className="flex lg:flex-row lg:px-10 flex-col px-3 w-full  mx-3">
+                <div className="grid  lg:gap-5 gap-3 max-h-[400px] overflow-auto w-full  ">
+                  {cartProduct.length > 0 ? (
+                    cartProduct.map((val: any, i: number) => (
+                      <div
+                        key={i}
+                        className="flex flex-row items-center border-gray-100 border-b-1 pb-5  justify-between   "
+                      >
+                        <div className="flex flex-row lg:gap-5  gap-3 items-center">
+                          <Image
+                            className=""
+                            loading="eager"
+                            src={val.img}
+                            width={100}
+                            height={100}
+                            alt={`${i}`}
+                          />
 
-                      <div className="col-span-2">
-                        <span>{val.name}</span>
+                          <div className="flex flex-col items-baseline">
+                            <span
+                              style={{
+                                fontFamily: "Inter, sans-serif",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {val.name}
+                            </span>
+                            <span>incresme</span>
+                            <Button
+                              onPress={() => RemoveCartProduct(val.id)}
+                              className="border border-gray-300 "
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <span>Rs {val.price}.00</span>
+                        </div>
+
+                        {/* <MdOutlineDeleteForever
+                          onClick={() => RemoveCartProduct(val.id)}
+                          className="text-red-300 cursor-pointer"
+                        /> */}
                       </div>
+                    ))
+                  ) : (
+                    <div className="flex justify-center text-center gap-3 mt-5 flex-col">
+                      <span
+                        style={{
+                          fontFamily: "Inter, sans-serif",
+                          fontWeight: 600,
+                        }}
+                        className="lg:text-xl text-center"
+                      >
+                        Your Cart is Empty
+                      </span>
 
-                      <span>{val.price}</span>
-                      <MdOutlineDeleteForever
-                        onClick={() => RemoveCartProduct(val.id)}
-                        className="text-red-300 cursor-pointer"
-                      />
+                      <div className="flex justify-center">
+                        <Link
+                          className="hover:underline bg-ThemGold py-2 px-4 rounded-xl "
+                          href={"/"}
+                        >
+                          Back To Home
+                        </Link>
+                      </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="flex justify-center text-center gap-3 mt-5 flex-col">
-                    <span
-                      style={{
-                        fontFamily: "Inter, sans-serif",
-                        fontWeight: 300,
-                      }}
-                      className="lg:text-xl text-center"
-                    >
-                      Your Cart is Empty
-                    </span>
+                  )}
+                </div>
 
-                    <Link className="hover:underline" href={"/"}>Back To Home</Link>
+                {total > 0 && (
+                  <div className="flex w-full border   p-5 gap-2">
+                    <div className="flex w-full justify-between justify-between">
+                      <span>Total Amount:</span>
+                      <span>{total}</span>
+                    </div>
                   </div>
                 )}
               </div>
-
-              {total > 0 && (
-                <div className="flex justify-center  w-full px-5 gap-2">
-                  <span>Total Amount:</span>
-                  <span>{total}</span>
-                </div>
-              )}
             </div>
           </div>
         </div>
