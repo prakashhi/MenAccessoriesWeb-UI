@@ -10,12 +10,13 @@ import { product } from "@/context/Types/type";
 export default function CardModel({ DataObj }: { DataObj: product[] }) {
   const { AddCartProduct } = UsePanel();
 
+
   return (
     <>
       {DataObj &&
         DataObj.map((value: any, index: number) => (
           <div
-            className=" hover:lg:my-1 hover:my-[10pxx] hover:mx-1 hover:shadow-xl transition duration-500 ease-in-out  sm:w-56 md:w-64 lg:w-84 w-54 h-72  shrink-0  sm:h-64 md:h-[500px] lg:m-3  flex flex-col lg:gap-3 cursor-pointer m-1 shadow mt-10"
+            className=" hover:shadow-xl hover:scale-105 transition duration-500 ease-in-out  sm:w-56 md:w-64 lg:w-84 w-54  h-82  shrink-0  sm:h-64 md:h-[500px] lg:m-3  flex flex-col lg:gap-3 cursor-pointer m-1 shadow mt-10"
             key={index}
           >
             <div className="flex-1 relative  ">
@@ -64,7 +65,7 @@ export default function CardModel({ DataObj }: { DataObj: product[] }) {
                   fontFamily: "Inter, sans-serif",
                   fontWeight: 300,
                 }}
-                className="lg:text-medium sm:text-[10px] bg-HoverThemDeepGray  text-[9px] border border-black hover:border-none hover:text-white transition duration-700 ease-in-out  w-full p-2"
+                className="lg:text-medium sm:text-[10px] bg-HoverThemDeepGray  text-[9px] border border-black hover:border-transparent hover:text-white transition duration-700 ease-in-out  w-full p-2"
               >
                 ADD TO CART
               </Button>

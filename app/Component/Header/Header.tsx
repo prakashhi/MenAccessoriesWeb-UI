@@ -7,7 +7,7 @@ export default function Header() {
   return (
     <>
       <header className="relative top-10">
-        <div className="flex flex-col gap-2 justify-center text-center pb-10 mb-8">
+        <div className="flex flex-col lg:gap-2 gap-1 justify-center text-center lg:pb-10 mb-8">
           <h1
             style={{ fontFamily:"ui-sans-serif", fontWeight: 600 }}
             id="HeaderText"
@@ -15,12 +15,12 @@ export default function Header() {
           >
             Define Your Signature Look
           </h1>
-          <p style={{ fontFamily:"serif", fontWeight: 600 }}>Essential accessories that elevate your everyday style effortlessly</p>
+          <p className="lg:text-medium text-[13px]" style={{ fontFamily:"serif", fontWeight: 500 }}>Essential accessories that elevate your everyday style effortlessly</p>
         </div>
 
         <div className="lg:m-5 m-2 flex flex-row  shadow-xl bg-ThemCharcoal ">
           <Image
-            className="lg:w-[80%] w-[60%]  shadow"
+            className="lg:w-[80%] w-[60%]  shadow hover:scale-105 transition duration-500 ease-linear cursor-pointer"
             loading="eager"
             src={HeaderImg}
             alt="Header"

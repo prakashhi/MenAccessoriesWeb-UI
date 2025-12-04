@@ -15,16 +15,16 @@ export default function Nav() {
     <>
       <nav className="bg-ThemCharcoal p-2 py-5 w-full  sticky  top-0 z-10">
         <div className="flex flex-row items-center justify-between mx-3">
-          <div className="rounded-md ">
-            {pathname !== "/Search" && (
+          {pathname !== "/Search" && (
+            <div className="rounded-md ">
               <Link href={"/Search"}>
                 <CiSearch
                   className="text-white cursor-pointer rounded-md hover:bg-white transition duration-700 ease-in-out hover:text-black"
                   size={25}
                 />
               </Link>
-            )}
-          </div>
+            </div>
+          )}
 
           <div>
             <Link
@@ -38,11 +38,8 @@ export default function Nav() {
           </div>
 
           <div className="flex flex-row gap-5">
-            <Link href={'/Wishlist'}>
-              <FcLike
-                size={20}
-                className=" cursor-pointer rounded-md "
-              />
+            <Link href={"/Wishlist"}>
+              <FcLike size={20} className=" cursor-pointer rounded-md " />
             </Link>
 
             <FaUser

@@ -3,4 +3,5 @@ export type product = {
   name: string;
   img: string;
   price: number;
+  Qty?:number
 };

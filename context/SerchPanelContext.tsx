@@ -14,9 +14,12 @@ export function SearchPanelContextProvider({
 
   const AddCartProduct = (Product: product): void => {
     if (!cartProduct.find((val) => val.id == Product.id)) {
-      setCartProduct((prev) => [...prev, Product]);
+      setCartProduct((prev) => [...prev, { ...Product, Quanty: 1 }]);
     }
   };
+
+
+
   const RemoveCartProduct = (ProductId: number): void => {
     setCartProduct((prev) =>
       cartProduct.filter((val, index) => val.id !== ProductId)
@@ -37,6 +40,7 @@ export function SearchPanelContextProvider({
   return (
     <SearchPanelContext.Provider
       value={{
+        setCartProduct,
         AddCartProduct,
         RemoveCartProduct,
         cartProduct,

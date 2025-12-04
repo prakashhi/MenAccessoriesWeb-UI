@@ -1,6 +1,7 @@
 import { ProductData } from "./ProductData";
 import Link from "next/link";
 import CardModel from "./CardModel";
+import { product } from "../../../context/Types/type";
 
 export default function Product() {
   return (

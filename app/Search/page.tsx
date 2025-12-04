@@ -23,9 +23,9 @@ export default function page() {
             <div className="grid lg:grid-cols-6 grid-cols-3 lg:gap-3 gap-2">
               {Category.map((val, index) => (
                 <Link
-                  style={{ fontFamily: "sans-serif", fontWeight: 600 }}
+                  style={{ fontFamily: "sans-serif", fontWeight: 500 }}
                   href={`/Category/${val.name}`}
-                  className=" text-center  bg-gray-50  rounded-md p-2  cursor-pointer "
+                  className=" text-center  bg-gray-50  rounded-md p-2  cursor-pointer bg-ThemGold text-white "
                   key={index}
                 >
                   {val.name}
@@ -35,7 +35,15 @@ export default function page() {
           </div>
 
           <div className="flex flex-col gap-3  m-3">
-            <span className="flex justify-center">Suggested Products</span>
+            <span
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontWeight: 700,
+              }}
+              className="flex justify-center lg:mb-7 mb-2"
+            >
+              Suggested Products
+            </span>
 
             <div className="flex flex-row overflow-auto scrollbar-hide  lg:gap-1   w-full">
               <CardModel DataObj={ProductData[0]?.products} />
