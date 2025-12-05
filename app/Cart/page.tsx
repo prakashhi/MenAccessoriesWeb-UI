@@ -125,7 +125,7 @@ export default function page() {
                   <>
                     <div className="border border-gray-300"></div>
 
-                    <div className="  flex max-h-56 overflow-y-auto w-full flex-col bg-ThemGold overflow-auto  p-5 gap-5 ">
+                    <div className=" sticky top-30  flex max-h-56 overflow-y-auto w-full flex-col bg-ThemGold overflow-auto  p-5 gap-5 ">
                       <div className="flex w-full justify-between ">
                         <span
                           style={{

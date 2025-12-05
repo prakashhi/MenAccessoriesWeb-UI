@@ -59,6 +59,11 @@
   background-color: #1a1a1a;
 }
 
+.bg-CheckColor
+{
+  accent-color: #d4af37;
+}
+
 .bg-ThemDeepGray {
   background-color: #2e2e2e;
 }

@@ -7,16 +7,25 @@ import Star from "./Star";
 
 import { product } from "@/context/Types/type";
 
-export default function CardModel({ DataObj }: { DataObj: product[] }) {
+export default function CardModel({
+  DataObj,
+  CustomWH,
+}: {
+  DataObj: product[];
+  CustomWH: string;
+}) {
   const { AddCartProduct } = UsePanel();
-
 
   return (
     <>
       {DataObj &&
         DataObj.map((value: any, index: number) => (
           <div
-            className=" hover:shadow-xl hover:scale-105 transition duration-500 ease-in-out  sm:w-56 md:w-64 lg:w-84 w-54  h-82  shrink-0  sm:h-64 md:h-[500px] lg:m-3  flex flex-col lg:gap-3 cursor-pointer m-1 shadow mt-10"
+            className={
+              CustomWH
+                ? CustomWH
+                : "hover:shadow-xl hover:scale-105 transition duration-500 ease-in-out  sm:w-56 md:w-64 lg:w-84 w-54  h-82  shrink-0  sm:h-64 md:h-[500px] lg:m-3  flex flex-col lg:gap-3 cursor-pointer m-1 shadow mt-10"
+            }
             key={index}
           >
             <div className="flex-1 relative  ">
@@ -30,7 +39,10 @@ export default function CardModel({ DataObj }: { DataObj: product[] }) {
                 // width={300}
                 // height={300}
               />
-              <div title="Add to Wishlist"  className="relative z-1 bg-ThemGold  rounded-full w-6 h-6 flex justify-center border border-[#1a1a1a] shadow left-[87%] top-3 items-center ">
+              <div
+                title="Add to Wishlist"
+                className="relative z-1 bg-ThemGold  rounded-full w-6 h-6 flex justify-center border border-[#1a1a1a] shadow lg:left-[87%] left-[85%] top-3 items-center "
+              >
                 <FcLikePlaceholder className="" />
               </div>
             </div>
@@ -38,7 +50,7 @@ export default function CardModel({ DataObj }: { DataObj: product[] }) {
             <div className="flex flex-col items-center  gap-1 p-3">
               <span
                 style={{ fontFamily: "sans-serif", fontWeight: 700 }}
-                className="font-semibold text-center lg:text-medium sm:text-2xl text-[10px]"
+                className="font-semibold text-center lg:text-medium sm:text-medium text-[10px]"
               >
                 {value.name}
               </span>

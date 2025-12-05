@@ -1,6 +1,7 @@
 export const options  = [
   {
     name: "PRODUCT CATEGOTY",
+    value:"Belts",
     opt: ["Belts"],
   },
   {
