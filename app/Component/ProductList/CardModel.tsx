@@ -4,6 +4,7 @@ import { Button } from "@heroui/react";
 import Image from "next/image";
 import { FcLikePlaceholder } from "react-icons/fc";
 import Star from "./Star";
+import { ToastContainer, toast } from "react-toastify";
 
 import { product } from "@/context/Types/type";
 
@@ -14,7 +15,7 @@ export default function CardModel({
   DataObj: product[];
   CustomWH: string;
 }) {
-  const { AddCartProduct } = UsePanel();
+  const { AddCartProduct, AddLikeProduct } = UsePanel();
 
   return (
     <>
@@ -39,9 +40,13 @@ export default function CardModel({
                 // width={300}
                 // height={300}
               />
+
               <div
+                onClick={() => {
+                  AddLikeProduct(value);
+                }}
                 title="Add to Wishlist"
-                className="relative z-1 bg-ThemGold  rounded-full w-6 h-6 flex justify-center border border-[#1a1a1a] shadow lg:left-[87%] left-[85%] top-3 items-center "
+                className="relative z-1 bg-ThemGold  rounded-full w-6 h-6 flex justify-center   shadow lg:left-[87%] left-[85%] top-3 items-center "
               >
                 <FcLikePlaceholder className="" />
               </div>
@@ -69,21 +74,30 @@ export default function CardModel({
             </div>
             <div className=" justify-center  p-3 ">
               <Button
-                type="button"
                 onPress={() => {
                   AddCartProduct(value);
+                  toast(`${value.name} Added to Cart`, {
+                    style: {
+                      border: "none",
+                      backgroundColor: "#d4af37",
+                      color: "black",
+                    },
+                    
+                  });
                 }}
                 style={{
                   fontFamily: "Inter, sans-serif",
                   fontWeight: 300,
                 }}
-                className="lg:text-medium sm:text-[10px] bg-HoverThemDeepGray  text-[9px] border border-black hover:border-transparent hover:text-white transition duration-700 ease-in-out  w-full p-2"
+                className="lg:text-medium overflow-hidden sm:text-[10px] bg-HoverThemDeepGray  text-[9px] border border-black hover:border-transparent hover:text-white   w-full p-2"
               >
                 ADD TO CART
               </Button>
             </div>
           </div>
         ))}
+
+    
     </>
   );
 }

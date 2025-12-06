@@ -2,7 +2,7 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 import { RiArrowDropUpLine } from "react-icons/ri";
 import { options } from "../option";
 
-import { Checkbox } from "@heroui/checkbox";
+import { Checkbox } from "@heroui/react";
 import { useState } from "react";
 import React from "react";
 export default function Optioncomponet() {
@@ -18,7 +18,7 @@ export default function Optioncomponet() {
           <React.Fragment key={index}>
             <div
               onClick={() => handleUpDown(index)}
-              className="flex flex-row justify-between border-b-1 border-gray-200 pb-3 cursor-pointer transition duration-500 ease-in"
+              className="flex flex-row justify-between border-b-1 lg:my-0 my-5 border-gray-200 pb-3 cursor-pointer transition duration-500 ease-in"
             >
               <h2
                 style={{
@@ -39,15 +39,18 @@ export default function Optioncomponet() {
             {state[index] == true &&
               val.opt &&
               val.opt.map((val: string, index: number) => (
-                <div key={index} className="flex items-center gap-6">
+                <div
+                  key={index}
+                  className="flex lg:py-0 py-4 items-center gap-6"
+                >
                   <Checkbox
                     style={{
                       accentColor: "#d4af37",
                     }}
-                    type="checkbox"
+                    // type="checkbox"
                     name={val}
                     className="checked:accent-white"
-                    id=""
+                    color="default"
                   />
                   <span
                     style={{

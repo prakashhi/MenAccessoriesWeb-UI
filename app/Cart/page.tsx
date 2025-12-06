@@ -145,13 +145,13 @@ export default function page() {
                         </span>
                       </div>
 
-                      <div className="flex flex-row w-[70%]">
+                      <div className="flex flex-row ">
                         <input
                           type="text"
                           className="outline-none bg-white border-none px-3 py-2"
                           placeholder="Discount Code"
                         />
-                        <Button className="bg-ThemDeepGray text-white">
+                        <Button className="bg-ThemDeepGray text-white ">
                           APPLY
                         </Button>
                       </div>

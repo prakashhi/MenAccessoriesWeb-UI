@@ -12,11 +12,10 @@ export default function page() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
     <>
-      <MobileFilterDrawer isOpen={isOpen} onOpenChange={onOpenChange} />
-      <Button onPress={onOpen}>Vlci</Button>
+      <MobileFilterDrawer  />
       <Nav />
-      {/* <div>
-        <div className="flex justify-center mt-10">
+      <div>
+        <div className="flex justify-center lg:mt-10 my-5">
           <h2
             className="lg:text-xl"
             style={{
@@ -33,8 +32,7 @@ export default function page() {
           <LeftBar />
           <RightSection CategoryName={params?.Categotyname} />
         </div>
-      </div> */}
-
+      </div>
       <Footer />
     </>
   );

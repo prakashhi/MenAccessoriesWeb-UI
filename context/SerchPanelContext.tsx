@@ -2,6 +2,8 @@
 import { createContext, useContext, useState } from "react";
 import { product } from "./Types/type";
 
+import { useDisclosure } from "@heroui/react";
+
 const SearchPanelContext = createContext();
 
 export function SearchPanelContextProvider({
@@ -12,13 +14,13 @@ export function SearchPanelContextProvider({
   const [cartProduct, setCartProduct] = useState<product[]>([]);
   const [likeProduct, setLikeProduct] = useState<product[]>([]);
 
-  const AddCartProduct = (Product: product): void => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const AddCartProduct = (Product: product, type?: string): void => {
     if (!cartProduct.find((val) => val.id == Product.id)) {
       setCartProduct((prev) => [...prev, { ...Product, Quanty: 1 }]);
     }
   };
-
-
 
   const RemoveCartProduct = (ProductId: number): void => {
     setCartProduct((prev) =>
@@ -27,9 +29,8 @@ export function SearchPanelContextProvider({
   };
 
   const AddLikeProduct = (Product: product): void => {
-    if (!likeProduct.find((val) => (val.id = Product.id))) {
-      const AddLikeProduct = (Product: product): void =>
-        setLikeProduct((prev) => [...prev, Product]);
+    if (!likeProduct.find((val) => val.id == Product.id)) {
+      setLikeProduct((prev) => [...prev, Product]);
     }
   };
 
@@ -47,6 +48,9 @@ export function SearchPanelContextProvider({
         AddLikeProduct,
         RemoveLikeProdcut,
         likeProduct,
+        isOpen,
+        onOpen,
+        onOpenChange,
       }}
     >
       {children}

@@ -9,7 +9,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function Nav() {
-  const { cartProduct } = UsePanel();
+  const { cartProduct ,likeProduct} = UsePanel();
   const pathname = usePathname();
   return (
     <>
@@ -38,7 +38,20 @@ export default function Nav() {
           </div>
 
           <div className="flex flex-row gap-5">
-            <Link href={"/Wishlist"}>
+            <Link className="relative" href={"/Wishlist"}>
+             {likeProduct.length > 0 && (
+                <div className="w-3.5  h-3.5 border border-gray-200 flex justify-center items-center rounded-full p-1 absolute bottom-3.5 text-[10px]  left-4 bg-white">
+                  <span
+                    style={{
+                      fontFamily: "Inter, sans-serif",
+                      fontWeight: 800,
+                    }}
+                    className="text-center "
+                  >
+                    {likeProduct.length}
+                  </span>{" "}
+                </div>
+              )}
               <FcLike size={20} className=" cursor-pointer rounded-md " />
             </Link>
 
