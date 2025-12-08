@@ -18,7 +18,10 @@ export function SearchPanelContextProvider({
 
   const AddCartProduct = (Product: product, type?: string): void => {
     if (!cartProduct.find((val) => val.id == Product.id)) {
-      setCartProduct((prev) => [...prev, { ...Product, Quanty: 1 }]);
+      setCartProduct((prev) => [
+        ...prev,
+        { ...Product, Quanty: type == "LikeProduct" ? Product.Quanty : 1 },
+      ]);
     }
   };
 
@@ -30,7 +33,7 @@ export function SearchPanelContextProvider({
 
   const AddLikeProduct = (Product: product): void => {
     if (!likeProduct.find((val) => val.id == Product.id)) {
-      setLikeProduct((prev) => [...prev, Product]);
+      setLikeProduct((prev) => [...prev, { ...Product, Quanty: 1 }]);
     }
   };
 
@@ -47,6 +50,7 @@ export function SearchPanelContextProvider({
         cartProduct,
         AddLikeProduct,
         RemoveLikeProdcut,
+        setLikeProduct,
         likeProduct,
         isOpen,
         onOpen,

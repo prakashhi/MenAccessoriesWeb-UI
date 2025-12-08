@@ -20,12 +20,12 @@ export default function page() {
               />
             </div>
 
-            <div className="grid lg:grid-cols-6 grid-cols-3 lg:gap-3 gap-2">
+            <div className="grid lg:grid-cols-6  grid-cols-3 lg:gap-3 gap-2">
               {Category.map((val, index) => (
                 <Link
                   style={{ fontFamily: "sans-serif", fontWeight: 500 }}
                   href={`/Category/${val.name}`}
-                  className=" text-center  bg-gray-50  rounded-md p-2  cursor-pointer bg-ThemGold text-white "
+                  className=" text-center shadow  bg-gray-50  rounded-md p-2  cursor-pointer bg-ThemGold text-white "
                   key={index}
                 >
                   {val.name}

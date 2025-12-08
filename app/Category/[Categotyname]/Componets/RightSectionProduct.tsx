@@ -48,7 +48,11 @@ export default function RightSection({
             <span className="">Filter</span>
           </Button>
 
-          <select className="border border-gray-100 p-3 rounded-md" name="" id="">
+          <select
+            className="border border-gray-100 p-3 rounded-md"
+            name=""
+            id=""
+          >
             {filterDataOption &&
               filterDataOption.map((val: string, index: number) => (
                 <option className="bg-gray-50 px-4 py-3 max-w-xs" key={val}>
@@ -72,14 +76,20 @@ export default function RightSection({
           </Select> */}
         </div>
 
-        <div className="grid lg:grid-cols-3  justify-items-center  grid-cols-2 max-h-screen overflow-y-auto  transition duration-500 ease-out    w-full">
-          <CardModel
-            CustomWH={
-              "hover:shadow-xl hover:scale-105 transition  duration-500 ease-in-out  sm:w-86 sm:h-74 md:w-98  lg:w-84 w-46  h-75  shrink-0  sm:h-64 md:h-[500px] lg:m-3  flex flex-col lg:gap-3 cursor-pointer m-1 shadow mt-10"
-            }
-            DataObj={categotyList[0]?.products}
-          />
-        </div>
+        {categotyList[0]?.products ? (
+          <div className="grid lg:grid-cols-3  justify-items-center  grid-cols-2 max-h-screen overflow-y-auto  transition duration-500 ease-out    w-full">
+            <CardModel
+              CustomWH={
+                "hover:shadow-xl hover:scale-105 transition  duration-500 ease-in-out  sm:w-86 sm:h-74 md:w-98  lg:w-84 w-46  h-75  shrink-0  sm:h-64 md:h-[500px] lg:m-3  flex flex-col lg:gap-3 cursor-pointer m-1 shadow mt-10"
+              }
+              DataObj={categotyList[0]?.products}
+            />
+          </div>
+        ) : (
+          <div className="flex justify-center items-center m-10">
+            <span className="font-bold">No Porduct Avilable</span>
+          </div>
+        )}
       </div>
     </>
   );

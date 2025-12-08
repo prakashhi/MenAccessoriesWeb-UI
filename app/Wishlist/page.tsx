@@ -58,7 +58,7 @@ export default function page() {
                               {val.name}
                             </span>
 
-                            <ItemCount id={val.id}  />
+                            <ItemCount Quanty={val.Quanty} id={val.id} type="LikeProduct" />
                             <Button
                               onPress={() => RemoveLikeProdcut(val.id)}
                               className="border border-gray-300  rounded-sm"
@@ -82,10 +82,10 @@ export default function page() {
                         <div className="lg:col-auto lg:w-auto sm:w-auto w-full  col-span-2">
                           <Button
                             onPress={() => {
-                              AddCartProduct(val,"like");
+                              AddCartProduct(val,"LikeProduct");
                               RemoveLikeProdcut(val.id);
                             }}
-                            className="bg-ThemGold  w-full rounded-sm px-3 py-2"
+                            className="bg-ThemGold font-bold  w-full rounded-sm px-3 py-2"
                           >
                             ADD TO CART
                           </Button>
@@ -106,7 +106,7 @@ export default function page() {
 
                       <div className="flex justify-center">
                         <Link
-                          className="hover:underline bg-ThemGold py-2 px-4 rounded-xl "
+                          className="hover:underline font-bold bg-ThemGold py-2 px-4 rounded-xl "
                           href={"/"}
                         >
                           Back To Home

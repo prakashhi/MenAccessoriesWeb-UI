@@ -70,7 +70,7 @@ export default function page() {
                               {val.name}
                             </span>
 
-                            <ItemCount id={val.id} />
+                            <ItemCount Quanty={val.Quanty} id={val.id} />
                             <Button
                               onPress={() => RemoveCartProduct(val.id)}
                               className="border border-gray-300  rounded-sm"
@@ -91,10 +91,7 @@ export default function page() {
                           </span>
                         </div>
 
-                        {/* <MdOutlineDeleteForever
-                          onClick={() => RemoveCartProduct(val.id)}
-                          className="text-red-300 cursor-pointer"
-                        /> */}
+                       
                       </div>
                     ))
                   ) : (
@@ -111,7 +108,7 @@ export default function page() {
 
                       <div className="flex justify-center">
                         <Link
-                          className="hover:underline bg-ThemGold py-2 px-4 rounded-xl "
+                          className="hover:underline font-bold bg-ThemGold py-2 px-4 rounded-xl "
                           href={"/"}
                         >
                           Back To Home

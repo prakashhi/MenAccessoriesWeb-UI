@@ -27,7 +27,7 @@ export default function Product() {
                 </Link>
               </div>
               <div className="flex flex-row overflow-auto scrollbar-hide lg:mx-2 px-2 lg:gap-1   w-full">
-                <CardModel DataObj={val.products} />
+                <CardModel category={val.category} DataObj={val.products} />
               </div>
             </div>
           </div>

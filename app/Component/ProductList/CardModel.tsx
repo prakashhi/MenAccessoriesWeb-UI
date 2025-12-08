@@ -5,17 +5,21 @@ import Image from "next/image";
 import { FcLikePlaceholder } from "react-icons/fc";
 import Star from "./Star";
 import { ToastContainer, toast } from "react-toastify";
-
+import { useRouter } from "next/navigation";
 import { product } from "@/context/Types/type";
+import Link from "next/link";
 
 export default function CardModel({
   DataObj,
   CustomWH,
+  category
 }: {
   DataObj: product[];
   CustomWH: string;
+  category: string;
 }) {
   const { AddCartProduct, AddLikeProduct } = UsePanel();
+  const router = useRouter();
 
   return (
     <>
@@ -29,7 +33,10 @@ export default function CardModel({
             }
             key={index}
           >
-            <div className="flex-1 relative  ">
+            <div
+              className="flex-1 relative  "
+              onClick={() => router.push(`/all-Product/${category}/${value.id}`)}
+            >
               <Image
                 className="object-cover "
                 src={value?.img}
@@ -42,17 +49,46 @@ export default function CardModel({
               />
 
               <div
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   AddLikeProduct(value);
+                  toast(
+                    <div className="flex flex-col items-start">
+                      <span className="font-semibold text-lg text-yellow-400">
+                        {value.name}
+                      </span>
+                      <span className="text-sm text-white/90">
+                        Product is added to your Wishlist!
+                      </span>
+                    </div>,
+                    {
+                      style: {
+                        border: "none",
+                        borderRadius: "10px",
+                        padding: "12px 16px",
+                        marginTop: "20px",
+                        backgroundColor: "#1f1f1f", // dark card-like background
+                        color: "#fff",
+                        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
+                        maxWidth: "300px",
+                      },
+                      hideProgressBar: true,
+                      position: "bottom-center",
+                      autoClose: 1000,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                    }
+                  );
                 }}
                 title="Add to Wishlist"
-                className="relative z-1 bg-ThemGold  rounded-full w-6 h-6 flex justify-center   shadow lg:left-[87%] left-[85%] top-3 items-center "
+                className="relative z-1  bg-white  rounded-full w-6 h-6 flex justify-center   shadow-md lg:left-[87%] left-[85%] top-3 items-center "
               >
                 <FcLikePlaceholder className="" />
               </div>
             </div>
 
-            <div className="flex flex-col items-center  gap-1 p-3">
+            <div className="flex flex-col items-center  gap-1 p-3"  onClick={() => router.push(`/all-Product/${category}/${value.id}`)}>
               <span
                 style={{ fontFamily: "sans-serif", fontWeight: 700 }}
                 className="font-semibold text-center lg:text-medium sm:text-medium text-[10px]"
@@ -60,7 +96,7 @@ export default function CardModel({
                 {value.name}
               </span>
 
-              <Star starNum={2.5} />
+              <Star starNum={value.rating} />
 
               <span
                 style={{
@@ -72,18 +108,39 @@ export default function CardModel({
                 Rs {value.price}.00
               </span>
             </div>
+
             <div className=" justify-center  p-3 ">
               <Button
-                onPress={() => {
+                onPress={(e) => {
                   AddCartProduct(value);
-                  toast(`${value.name} Added to Cart`, {
-                    style: {
-                      border: "none",
-                      backgroundColor: "#d4af37",
-                      color: "black",
-                    },
-                    
-                  });
+                  toast(
+                    <div className="flex flex-col items-start">
+                      <span className="font-semibold text-lg text-yellow-400">
+                        {value.name}
+                      </span>
+                      <span className="text-sm font-bold text-black/80">
+                        Add to your Cart!
+                      </span>
+                    </div>,
+                    {
+                      style: {
+                        border: "none",
+                        borderRadius: "10px",
+                        padding: "12px 16px",
+                        marginTop: "20px",
+                        backgroundColor: "#fff", // dark card-like background
+                        color: "black",
+                        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
+                        maxWidth: "300px",
+                      },
+                      hideProgressBar: true,
+                      position: "top-center",
+                      autoClose: 1000,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                    }
+                  );
                 }}
                 style={{
                   fontFamily: "Inter, sans-serif",
@@ -96,8 +153,6 @@ export default function CardModel({
             </div>
           </div>
         ))}
-
-    
     </>
   );
 }
