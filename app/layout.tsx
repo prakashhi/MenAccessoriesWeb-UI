@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+
 import HeroProvider from "./HeroProvider";
 import { SearchPanelContextProvider } from "@/context/SerchPanelContext";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "9RockeRoars",
+  title: "RockeRoars",
   description:
     "Discover premium men's accessories designed for style, comfort, and everyday confidence.",
 };

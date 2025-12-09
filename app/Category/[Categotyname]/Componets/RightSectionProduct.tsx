@@ -63,15 +63,12 @@ export default function RightSection({
           {/* <Select
             label=""
             variant="bordered"
-            className={" border border-gray-100 max-w-xs px-4 py-3 rounded-md"}
             name="sort"
             defaultSelectedKeys={["Featured"]}
           >
             {filterDataOption &&
               filterDataOption.map((val: string, index: number) => (
-                <SelectItem className="bg-gray-50 px-4 py-3 max-w-xs" key={val}>
-                  {val}
-                </SelectItem>
+                <SelectItem key={val}>{val}</SelectItem>
               ))}
           </Select> */}
         </div>

@@ -8,120 +8,89 @@ import Link from "next/link";
 import ItemCount from "../Cart/component/ItemCount";
 import { Button } from "@heroui/react";
 
-export default function page() {
+export default function Page() {
   const { likeProduct, AddCartProduct, RemoveLikeProdcut } = UsePanel();
-  const Qty = 1;
+
   return (
-    <>
-      <div className="min-h-screen flex flex-col">
-        <Nav />
+    <div className="min-h-screen flex flex-col bg-white text-black">
+      <Nav />
 
-        <div className="my-5 flex-1">
-          <div className="">
-            <div className="flex flex-col  items-center gap-5 lg:gap-10">
-              <span
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontWeight: 800,
-                }}
-                className="lg:text-2xl mt-10 lg:mb-0 mb-5 underline"
+      <div className="flex-1 py-10 px-4 md:px-8 lg:px-16">
+        <h1 className="text-center text-2xl lg:text-4xl font-extrabold mb-10 underline tracking-wide">
+          Wishlist
+        </h1>
+
+        {likeProduct.length > 0 ? (
+          <div className="grid gap-6 lg:gap-8">
+            {likeProduct.map((item: any, i: number) => (
+              <div
+                key={i}
+                className="grid lg:grid-cols-3 grid-cols-1 gap-4 items-center border-b border-gray-300 pb-6 hover:shadow-lg transition-shadow duration-300 rounded-lg p-4 bg-white"
               >
-                Wishlist
-              </span>
+                {/* Product Image & Info */}
+                <div className="flex flex-row lg:gap-6 gap-4 items-center">
+                  <div className="relative w-24 h-24 lg:w-32 lg:h-32 flex-shrink-0">
+                    <Image
+                      src={item.img}
+                      alt={item.name}
+                      fill
+                      className="object-cover rounded-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      loading="eager"
+                    />
+                  </div>
 
-              <div className="flex lg:flex-row lg:px-10 flex-col px-3 w-full gap-5  mx-3">
-                <div className="grid  lg:gap-5 gap-3 max-h-[400px] overflow-auto w-full  ">
-                  {likeProduct.length > 0 ? (
-                    likeProduct.map((val: any, i: number) => (
-                      <div
-                        key={i}
-                        className="grid lg:grid-cols-3 grid-cols-2  lg:gap-0 gap-5 justify-items-center items-center border-gray-100 border-b-1 pb-5     "
-                      >
-                        <div className="flex flex-row lg:gap-5  gap-3 items-center">
-                          <Image
-                            className=" cursor-pointer hover:scale-105 transition duration-500 ease-in"
-                            loading="eager"
-                            src={val?.img}
-                            width={100}
-                            height={100}
-                            alt={`${i}`}
-                          />
+                  <div className="flex flex-col gap-2">
+                    <span className="font-bold text-lg lg:text-xl">
+                      {item.name}
+                    </span>
 
-                          <div className="flex flex-col gap-1 items-baseline">
-                            <span
-                              style={{
-                                fontFamily: "Inter, sans-serif",
-                                fontWeight: 700,
-                              }}
-                              className="lg:text-medium text-[13px]"
-                            >
-                              {val.name}
-                            </span>
+                    <ItemCount Quanty={item.Quanty} id={item.id} type="LikeProduct" />
 
-                            <ItemCount Quanty={val.Quanty} id={val.id} type="LikeProduct" />
-                            <Button
-                              onPress={() => RemoveLikeProdcut(val.id)}
-                              className="border border-gray-300  rounded-sm"
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        </div>
+                    <Button
+                      onPress={() => RemoveLikeProdcut(item.id)}
+                      className="bg-black text-white hover:bg-gray-800 rounded-lg w-32 px-3 py-2 font-medium"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
 
-                        <div className="justify-self-end">
-                          <span
-                            style={{
-                              fontFamily: "Inter, sans-serif",
-                              fontWeight: 700,
-                            }}
-                          >
-                            Rs {val.price}.00
-                          </span>
-                        </div>
+                {/* Price */}
+                <div className="flex justify-center lg:justify-start items-center font-bold text-lg lg:text-xl">
+                  Rs {item.price}.00
+                </div>
 
-                        <div className="lg:col-auto lg:w-auto sm:w-auto w-full  col-span-2">
-                          <Button
-                            onPress={() => {
-                              AddCartProduct(val,"LikeProduct");
-                              RemoveLikeProdcut(val.id);
-                            }}
-                            className="bg-ThemGold font-bold  w-full rounded-sm px-3 py-2"
-                          >
-                            ADD TO CART
-                          </Button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="flex justify-center text-center gap-3 mt-5 flex-col">
-                      <span
-                        style={{
-                          fontFamily: "Inter, sans-serif",
-                          fontWeight: 600,
-                        }}
-                        className="lg:text-xl text-center"
-                      >
-                        Your Wishlist is Empty
-                      </span>
-
-                      <div className="flex justify-center">
-                        <Link
-                          className="hover:underline font-bold bg-ThemGold py-2 px-4 rounded-xl "
-                          href={"/"}
-                        >
-                          Back To Home
-                        </Link>
-                      </div>
-                    </div>
-                  )}
+                {/* Add to Cart Button */}
+                <div className="flex justify-center lg:justify-end items-center">
+                  <Button
+                    onPress={() => {
+                      AddCartProduct(item, "LikeProduct");
+                      RemoveLikeProdcut(item.id);
+                    }}
+                    className="bg-white text-black border-black font-bold hover:bg-gray-800 hover:text-white rounded-lg px-4 py-3 w-full lg:w-48 transition-all duration-300"
+                  >
+                    ADD TO CART
+                  </Button>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        </div>
-
-        <Footer />
+        ) : (
+          <div className="flex flex-col justify-center items-center text-center mt-20 gap-4">
+            <span className="text-2xl lg:text-3xl font-bold">
+              Your Wishlist is Empty
+            </span>
+            <Link
+              href="/"
+              className="bg-black text-white font-semibold py-3 px-6 rounded-xl hover:bg-gray-800 transition-colors duration-300"
+            >
+              Back To Home
+            </Link>
+          </div>
+        )}
       </div>
-    </>
+
+      <Footer />
+    </div>
   );
 }

@@ -16,11 +16,16 @@ export function SearchPanelContextProvider({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const AddCartProduct = (Product: product, type?: string): void => {
+  const AddCartProduct = (
+    Product: product,
+    type?: string): void => {
     if (!cartProduct.find((val) => val.id == Product.id)) {
       setCartProduct((prev) => [
         ...prev,
-        { ...Product, Quanty: type == "LikeProduct" ? Product.Quanty : 1 },
+        {
+          ...Product,
+          Quanty: type == "LikeProduct" ? Product.Quanty :  1,
+        },
       ]);
     }
   };

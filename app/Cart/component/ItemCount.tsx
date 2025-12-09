@@ -1,7 +1,7 @@
+"use client"
 import { UsePanel } from "@/context/SerchPanelContext";
 import { Button } from "@heroui/react";
 import { useCallback, useState } from "react";
-
 
 import { product } from "../../../context/Types/type";
 
@@ -9,6 +9,7 @@ export default function ItemCount({
   id,
   type,
   Quanty,
+  setItemscount,
 }: {
   id: number;
   type?: string;
@@ -39,6 +40,9 @@ export default function ItemCount({
     let updatedValue = count + 1;
     setCount(updatedValue);
     chageValue(updatedValue);
+    if (setItemscount) {
+      setItemscount(updatedValue);
+    }
   };
 
   const handleDecrement = () => {
@@ -46,6 +50,9 @@ export default function ItemCount({
       let updatedValue = count - 1;
       setCount(updatedValue);
       chageValue(updatedValue);
+      if (setItemscount) {
+        setItemscount(updatedValue);
+      }
     }
   };
 
@@ -59,14 +66,14 @@ export default function ItemCount({
           -
         </Button>
         {/* <span className="px-2">{count}</span> */}
-        <input className="w-10 text-center appearance-none outline-none"
+        <input
+          className="w-10 text-center appearance-none outline-none"
           onChange={(e: unknown) => {
             let num = Number(e.target.value);
             num < 1 ? setCount(1) : setCount(num);
             num < 1 ? chageValue(1) : chageValue(num);
           }}
           value={count}
-         
           type="number"
         />
 

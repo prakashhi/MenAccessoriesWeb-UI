@@ -7,12 +7,11 @@ import Star from "./Star";
 import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { product } from "@/context/Types/type";
-import Link from "next/link";
 
 export default function CardModel({
   DataObj,
   CustomWH,
-  category
+  category,
 }: {
   DataObj: product[];
   CustomWH: string;
@@ -24,135 +23,85 @@ export default function CardModel({
   return (
     <>
       {DataObj &&
-        DataObj.map((value: any, index: number) => (
+        DataObj.map((item: product, idx: number) => (
           <div
-            className={
-              CustomWH
-                ? CustomWH
-                : "hover:shadow-xl hover:scale-105 transition duration-500 ease-in-out  sm:w-56 md:w-64 lg:w-84 w-54  h-82  shrink-0  sm:h-64 md:h-[500px] lg:m-3  flex flex-col lg:gap-3 cursor-pointer m-1 shadow mt-10"
-            }
-            key={index}
+            key={idx}
+            className={`relative group flex flex-col items-center border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer ${
+              CustomWH ? CustomWH : "w-56 sm:w-64 md:w-72 lg:w-80 h-auto m-3"
+            }`}
           >
+            {/* Product Image */}
             <div
-              className="flex-1 relative  "
-              onClick={() => router.push(`/all-Product/${category}/${value.id}`)}
+              className="relative w-full h-64 sm:h-72 lg:h-80 overflow-hidden"
+              onClick={() => router.push(`/all-Product/${category}/${item.id}`)}
             >
               <Image
-                className="object-cover "
-                src={value?.img}
-                alt={`${value.name}`}
-                sizes="100"
-                loading="eager"
+                src={item.img}
+                alt={item.name}
                 fill
-                // width={300}
-                // height={300}
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 33vw"
+                loading="lazy"
               />
 
+              {/* Wishlist Button */}
               <div
                 onClick={(e) => {
                   e.stopPropagation();
-                  AddLikeProduct(value);
-                  toast(
-                    <div className="flex flex-col items-start">
-                      <span className="font-semibold text-lg text-yellow-400">
-                        {value.name}
-                      </span>
-                      <span className="text-sm text-white/90">
-                        Product is added to your Wishlist!
-                      </span>
-                    </div>,
-                    {
-                      style: {
-                        border: "none",
-                        borderRadius: "10px",
-                        padding: "12px 16px",
-                        marginTop: "20px",
-                        backgroundColor: "#1f1f1f", // dark card-like background
-                        color: "#fff",
-                        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
-                        maxWidth: "300px",
-                      },
-                      hideProgressBar: true,
-                      position: "bottom-center",
+                  AddLikeProduct(item);
+                  toast.success(`${item.name} added to Wishlist!`, {
+                    position: "bottom-center",
+                    autoClose: 1200,
+                    hideProgressBar: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                  });
+                }}
+                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center z-10 hover:scale-110 transition"
+                title="Add to Wishlist"
+              >
+                <FcLikePlaceholder className="text-lg" />
+              </div>
+
+              {/* Hover Info Overlay */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4 text-white">
+                <p className="text-sm line-clamp-3">
+                  {item.description || "No description"}
+                </p>
+                <Button
+                  onPress={() => {
+                    AddCartProduct(item);
+                    toast.success(`${item.name} added to Cart!`, {
+                      position: "top-center",
                       autoClose: 1000,
-                      closeOnClick: true,
+                      hideProgressBar: true,
                       pauseOnHover: true,
                       draggable: true,
-                    }
-                  );
-                }}
-                title="Add to Wishlist"
-                className="relative z-1  bg-white  rounded-full w-6 h-6 flex justify-center   shadow-md lg:left-[87%] left-[85%] top-3 items-center "
-              >
-                <FcLikePlaceholder className="" />
+                    });
+                  }}
+                  className="mt-3 bg-white text-black hover:bg-gray-900 hover:text-white transition px-3 py-1 rounded-sm text-sm"
+                >
+                  Add to Cart
+                </Button>
               </div>
             </div>
 
-            <div className="flex flex-col items-center  gap-1 p-3"  onClick={() => router.push(`/all-Product/${category}/${value.id}`)}>
-              <span
-                style={{ fontFamily: "sans-serif", fontWeight: 700 }}
-                className="font-semibold text-center lg:text-medium sm:text-medium text-[10px]"
+            {/* Product Info */}
+            <div className="flex flex-col items-center p-3 w-full">
+              <h3
+                className="text-sm sm:text-base font-semibold text-center line-clamp-1"
+                style={{ fontFamily: "Inter, sans-serif" }}
               >
-                {value.name}
-              </span>
-
-              <Star starNum={value.rating} />
-
-              <span
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontWeight: 500,
-                }}
-                className="text-center lg:text-medium sm:text[15px] text-[10px]"
-              >
-                Rs {value.price}.00
-              </span>
-            </div>
-
-            <div className=" justify-center  p-3 ">
-              <Button
-                onPress={(e) => {
-                  AddCartProduct(value);
-                  toast(
-                    <div className="flex flex-col items-start">
-                      <span className="font-semibold text-lg text-yellow-400">
-                        {value.name}
-                      </span>
-                      <span className="text-sm font-bold text-black/80">
-                        Add to your Cart!
-                      </span>
-                    </div>,
-                    {
-                      style: {
-                        border: "none",
-                        borderRadius: "10px",
-                        padding: "12px 16px",
-                        marginTop: "20px",
-                        backgroundColor: "#fff", // dark card-like background
-                        color: "black",
-                        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
-                        maxWidth: "300px",
-                      },
-                      hideProgressBar: true,
-                      position: "top-center",
-                      autoClose: 1000,
-                      closeOnClick: true,
-                      pauseOnHover: true,
-                      draggable: true,
-                    }
-                  );
-                }}
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontWeight: 300,
-                }}
-                className="lg:text-medium overflow-hidden sm:text-[10px] bg-HoverThemDeepGray  text-[9px] border border-black hover:border-transparent hover:text-white   w-full p-2"
-              >
-                ADD TO CART
-              </Button>
+                {item.name}
+              </h3>
+              <Star starNum={item.rating} />
+              <p className="text-sm font-medium text-gray-800 mt-1">
+                Rs {item.price}.00
+              </p>
             </div>
           </div>
         ))}
+      <ToastContainer />
     </>
   );
 }

@@ -73,7 +73,7 @@ export default function page() {
                             <ItemCount Quanty={val.Quanty} id={val.id} />
                             <Button
                               onPress={() => RemoveCartProduct(val.id)}
-                              className="border border-gray-300  rounded-sm"
+                              // className="border border-gray-300  rounded-sm"
                             >
                               Remove
                             </Button>

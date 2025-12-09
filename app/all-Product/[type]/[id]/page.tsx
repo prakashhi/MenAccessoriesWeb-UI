@@ -20,6 +20,10 @@ export default function page() {
   const params = useParams();
   const [product, setProduct] = useState<any>(null);
 
+  const [items,setItemscount]=useState<number>(1);
+
+   console.log(items);
+
   const { AddCartProduct, AddLikeProduct } = UsePanel();
 
   const getProductData = useCallback(() => {
@@ -71,7 +75,8 @@ export default function page() {
             </div>
 
             <div className="p-3 w-[150px]">
-              <ItemCount id={product.id} Quanty={1} />
+              
+              <ItemCount id={product.id} Quanty={1} setItemscount={setItemscount} />
             </div>
 
             <div className="flex flex-col justify-center  p-3 ">
@@ -121,7 +126,7 @@ export default function page() {
                   <Heart size={18} color="#5443d0" strokeWidth={1} />
                 }
                 onPress={() => {
-                  AddLikeProduct(product);
+                  AddLikeProduct(product,items);
                   toast(
                     <div className="flex flex-col items-start">
                       <span className="font-semibold text-lg text-yellow-400">

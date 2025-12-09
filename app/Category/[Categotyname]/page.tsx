@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import Nav from "@/app/Component/NavBar/Nav";
 import { useParams } from "next/navigation";
 import { LeftBar } from "./Componets/LeftBar";

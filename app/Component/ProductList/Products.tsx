@@ -3,37 +3,39 @@ import Link from "next/link";
 import CardModel from "./CardModel";
 import { product } from "../../../context/Types/type";
 
-
 export default function Product() {
   return (
     <>
-      <div className=" bg-ThemGold lg:pt-30 pt-10">
-        {ProductData.map((val, index) => (
-          <div key={index}>
-            <div className="flex flex-col lg:gap-15 gap-3  items-center justify-center  cursor-pointer">
-              {" "}
-              <div className="flex lg:gap-3 gap-2 items-center justify-center flex-col lg:mt-10 mt-20">
-                <span
-                  style={{ fontFamily: "ui-serif", fontWeight: 700 }}
-                  className="font-bold lg:text-xl sm:text-medium text-[20px]"
-                >
-                  {val.category}
-                </span>
-                <Link
-                  href={`/Category/${val.category}`}
-                  className="lg:text-medium text-[13px]  px-6 py-2  border border-black  hover:bg-black hover:text-white duration-700 ease-in-out "
-                >
-                  VIEW ALL
-                </Link>
-              </div>
-              <div className="flex flex-row overflow-auto scrollbar-hide lg:mx-2 px-2 lg:gap-1   w-full">
-                <CardModel category={val.category} DataObj={val.products} />
-              </div>
+      <div className="pt-10 lg:pt-20 px-4 md:px-8 lg:px-16">
+        {ProductData.map((categoryItem, index) => (
+          <div key={index} className="mb-16">
+            {/* Category Header */}
+            <div className="flex flex-col lg:flex-row lg:justify-between items-center mb-6">
+              <h2
+                className="text-2xl lg:text-3xl font-extrabold font-serif text-gray-900"
+                style={{ fontFamily: "ui-serif, serif" }}
+              >
+                {categoryItem.category}
+              </h2>
+              <Link
+                href={`/Category/${categoryItem.category}`}
+                className="mt-3 lg:mt-0 px-5 py-2 border border-black text-sm font-semibold rounded-md hover:bg-black hover:text-white transition-colors duration-300"
+              >
+                VIEW ALL
+              </Link>
+            </div>
+
+            {/* Product Cards Scroll */}
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide py-2">
+              <CardModel
+                category={categoryItem.category}
+                DataObj={categoryItem.products}
+                CustomWH="min-w-[220px] sm:min-w-[250px] md:min-w-[280px] lg:min-w-[300px]"
+              />
             </div>
           </div>
         ))}
       </div>
-
     </>
   );
 }
