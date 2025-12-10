@@ -11,16 +11,6 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   return (
     <>
-      {/* Topbar Hamburger for Mobile & Desktop */}
-      {/* <div className="flex items-center justify-between p-4 bg-white shadow md:hidden lg:flex fixed w-full z-50">
-        <h2 className="text-xl font-semibold">Admin Panel</h2>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-md hover:bg-gray-100"
-        >
-          <MdMenu size={26} />
-        </button>
-      </div> */}
 
       {/* Desktop Sidebar */}
       <aside
@@ -48,7 +38,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </Link>
 
           <Link
-            href="/admin/orders"
+            href="/admin/Orders"
             className="flex items-center gap-3 text-gray-700 hover:text-black"
           >
             <MdReceiptLong size={22} /> Orders
