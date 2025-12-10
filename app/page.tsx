@@ -1,9 +1,11 @@
 "use client";
 
-import Nav from "./Component/NavBar/Nav";
-import Header from "./Component/Header/Header";
-import Product from "../app/Component/ProductList/Products";
-import Footer from "../app/Component/Footer/Footer";
+import Nav from "@/app/(User)/Component/NavBar/Nav";
+
+
+import Header from "@/app/(User)/Component/Header/Header";
+import Product from "./(User)/Component/ProductList/Products";
+import Footer from "./(User)/Component/Footer/Footer";
 import MobileNavBar from "./Component/NavBar/MobileNavBar";
 
 export default function Home() {
@@ -13,7 +15,6 @@ export default function Home() {
       <Header />
       <Product />
       <Footer />
-      <MobileNavBar />
     </>
   );
 }

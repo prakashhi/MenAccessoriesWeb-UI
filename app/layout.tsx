@@ -2,13 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-
 import HeroProvider from "./HeroProvider";
 import { SearchPanelContextProvider } from "@/context/SerchPanelContext";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,21 +42,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ToastContainer
-          position="top-center"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          // transition={'Bounce'}
-        />
         <SearchPanelContextProvider>
-          <HeroProvider>{children}</HeroProvider>
+          <HeroProvider>
+            {children}
+
+            <ToastContainer
+              position="top-center"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick={false}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+              // transition={'Bounce'}
+            />
+          </HeroProvider>
         </SearchPanelContextProvider>
       </body>
     </html>
