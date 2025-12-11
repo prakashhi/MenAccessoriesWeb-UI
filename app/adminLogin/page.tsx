@@ -4,9 +4,20 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { MdAdminPanelSettings } from "react-icons/md";
+import API from "@/app/api";
+import { useApi } from "@/app/useApi";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+
+import Image from "next/image";
+
+import Loader from "@/public/svg/tube-spinner.svg";
 
 export default function page() {
   const [showPass, setShowPass] = useState(false);
+  const router = useRouter();
+
+  const { callApi, data, loading, error } = useApi();
 
   const {
     register,
@@ -14,15 +25,32 @@ export default function page() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Admin Login Data:", data);
+  const onSubmit = async (info) => {
+    try {
+      const res = await callApi("post", "/admin/login", {
+        data: { ...info },
+      });
+
+      // Show success toast
+      toast.success(res.msg || "Login successful!");
+
+      // Optionally store token in localStorage
+      if (res.token) {
+        localStorage.setItem("adminToken", res.token);
+      }
+
+      // Redirect to admin dashboard
+      router.push("/admin/Dashboard");
+    } catch (err: any) {
+      // Show error toast
+      console.log(error);
+      toast.error(err?.response?.data?.message || "Login failed!");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e5e5e5] via-[#dcdcdc] to-[#c8c8c8] px-4">
-      
       <div className="w-full max-w-md bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/40 p-8 space-y-7 animate-fadeIn">
-        
         {/* LOGO / HEADER */}
         <div className="text-center">
           <div className="flex justify-center mb-3">
@@ -41,10 +69,11 @@ export default function page() {
 
         {/* FORM */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
           {/* Email */}
           <div>
-            <label className="text-sm font-medium text-gray-700">Admin Email</label>
+            <label className="text-sm font-medium text-gray-700">
+              Admin Email
+            </label>
             <input
               type="email"
               placeholder="admin@example.com"
@@ -58,13 +87,17 @@ export default function page() {
               })}
             />
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
           {/* Password */}
           <div>
-            <label className="text-sm font-medium text-gray-700">Password</label>
+            <label className="text-sm font-medium text-gray-700">
+              Password
+            </label>
             <div className="relative">
               <input
                 type={showPass ? "text" : "password"}
@@ -72,10 +105,6 @@ export default function page() {
                 className="mt-1 w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-black/80 outline-none transition shadow-sm"
                 {...register("password", {
                   required: "Password is required",
-                  minLength: {
-                    value: 6,
-                    message: "Minimum 6 characters",
-                  },
                 })}
               />
               <span
@@ -99,10 +128,15 @@ export default function page() {
 
           {/* LOGIN BUTTON */}
           <button
+            disabled={loading}
             type="submit"
-            className="w-full py-3 bg-black text-white rounded-xl font-medium shadow hover:bg-black/90 transition"
+            className="w-full flex justify-center items-center py-3 bg-black text-white rounded-xl font-medium shadow hover:bg-black/90 transition"
           >
-            Login
+            {loading == true ? (
+              <Image alt="Loading" width={20} height={20} src={Loader} />
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
 

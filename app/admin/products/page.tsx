@@ -3,6 +3,8 @@
 import Link from "next/link";
 import ProductTable from "../Dashboard/Components/ProductTable";
 
+import ProductCategoryTable from "../Dashboard/Components/ProductCategoryTable";
+
 export default function ProductPage() {
   return (
     <div>
@@ -27,6 +29,13 @@ export default function ProductPage() {
       </div>
 
       <ProductTable />
+
+      <div className="p-4">
+
+        <span className="lg:text-2xl text-medium font-bold">Category List</span>
+        
+      </div>
+      <ProductCategoryTable/>
     </div>
   );
 }

@@ -3,6 +3,12 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { MdCategory } from "react-icons/md";
+import { useApi } from "@/app/useApi";
+import { toast } from "react-toastify";
+
+import Image from "next/image";
+
+import Loader from "@/public/svg/tube-spinner.svg";
 
 export default function CategoryForm({ mode }) {
   const {
@@ -11,10 +17,22 @@ export default function CategoryForm({ mode }) {
     formState: { errors },
   } = useForm();
 
-  const [preview, setPreview] = useState("");
+  const { callApi, data, loading, error } = useApi();
 
-  const onSubmit = (data) => {
-    console.log("Category Submitted:", data);
+  const onSubmit = async (info) => {
+
+    try {
+      const res = await callApi("post", "/category/Add", {
+        data: { ...info },
+      });
+
+      // Show success toast
+      toast.success(res.msg || "Category successfully Added!");
+    } catch (err: any) {
+      // Show error toast
+      console.log(error);
+      toast.error(err?.response?.data?.message || "Something is Wrong!");
+    }
   };
 
   return (
@@ -45,58 +63,22 @@ export default function CategoryForm({ mode }) {
         </div>
 
         {/* Two Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+        <div className=" md:grid-cols-2 gap-6">
           {/* Category Name */}
           <div>
-            <label className="block text-sm font-medium mb-1">Category Name *</label>
+            <label className="block text-sm font-medium mb-1">
+              Category Name *
+            </label>
             <input
               type="text"
               className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-black focus:ring-1 focus:ring-black outline-none"
               placeholder="e.g. Men's Fashion"
               {...register("name", { required: "Category name is required" })}
             />
-            {errors.name && <p className="text-xs mt-1 text-red-500">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="text-xs mt-1 text-red-500">{errors.name.message}</p>
+            )}
           </div>
-
-          {/* Slug */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Slug *</label>
-            <input
-              type="text"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-black focus:ring-1 focus:ring-black outline-none"
-              placeholder="mens-fashion"
-              {...register("slug", { required: "Slug is required" })}
-            />
-            {errors.slug && <p className="text-xs mt-1 text-red-500">{errors.slug.message}</p>}
-          </div>
-
-          {/* Parent Category */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Parent Category</label>
-            <select
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-black focus:ring-1 focus:ring-black outline-none"
-              {...register("parent")}
-            >
-              <option value="">None</option>
-              <option value="fashion">Fashion</option>
-              <option value="electronics">Electronics</option>
-            </select>
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Status *</label>
-            <select
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-black focus:ring-1 focus:ring-black outline-none"
-              {...register("status", { required: "Status is required" })}
-            >
-              <option value="active">Active</option>
-              <option value="hidden">Hidden</option>
-            </select>
-            {errors.status && <p className="text-xs mt-1 text-red-500">{errors.status.message}</p>}
-          </div>
-
         </div>
 
         {/* Description */}
@@ -106,31 +88,13 @@ export default function CategoryForm({ mode }) {
             rows={4}
             className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-black focus:ring-1 focus:ring-black outline-none resize-none"
             placeholder="Write a short description for this category…"
-            {...register("description")}
+            {...register("description", {
+              required: "Category description is required",
+            })}
           />
-        </div>
-
-        {/* Image Upload */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Category Image *</label>
-          <input
-            type="file"
-            accept="image/*"
-            className="w-full px-4 py-3 rounded-xl border bg-white border-gray-300"
-            {...register("image", { required: "Image is required" })}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setPreview(URL.createObjectURL(file));
-            }}
-          />
-          {errors.image && <p className="text-xs mt-1 text-red-500">{errors.image.message}</p>}
-
-          {preview && (
-            <img
-              src={preview}
-              className="mt-3 w-36 h-36 rounded-xl object-cover border shadow-md"
-            />
-          )}
+           {errors.description && (
+              <p className="text-xs mt-1 text-red-500">{errors.description.message}</p>
+            )}
         </div>
 
         {/* Submit Button */}
@@ -143,7 +107,11 @@ export default function CategoryForm({ mode }) {
             transition
           "
         >
-          {mode === "edit" ? "Save Changes" : "Add Category"}
+          {loading == true ? (
+            <Image alt="Loading" width={20} height={20} src={Loader} />
+          ) : (
+            "Add Category"
+          )}
         </button>
       </form>
     </div>

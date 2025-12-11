@@ -1,7 +1,19 @@
 "use client";
 
-import { MdDashboard, MdInventory, MdLogout, MdReceiptLong, MdMenu } from "react-icons/md";
+import {
+  MdDashboard,
+  MdInventory,
+  MdLogout,
+  MdReceiptLong,
+  MdMenu,
+} from "react-icons/md";
 import Link from "next/link";
+import { useApi } from "@/app/useApi";
+import { toast } from "react-toastify";
+
+import Router from "next/router";
+
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -9,9 +21,30 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
+  const { callApi, data, loading, error } = useApi();
+
+  const { router } = useRouter();
+
+  const handleLogOut = async () => {
+    try {
+      let res = await callApi("post","/admin/logout");
+
+      
+
+      // Show success toast
+      toast.info(res.msg || res.message);
+
+      // Redirect to admin dashboard
+      router.push("/adminLogin");
+    } catch (err: any) {
+      // Show error toast
+      console.log(error);
+      toast.error(err?.response?.data?.message || "SomeThing is Wrong!");
+    }
+  };
+
   return (
     <>
-
       {/* Desktop Sidebar */}
       <aside
         className={`
@@ -24,7 +57,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         <h2 className="text-2xl font-bold mb-10">Admin</h2>
         <nav className="space-y-3">
           <Link
-            href="/admin"
+            href="/admin/Dashboard"
             className="flex items-center gap-3 text-gray-700 hover:text-black"
           >
             <MdDashboard size={22} /> Dashboard
@@ -44,7 +77,10 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <MdReceiptLong size={22} /> Orders
           </Link>
 
-          <button className="flex items-center gap-3 text-red-600 mt-10">
+          <button
+            onClick={handleLogOut}
+            className="flex items-center cursor-pointer gap-3 text-red-600 mt-10"
+          >
             <MdLogout size={22} /> Logout
           </button>
         </nav>

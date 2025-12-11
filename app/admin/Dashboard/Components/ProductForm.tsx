@@ -2,6 +2,9 @@
 
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
+import { useApi } from "@/app/useApi";
+import { toast } from "react-toastify";
+
 
 export default function ProductForm({ mode, productId }) {
   const {
@@ -10,6 +13,9 @@ export default function ProductForm({ mode, productId }) {
     setValue,
     formState: { errors },
   } = useForm();
+
+  
+  const { callApi, data, loading, error } = useApi();
 
   // Prefill data in edit mode
   useEffect(() => {
@@ -27,8 +33,19 @@ export default function ProductForm({ mode, productId }) {
     }
   }, []);
 
-  const onSubmit = (data) => {
-    console.log(mode === "add" ? "Add Product =>" : "Update Product =>", data);
+  const onSubmit = async (info) => {
+    try {
+      const res = await callApi("post", "/category/Add", {
+        data: { ...info },
+      });
+
+      // Show success toast
+      toast.success(res.msg || "Category successfully Added!");
+    } catch (err: any) {
+      // Show error toast
+      console.log(error);
+      toast.error(err?.response?.data?.message || "Something is Wrong!");
+    }
   };
 
   return (
@@ -66,16 +83,6 @@ export default function ProductForm({ mode, productId }) {
             <p className="text-red-500 text-sm">{errors.name?.message}</p>
           </div>
 
-          {/* Brand */}
-          <div>
-            <label className="font-medium">Brand *</label>
-            <input
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-black focus:ring-1 focus:ring-black outline-none"
-              placeholder="Nike, Adidas..."
-              {...register("brand", { required: "Brand is required" })}
-            />
-            <p className="text-red-500 text-sm">{errors.brand?.message}</p>
-          </div>
 
           {/* Price */}
           <div>
@@ -115,21 +122,6 @@ export default function ProductForm({ mode, productId }) {
             <p className="text-red-500 text-sm">{errors.stock?.message}</p>
           </div>
 
-          {/* Product Type */}
-          <div>
-            <label className="font-medium">Product Type *</label>
-            <select
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-1 focus:ring-black outline-none"
-              {...register("type", { required: "Product type required" })}
-            >
-              <option value="">Select Type</option>
-              <option value="clothing">Clothing</option>
-              <option value="shoes">Shoes</option>
-              <option value="electronics">Electronics</option>
-              <option value="accessories">Accessories</option>
-            </select>
-            <p className="text-red-500 text-sm">{errors.type?.message}</p>
-          </div>
 
           {/* Category */}
           <div>
@@ -159,18 +151,6 @@ export default function ProductForm({ mode, productId }) {
             <p className="text-red-500 text-sm">{errors.colors?.message}</p>
           </div>
 
-          {/* Status */}
-          <div>
-            <label className="font-medium">Status *</label>
-            <select
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-1 focus:ring-black outline-none"
-              {...register("status", { required: "Status required" })}
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            <p className="text-red-500 text-sm">{errors.status?.message}</p>
-          </div>
         </div>
 
         {/* Description */}
