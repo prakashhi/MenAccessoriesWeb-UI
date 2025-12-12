@@ -9,30 +9,36 @@ import { toast } from "react-toastify";
 import Image from "next/image";
 
 import Loader from "@/public/svg/tube-spinner.svg";
+import TagInput from "../../Dashboard/Components/TagInputComponent";
+
+
 
 export default function CategoryForm({ mode }) {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm();
 
   const { callApi, data, loading, error } = useApi();
 
-  const onSubmit = async (info) => {
+ 
 
-    try {
-      const res = await callApi("post", "/category/Add", {
-        data: { ...info },
-      });
+  const onSubmit = async (info) => {    
+     console.log(info) 
+    const res = await callApi("post", "/category/Add", {
+      data: { ...info },
+    });
 
-      // Show success toast
-      toast.success(res.msg || "Category successfully Added!");
-    } catch (err: any) {
-      // Show error toast
-      console.log(error);
-      toast.error(err?.response?.data?.message || "Something is Wrong!");
+    if (res.error) {
+      toast.error(res.message || "Something is Wrong!");
+      return;
     }
+
+    // Show success toast
+    toast.success(res.msg || "Category successfully Added!");
   };
 
   return (
@@ -81,6 +87,22 @@ export default function CategoryForm({ mode }) {
           </div>
         </div>
 
+        <div className="md:grid-cols-2 gap-6">
+
+          <div>
+            <TagInput
+              label="Sub Category"
+              value={watch("sub_Cat") || []}
+              onChange={(tags) => setValue("sub_Cat", tags)}
+            />
+            {errors.sub_Cat && (
+              <p className="text-xs mt-1 text-red-500">
+                {errors.sub_Cat.message}
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Description */}
         <div>
           <label className="block text-sm font-medium mb-1">Description</label>
@@ -92,9 +114,11 @@ export default function CategoryForm({ mode }) {
               required: "Category description is required",
             })}
           />
-           {errors.description && (
-              <p className="text-xs mt-1 text-red-500">{errors.description.message}</p>
-            )}
+          {errors.description && (
+            <p className="text-xs mt-1 text-red-500">
+              {errors.description.message}
+            </p>
+          )}
         </div>
 
         {/* Submit Button */}

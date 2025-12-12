@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Checkbox } from "@heroui/react";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { options } from "../option";
 
-export default function Optioncomponet() {
+export default function OptionComponent() {
   const [open, setOpen] = useState<{ [key: number]: boolean }>({});
 
   const toggle = (index: number) => {
@@ -13,7 +13,7 @@ export default function Optioncomponet() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 font-[Inter]">
       {options.map((item, index) => (
         <AccordionSection
           key={index}
@@ -29,49 +29,43 @@ export default function Optioncomponet() {
 
 function AccordionSection({ index, item, open, toggle }: any) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState("0px");
-
-  useEffect(() => {
-    if (open) {
-      setHeight(`${contentRef.current?.scrollHeight}px`);
-    } else {
-      setHeight("0px");
-    }
-  }, [open]);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
       {/* Header */}
       <div
         onClick={() => toggle(index)}
-        className="flex justify-between items-center px-4 py-3 cursor-pointer select-none"
+        className="flex justify-between items-center px-5 py-4 cursor-pointer select-none"
       >
-        <h2 className="text-[16px] font-medium text-gray-800 tracking-wide">
+        <h2 className="text-[15px] font-semibold tracking-wide text-[#1a1a1a]">
           {item.name}
         </h2>
 
         <RiArrowDropDownLine
-          size={28}
-          className={`transition-transform duration-300 ${
+          size={26}
+          className={`text-gray-600 transition-transform duration-300 ${
             open ? "rotate-180" : "rotate-0"
           }`}
         />
       </div>
 
-      {/* Smooth Auto Height */}
+      {/* Content */}
       <div
         ref={contentRef}
-        style={{ height }}
-        className="overflow-hidden transition-all duration-300"
+        style={{
+          maxHeight: open ? `${contentRef.current?.scrollHeight}px` : "0px",
+        }}
+        className="overflow-hidden transition-[max-height] duration-300 ease-out"
       >
-        <div className="px-4 pb-3 pt-1 space-y-3">
+        <div className="px-5 pb-4 pt-1 space-y-3">
           {item.opt?.map((opt: string, i: number) => (
             <label
               key={i}
               className="flex items-center gap-3 cursor-pointer group"
             >
-              <Checkbox size="sm" radius="md" />
-              <span className="text-[14px] text-gray-700 transition group-hover:text-black">
+              <Checkbox size="sm" radius="full" />
+
+              <span className="text-[14px] text-gray-700 group-hover:text-black transition font-medium">
                 {opt}
               </span>
             </label>

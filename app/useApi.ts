@@ -21,7 +21,7 @@ export function useApi<T = any>() {
   ) => {
     setError(null);
 
-    console.log("config", config);
+   
     try {
       let response;
 

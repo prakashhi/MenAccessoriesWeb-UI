@@ -89,15 +89,9 @@ export default function Page() {
         ) : (
           /* Empty State */
           <div className="flex flex-col justify-center items-center text-center mt-28 gap-6">
-            {/* <Image
-              src="https://cdn-icons-png.flaticon.com/512/4076/4076501.png"
-              alt="empty"
-              width={130}
-              height={130}
-              className="opacity-40"
-            /> */}
 
-            <h2 className="text-2xl lg:text-3xl font-semibold tracking-wide text-[#444]">
+
+            <h2 className="text-medium lg:text-xl font-semibold tracking-wide text-[#444]">
               Your Wishlist is Empty
             </h2>
 

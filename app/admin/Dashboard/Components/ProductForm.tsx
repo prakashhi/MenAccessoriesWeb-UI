@@ -1,21 +1,48 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useApi } from "@/app/useApi";
 import { toast } from "react-toastify";
-
+import ImageKit from "imagekit-javascript";
+import Loader from "@/public/svg/tube-spinner.svg";
+import Image from "next/image";
+import CategorySelector from "./CategorySelector";
 
 export default function ProductForm({ mode, productId }) {
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm();
 
-  
+  const imagekit = new ImageKit({
+    publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!,
+    urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!,
+  });
+
+  const [state, setState] = useState({
+    categoryList: [],
+  });
+
   const { callApi, data, loading, error } = useApi();
+
+  const GetCategory = useCallback(async () => {
+    try {
+      let result = await callApi("get", "/category/get");
+      setState((prev) => ({ ...prev, categoryList: result }));
+    } catch (err) {
+      console.log(err, error);
+    }
+  }, []);
+
+  useEffect(() => {
+    GetCategory();
+  }, []);
+
+  console.log(state.categoryList);
 
   // Prefill data in edit mode
   useEffect(() => {
@@ -34,18 +61,36 @@ export default function ProductForm({ mode, productId }) {
   }, []);
 
   const onSubmit = async (info) => {
-    try {
-      const res = await callApi("post", "/category/Add", {
-        data: { ...info },
-      });
+    const auth = await callApi("get", "/imagekit/auth");
 
-      // Show success toast
-      toast.success(res.msg || "Category successfully Added!");
-    } catch (err: any) {
-      // Show error toast
-      console.log(error);
-      toast.error(err?.response?.data?.message || "Something is Wrong!");
+    const files = info.images; // FileList (3 images)
+    let imageUrls: string[] = [];
+
+    console.log("info",info);
+
+    // Step 2: Upload all images
+    if (files && files.length > 0) {
+      for (let file of files) {
+        const uploaded = await imagekit.upload({
+          file,
+          fileName: `product-${Date.now()}`,
+          ...auth,
+          folder: "/products",
+        });
+        imageUrls.push(uploaded.url);
+      }
     }
+    const res = await callApi("post", "/product/create", {
+      data: { ...info, images: imageUrls },
+    });
+
+       if (res.error) {
+      toast.error(res.message || "SomeThing is Wrong!");
+      return;
+    }
+
+    // Show success toast
+    toast.success(res.msg || "Product Added!");
   };
 
   return (
@@ -82,7 +127,6 @@ export default function ProductForm({ mode, productId }) {
             />
             <p className="text-red-500 text-sm">{errors.name?.message}</p>
           </div>
-
 
           {/* Price */}
           <div>
@@ -122,21 +166,13 @@ export default function ProductForm({ mode, productId }) {
             <p className="text-red-500 text-sm">{errors.stock?.message}</p>
           </div>
 
-
-          {/* Category */}
-          <div>
-            <label className="font-medium">Category *</label>
-            <select
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-1 focus:ring-black outline-none"
-              {...register("category", { required: "Category required" })}
-            >
-              <option value="">Select Category</option>
-              <option value="men">Men</option>
-              <option value="women">Women</option>
-              <option value="kids">Kids</option>
-            </select>
-            <p className="text-red-500 text-sm">{errors.category?.message}</p>
-          </div>
+          <CategorySelector
+            categoryList={state.categoryList}
+            register={register}
+            setValue={setValue}
+            watch={watch}
+            errors={errors}
+          />
 
           {/* Colors */}
           <div>
@@ -144,13 +180,10 @@ export default function ProductForm({ mode, productId }) {
             <input
               className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-1 focus:ring-black outline-none"
               placeholder="Red, Blue, Black"
-              {...register("colors", {
-                required: "Colors are required",
-              })}
+              {...register("colors")}
             />
             <p className="text-red-500 text-sm">{errors.colors?.message}</p>
           </div>
-
         </div>
 
         {/* Description */}
@@ -171,16 +204,24 @@ export default function ProductForm({ mode, productId }) {
         </div>
 
         {/* Image Upload */}
+
         <div>
-          <label className="font-medium">Product Image *</label>
+          <label className="font-medium">Product Images *</label>
           <input
             type="file"
+            accept="image/*"
+            multiple
             className="w-full px-4 py-3 rounded-xl border bg-gray-50"
-            {...register("image", {
-              required: mode === "add" ? "Image is required" : false,
+            {...register("images", {
+              required: mode === "add" ? "At least 1 image is required" : false,
+              validate: {
+                maxImages: (files) =>
+                  files?.length <= 3 || "You can upload max 3 images only",
+              },
             })}
           />
-          <p className="text-red-500 text-sm">{errors.image?.message}</p>
+
+          <p className="text-red-500 text-sm">{errors.images?.message}</p>
         </div>
 
         {/* Submit */}
@@ -191,7 +232,13 @@ export default function ProductForm({ mode, productId }) {
             hover:bg-gray-900 transition
           "
         >
-          {mode === "add" ? "Add Product" : "Save Changes"}
+          {loading == true ? (
+            <Image alt="Loading" width={20} height={20} src={Loader} />
+          ) : mode === "add" ? (
+            "Add Product"
+          ) : (
+            "Save Changes"
+          )}
         </button>
       </form>
     </div>

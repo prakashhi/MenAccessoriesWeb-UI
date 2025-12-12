@@ -25,7 +25,7 @@ export default function ProductCategoryTable() {
       console.log(err, error);
     }
   }, []);
-  console.log(products);
+ 
 
   useEffect(() => {
     GetCategory();

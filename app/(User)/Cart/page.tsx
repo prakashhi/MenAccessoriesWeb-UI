@@ -33,11 +33,9 @@ export default function page() {
       {/* Main */}
       <div className="flex-1 mt-8 px-3 sm:px-5 max-w-5xl mx-auto w-full">
         {/* Heading */}
-        <h1
-          className="text-center font-extrabold text-xl sm:text-3xl tracking-tight mb-8"
-          style={{ fontFamily: "Inter, sans-serif" }}
-        >
-          Your Cart
+
+        <h1 className="text-center text-3xl lg:text-4xl font-semibold mb-12 tracking-widest">
+          CART
         </h1>
 
         {/* Layout */}
@@ -99,9 +97,9 @@ export default function page() {
               </div>
             ) : (
               <div className="flex flex-col items-center py-10 gap-4">
-                <span className="text-lg sm:text-xl font-semibold">
+                <h2 className="text-medium lg:text-xl font-semibold tracking-wide text-[#444]">
                   Your Cart is Empty
-                </span>
+                </h2>
 
                 <Link
                   href="/"

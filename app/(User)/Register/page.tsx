@@ -1,8 +1,13 @@
 "use client";
 
+import { useApi } from "@/app/useApi";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
+import { toast } from "react-toastify";
+import Image from "next/image";
+import Loader from "@/public/svg/tube-spinner.svg";
 
 export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false);
@@ -15,19 +20,43 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Register Data:", data);
+  const router = useRouter();
+  const { callApi, error, loading } = useApi();
+
+  const onSubmit = async (info) => {
+    try {
+      const res = await callApi("post", "/user/register", {
+        data: {
+          name: info.fullName,
+          email: info.email,
+          password: info.password,
+          mobile_no: info.mobile_no,
+        },
+      });
+
+      // Show success toast
+      toast.success(res.msg || "Registration is successful!");
+
+      // Redirect to admin dashboard
+      router.push("/Login");
+    } catch (err: any) {
+      // Show error toast
+      console.log(error);
+      toast.error(err?.response?.data?.message || "Something is Wrong!");
+    }
   };
 
   const passwordValue = watch("password");
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-linear-to-b from-[#f5f5f5] to-[#e5e5e5] px-4">
-      <div className="w-full max-w-md backdrop-blur-xl bg-white/50 border border-white/30 shadow-2xl rounded-3xl p-8 space-y-8">
-        
+      <div className="w-full my-5 max-w-md backdrop-blur-xl bg-white/50 border border-white/30 shadow-2xl rounded-3xl p-8 space-y-8">
         {/* BRAND */}
         <div className="text-center">
-          <h1 className="text-4xl font-serif tracking-widest text-black">  RockRoars</h1>
+          <h1 className="text-4xl font-serif tracking-widest text-black">
+            {" "}
+            RockRoars
+          </h1>
           <p className="text-gray-600 mt-2 text-sm tracking-wide">
             Create your luxury experience
           </p>
@@ -35,10 +64,11 @@ export default function RegisterPage() {
 
         {/* FORM */}
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-
           {/* Full Name */}
           <div>
-            <label className="text-sm font-medium text-gray-700">Full Name</label>
+            <label className="text-sm font-medium text-gray-700">
+              Full Name
+            </label>
             <input
               type="text"
               className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
@@ -52,13 +82,17 @@ export default function RegisterPage() {
               })}
             />
             {errors.fullName && (
-              <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.fullName.message}
+              </p>
             )}
           </div>
 
           {/* Email */}
           <div>
-            <label className="text-sm font-medium text-gray-700">Email Address</label>
+            <label className="text-sm font-medium text-gray-700">
+              Email Address
+            </label>
             <input
               type="email"
               className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
@@ -72,13 +106,39 @@ export default function RegisterPage() {
               })}
             />
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Mobile No
+            </label>
+            <input
+              placeholder="1234567890"
+              className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
+              {...register("mobile_no", {
+                required: "Mobile No is required",
+                pattern: {
+                  value: /^[6-9][0-9]{9}$/,
+                  message: "Enter valid Mobile No",
+                },
+              })}
+            />
+            {errors.mobile_no && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.mobile_no.message}
+              </p>
             )}
           </div>
 
           {/* Password */}
           <div>
-            <label className="text-sm font-medium text-gray-700">Password</label>
+            <label className="text-sm font-medium text-gray-700">
+              Password
+            </label>
             <div className="relative">
               <input
                 type={showPass ? "text" : "password"}
@@ -96,18 +156,26 @@ export default function RegisterPage() {
                 onClick={() => setShowPass(!showPass)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-600"
               >
-                {showPass ? <PiEyeSlashBold size={20} /> : <PiEyeBold size={20} />}
+                {showPass ? (
+                  <PiEyeSlashBold size={20} />
+                ) : (
+                  <PiEyeBold size={20} />
+                )}
               </span>
             </div>
 
             {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
           {/* Confirm Password */}
           <div>
-            <label className="text-sm font-medium text-gray-700">Confirm Password</label>
+            <label className="text-sm font-medium text-gray-700">
+              Confirm Password
+            </label>
             <div className="relative">
               <input
                 type={showConfirm ? "text" : "password"}
@@ -124,7 +192,11 @@ export default function RegisterPage() {
                 onClick={() => setShowConfirm(!showConfirm)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-600"
               >
-                {showConfirm ? <PiEyeSlashBold size={20} /> : <PiEyeBold size={20} />}
+                {showConfirm ? (
+                  <PiEyeSlashBold size={20} />
+                ) : (
+                  <PiEyeBold size={20} />
+                )}
               </span>
             </div>
 
@@ -138,9 +210,13 @@ export default function RegisterPage() {
           {/* Register Button */}
           <button
             type="submit"
-            className="w-full py-3 bg-black text-white font-medium rounded-xl shadow-lg hover:bg-black/90 transition"
+            className="w-full flex justify-center py-3 bg-black text-white font-medium rounded-xl shadow-lg hover:bg-black/90 transition"
           >
-            Create Account
+            {loading == true ? (
+              <Image width={20} height={20} alt="Loading" src={Loader} />
+            ) : (
+              "Create Account "
+            )}
           </button>
         </form>
 

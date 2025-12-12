@@ -1,7 +1,7 @@
 "use client";
 
-import CardModel from "@/app/Component/ProductList/CardModel";
-import { ProductData } from "@/app/Component/ProductList/ProductData";
+import CardModel from "@/app/(User)/Component/ProductList/CardModel";
+import { ProductData } from "@/app/(User)/Component/ProductList/ProductData";
 import { useCallback, useEffect, useState } from "react";
 import { FaFilter } from "react-icons/fa";
 import { Button } from "@heroui/react";
@@ -37,7 +37,7 @@ export default function RightSection({
 
   return (
     <>
-      <div className="col-span-3">
+      <div className="col-span-3 mb-5">
         {/* ---- TOP FILTER BAR ---- */}
         <div className="flex gap-3 items-center justify-between lg:justify-end w-full px-3 lg:px-5 py-4">
           {/* MOBILE FILTER BUTTON */}
@@ -94,6 +94,8 @@ export default function RightSection({
             </span>
           </div>
         )}
+
+
       </div>
     </>
   );

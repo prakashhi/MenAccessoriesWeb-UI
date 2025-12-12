@@ -23,24 +23,21 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const { callApi, data, loading, error } = useApi();
 
-  const { router } = useRouter();
+  const router = useRouter();
 
   const handleLogOut = async () => {
-    try {
-      let res = await callApi("post","/admin/logout");
+    let res = await callApi("post", "/admin/logout");
 
-      
-
-      // Show success toast
-      toast.info(res.msg || res.message);
-
-      // Redirect to admin dashboard
-      router.push("/adminLogin");
-    } catch (err: any) {
-      // Show error toast
-      console.log(error);
-      toast.error(err?.response?.data?.message || "SomeThing is Wrong!");
+    if (res?.error) {
+      toast.error(res.message || "Something went wrong!");
+      return;
     }
+
+    // Show success toast
+    toast.info(res.msg || res.message);
+
+    // Redirect to admin dashboard
+    router.push("/adminLogin");
   };
 
   return (
