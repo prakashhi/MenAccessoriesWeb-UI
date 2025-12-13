@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import Loader from "@/public/svg/tube-spinner.svg";
+import { notify } from "@/app/(User)/Component/ToastComponent";
 
 import Image from "next/image";
 
@@ -29,13 +30,17 @@ export default function page() {
     });
 
     if (res.error) {
-      toast.error(res.message || "Login failed!");
+      notify({
+        message: res.message || "Login failed!",
+        type: "error",
+      });
       return;
     }
 
-    // Show success toast
-    toast.success(res.msg || "Login successful!");
-    // Redirect to admin dashboard
+    notify({
+      message: res.msg || "Login successful!",
+      type: "success",
+    });
     router.push("/");
   };
 

@@ -21,7 +21,6 @@ export function useApi<T = any>() {
   ) => {
     setError(null);
 
-   
     try {
       let response;
 
@@ -42,13 +41,12 @@ export function useApi<T = any>() {
         default:
           throw new Error(`Unsupported method: ${method}`);
       }
-
       setData(response.data);
       return response.data;
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || err.message;
       setError(errorMsg);
-      setData(null);
+      // setData(null);
       // ❗ DO NOT throw — avoids double toast
       return { error: true, message: errorMsg };
     } finally {

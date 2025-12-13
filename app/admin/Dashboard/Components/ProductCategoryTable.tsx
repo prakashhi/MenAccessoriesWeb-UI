@@ -1,97 +1,140 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import ConfirmDeleteModal from "./ConfirmDeleeteModel";
-import { MdEdit, MdDelete } from "react-icons/md";
 import { useApi } from "@/app/useApi";
+import CategoryDetailModal from "./DataShowModels/CategoryDataShowModel";
+
+type Category = {
+  id: number;
+  category_name: string;
+  category_desc: string;
+};
 
 export default function ProductCategoryTable() {
-  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+
+  const { callApi } = useApi();
+
   const handleDelete = () => {
-    setProducts(products.filter((p) => p.id !== deleteId));
+    setCategories(categories.filter((c) => c.id !== deleteId));
     setDeleteId(null);
   };
 
-  const { callApi, data, loading, error } = useApi();
-
   const GetCategory = useCallback(async () => {
     try {
-      let result = await callApi("get", "/category/get");
-      setProducts(result);
+      const result = await callApi("get", "/category/get");
+      setCategories(result || []);
     } catch (err) {
-      console.log(err, error);
+      console.error(err);
     }
   }, []);
- 
 
   useEffect(() => {
     GetCategory();
   }, []);
 
-  return (
-    <div className="space-y-6">
-      {/* Desktop Table */}
-      <div className="overflow-x-auto hidden md:block rounded-xl shadow-lg bg-white">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className=" px-4 py-3 text-center text-gray-700 font-medium uppercase tracking-wider">
-                Category id
-              </th>
-              <th className="text-center px-4 py-3  text-gray-700 font-medium uppercase tracking-wider">
-                Category Name
-              </th>
-              <th className="px-4 py-3 text-center text-gray-700 font-medium uppercase tracking-wider">
-                Description 
-              </th>
 
+  return (
+    <div className="space-y-6 font-sans">
+      {
+        <CategoryDetailModal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          category={selectedProduct}
+        />
+      }
+
+      {/* ================= Desktop Table ================= */}
+      <div className="hidden md:block overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <table className="min-w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              {["ID", "Category Name", "Description"].map((h) => (
+                <th
+                  key={h}
+                  className="px-6 py-4 text-center text-xs font-semibold tracking-wide text-gray-500 uppercase"
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-100">
-            {products ? (
-              products.map((p, index) => (
-                <tr key={p.id} className="hover:bg-gray-50 transition">
-                  <td className="px-4 py-3 text-center text-gray-800 font-medium">
-                    {p.id}
+            {categories.length > 0 ? (
+              categories.map((c) => (
+                <tr
+                  key={c.id}
+                  onClick={() => {
+                    setSelectedProduct(c);
+                    setOpenModal(true);
+                  }}
+                  className="group transition hover:bg-gray-50"
+                >
+                  <td className="px-6 py-4 text-sm font-medium text-gray-800 text-center">
+                    #{c.id}
                   </td>
-                  <td className="px-4 py-3  text-center text-gray-800">
-                    {p.category_name}
+
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900 text-center">
+                    {c.category_name}
                   </td>
-                  <td className="px-4 py-3  text-center text-gray-800">{p.category_desc}</td>
-               
+
+                  <td className="px-6 py-4 text-sm text-gray-600 text-center max-w-md mx-auto">
+                    {c.category_desc || "—"}
+                  </td>
                 </tr>
               ))
             ) : (
-              <>
-                <div>no Data</div>
-              </>
+              <tr>
+                <td
+                  colSpan={3}
+                  className="px-6 py-10 text-center text-sm text-gray-500"
+                >
+                  No categories found
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Mobile Card View */}
+      {/* ================= Mobile Card View ================= */}
       <div className="grid grid-cols-1 gap-4 md:hidden">
-        {products.map((p) => (
+        {categories.map((c) => (
           <div
-            key={p.id}
-            className="bg-white shadow-md rounded-xl p-4 flex flex-col gap-2 hover:shadow-lg transition"
+            key={c.id}
+            onClick={() => {
+              setSelectedProduct(c);
+              setOpenModal(true);
+            }}
+            className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
           >
-            <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-800">id:{p.id}</span>
-              <span className="text-gray-500 text-sm">Category name: {p.category_name}</span>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-gray-400 font-medium tracking-wide">
+                  CATEGORY ID
+                </p>
+                <p className="text-sm font-semibold text-gray-800">#{c.id}</p>
+              </div>
             </div>
-            <span className="text-gray-600">description : {p.category_desc}</span>
-         
+
+            <h3 className="mt-3 text-sm font-medium text-gray-900">
+              {c.category_name}
+            </h3>
+
+            <p className="mt-1 text-sm text-gray-600 leading-relaxed">
+              {c.category_desc || "No description provided"}
+            </p>
           </div>
         ))}
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* ================= Delete Modal ================= */}
       <ConfirmDeleteModal
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}

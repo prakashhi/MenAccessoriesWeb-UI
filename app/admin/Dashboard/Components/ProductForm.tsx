@@ -3,11 +3,14 @@
 import { useForm } from "react-hook-form";
 import { useEffect, useState, useCallback } from "react";
 import { useApi } from "@/app/useApi";
-import { toast } from "react-toastify";
+import { notify } from "@/app/(User)/Component/ToastComponent";
 import ImageKit from "imagekit-javascript";
 import Loader from "@/public/svg/tube-spinner.svg";
 import Image from "next/image";
 import CategorySelector from "./CategorySelector";
+import TagInput from "./TagInputComponent";
+
+import { useRouter } from "next/navigation";
 
 export default function ProductForm({ mode, productId }) {
   const {
@@ -28,10 +31,20 @@ export default function ProductForm({ mode, productId }) {
   });
 
   const { callApi, data, loading, error } = useApi();
+  const router = useRouter()
 
   const GetCategory = useCallback(async () => {
     try {
       let result = await callApi("get", "/category/get");
+
+      if (result?.error) {
+        notify({
+          message: result.message || "Something went wrong!",
+          type: "error",
+        });
+
+        return;
+      }
       setState((prev) => ({ ...prev, categoryList: result }));
     } catch (err) {
       console.log(err, error);
@@ -41,8 +54,6 @@ export default function ProductForm({ mode, productId }) {
   useEffect(() => {
     GetCategory();
   }, []);
-
-  console.log(state.categoryList);
 
   // Prefill data in edit mode
   useEffect(() => {
@@ -66,8 +77,6 @@ export default function ProductForm({ mode, productId }) {
     const files = info.images; // FileList (3 images)
     let imageUrls: string[] = [];
 
-    console.log("info",info);
-
     // Step 2: Upload all images
     if (files && files.length > 0) {
       for (let file of files) {
@@ -84,13 +93,15 @@ export default function ProductForm({ mode, productId }) {
       data: { ...info, images: imageUrls },
     });
 
-       if (res.error) {
-      toast.error(res.message || "SomeThing is Wrong!");
+    if (res?.error) {
+      notify({ message: res.message || "SomeThing is Wrong!", type: "error" });
       return;
     }
 
     // Show success toast
-    toast.success(res.msg || "Product Added!");
+    notify({ message: res.msg || "Product Added!", type: "success" });
+
+    router.push("/admin/products");
   };
 
   return (
@@ -174,15 +185,12 @@ export default function ProductForm({ mode, productId }) {
             errors={errors}
           />
 
-          {/* Colors */}
           <div>
-            <label className="font-medium">Colors (comma separated) *</label>
-            <input
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-1 focus:ring-black outline-none"
-              placeholder="Red, Blue, Black"
-              {...register("colors")}
+            <TagInput
+              label="Colors"
+              value={watch("colors") || []}
+              onChange={(tags) => setValue("colors", tags)}
             />
-            <p className="text-red-500 text-sm">{errors.colors?.message}</p>
           </div>
         </div>
 

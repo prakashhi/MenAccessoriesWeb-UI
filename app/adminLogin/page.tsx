@@ -6,7 +6,7 @@ import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import API from "@/app/api";
 import { useApi } from "@/app/useApi";
-import { toast } from "react-toastify";
+import { notify } from "@/app/(User)/Component/ToastComponent";
 import { useRouter } from "next/navigation";
 
 import Image from "next/image";
@@ -31,20 +31,27 @@ export default function page() {
         data: { ...info },
       });
 
-      // Show success toast
-      toast.success(res.msg || "Login successful!");
+      if (res?.error) {
+        notify({
+          message: res.message || "Something went wrong!",
+          type: "error",
+        });
 
-      // Optionally store token in localStorage
-      if (res.token) {
-        localStorage.setItem("adminToken", res.token);
+        return;
       }
+
+      // Show success toast
+      notify({ message: res.msg || "Login successful!", type: "success" });
 
       // Redirect to admin dashboard
       router.push("/admin/Dashboard");
     } catch (err: any) {
       // Show error toast
       console.log(error);
-      toast.error(err?.response?.data?.message || "Login failed!");
+      notify({
+        message: err?.response?.data?.message || "Login failed!",
+        type: "error",
+      });
     }
   };
 
@@ -141,14 +148,14 @@ export default function page() {
         </form>
 
         {/* FORGOT PASSWORD */}
-        <div className="text-center">
+        {/* <div className="text-center">
           <a
             href="/admin/forgot-password"
             className="text-sm text-gray-700 hover:underline"
           >
             Forgot your password?
           </a>
-        </div>
+        </div> */}
       </div>
     </div>
   );

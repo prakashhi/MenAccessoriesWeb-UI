@@ -11,13 +11,15 @@ interface ProductGalleryProps {
 export default function ProductGallery({ images, name }: ProductGalleryProps) {
   const [mainImageIndex, setMainImageIndex] = useState(0);
 
+  
+
   return (
     <div className="flex flex-col gap-4">
       {/* MAIN IMAGE */}
       <div className="relative w-full h-[420px] sm:h-[500px] lg:h-[560px] rounded-xl overflow-hidden shadow-lg">
         <Image
+          alt={images[0]}
           src={images[mainImageIndex]}
-          alt={name}
           fill
           className="object-cover transition-transform duration-300 hover:scale-105 rounded-xl"
         />

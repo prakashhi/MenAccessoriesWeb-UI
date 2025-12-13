@@ -12,9 +12,10 @@ import {
 } from "react-icons/fi";
 import Nav from "../Component/NavBar/Nav";
 import { useApi } from "@/app/useApi";
-
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+
+import { notify } from "@/app/(User)/Component/ToastComponent";
 
 type Order = { id: string; item: string; status: string; date?: string };
 type Wish = { id: number; name: string; price?: number };
@@ -31,12 +32,18 @@ export default function AccountSection() {
     setUserData((prev) => ({ ...prev, info: res.user }));
 
     if (res?.error) {
-      toast.error(res.message || "Something went wrong!");
+      notify({
+        message: res.message || "Something went wrong!",
+        type: "error",
+      });
+
       return;
     }
 
-    // Show success toast
-    toast.info(res.msg || res.message);
+    notify({
+      message: res.msg || res.message,
+      type: "info",
+    });
   };
 
   // Logout handler (sample)
@@ -44,12 +51,12 @@ export default function AccountSection() {
     let res = await callApi("post", "/user/logout");
 
     if (res?.error) {
-      toast.error(res.message || "Something went wrong!");
+      notify({ message: res.message || "Something went wrong!", type: "error" });
       return;
     }
 
     // Show success toast
-    toast.info(res.msg || res.message);
+    notify({ message: res.msg || res.message, type: "info" });
 
     // Redirect to admin dashboard
     router.push("/Login");
@@ -91,16 +98,15 @@ export default function AccountSection() {
     <>
       <Nav />
       <div className="w-full max-w-5xl mx-auto px-4 py-8">
-        <h2
-          className="text-3xl mb-6 tracking-wide text-center"
-          style={{
-            fontFamily: "ui-serif",
-            fontWeight: 800,
-            letterSpacing: "1px",
-          }}
+
+         <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center text-3xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
+          style={{ fontFamily: "ui-serif, serif" }}
         >
-          My Account
-        </h2>
+         My Account
+        </motion.h1>
 
         {/* Desktop: two-column, Mobile: stacked */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
@@ -224,7 +230,6 @@ export function NoData({ label, icon }) {
 /* ---------- Content Renderer ---------- */
 /* Renders the panel content for each menu key. */
 function ContentRenderer({ keyname, user, onLogout }: any) {
-
   if (keyname === "info") {
     return (
       <section>
@@ -232,18 +237,18 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-gray-500">Full name</label>
-            <div className="mt-1 text-gray-900">{user.info.name}</div>
+            <div className="mt-1 text-gray-900">{user.info?.name}</div>
           </div>
           <div>
             <label className="text-sm text-gray-500">Email</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
-              <FiMail className="text-gray-400" /> {user.info.email}
+              <FiMail className="text-gray-400" /> {user.info?.email}
             </div>
           </div>
           <div>
             <label className="text-sm text-gray-500">Phone</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
-              <FiPhone className="text-gray-400" /> +91 {user.info.mobile_no}
+              <FiPhone className="text-gray-400" /> +91 {user.info?.mobile_no}
             </div>
           </div>
           {/* <div className="sm:col-span-2">

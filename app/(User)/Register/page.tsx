@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
-import { toast } from "react-toastify";
+import { notify } from "@/app/(User)/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
 
@@ -35,14 +35,14 @@ export default function RegisterPage() {
       });
 
       // Show success toast
-      toast.success(res.msg || "Registration is successful!");
+      notify({ message: res.msg || "Registration is successful!", type: "success" });
 
       // Redirect to admin dashboard
       router.push("/Login");
     } catch (err: any) {
       // Show error toast
       console.log(error);
-      toast.error(err?.response?.data?.message || "Something is Wrong!");
+      notify({ message: err?.response?.data?.message || "Something is Wrong!", type: "error" });
     }
   };
 

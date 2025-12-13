@@ -6,104 +6,114 @@ import { UsePanel } from "@/context/SerchPanelContext";
 import Image from "next/image";
 import Link from "next/link";
 import ItemCount from "../Cart/component/ItemCount";
-import { Button, Card, CardBody } from "@heroui/react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Page() {
   const { likeProduct, AddCartProduct, RemoveLikeProdcut } = UsePanel();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F8F8] text-[#111]">
+    <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
       <Nav />
 
-      <div className="flex-1 py-12 px-4 md:px-10 lg:px-28">
-        <h1 className="text-center text-3xl lg:text-4xl font-semibold mb-12 tracking-widest">
+      <main className="flex-1 px-4 sm:px-6 lg:px-12 py-12 max-w-6xl mx-auto w-full">
+        {/* TITLE */}
+        <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center text-3xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
+          style={{ fontFamily: "ui-serif, serif" }}
+        >
           WISHLIST
-        </h1>
+        </motion.h1>
 
-        {likeProduct.length > 0 ? (
-          <div className="grid gap-8">
-            {likeProduct.map((item: any, i: number) => (
-              <Card
-                key={i}
-                className="bg-white border border-[#E5E5E5] rounded-2xl shadow-sm hover:shadow-md transition-all duration-300"
-              >
-                <CardBody className="grid lg:grid-cols-3 grid-cols-1 gap-8 items-center lg:p-5 p-6">
-                  
-                  {/* Image + Info */}
-                  <div className="flex flex-row items-center gap-6">
-                    <div className="relative w-28 h-28 lg:w-36 lg:h-36 shrink-0">
-                      <Image
-                        src={item.img}
-                        alt={item.name}
-                        fill
-                        className="object-cover rounded-xl transition-transform duration-300 hover:scale-105"
-                      />
-                    </div>
-
-                    <div className="flex flex-col justify-items-center gap-4">
-                      <span style={{
-                        fontWeight:700
-                      }} className="text-xl lg:text-xl font-medium tracking-wide">
-                        {item.name}
-                      </span>
-
-                      <ItemCount
-                        Quanty={item.Quanty}
-                        id={item.id}
-                        type="LikeProduct"
-                      />
-
-                      <Button
-                        onPress={() => RemoveLikeProdcut(item.id)}
-                        className="bg-transparent  lg:w-1/2    font-medium tracking-wide  transition-all duration-300"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Price */}
-                  <div className="flex justify-center lg:justify-start items-center">
-                    <span className="text-2xl font-semibold tracking-wide">
-                      ₹{item.price}.00
-                    </span>
-                  </div>
-
-                  {/* Add to Cart */}
-                  <div className="flex justify-center lg:justify-end items-center">
-                    <Button
-                      onPress={() => {
-                        AddCartProduct(item, "LikeProduct");
-                        RemoveLikeProdcut(item.id);
-                      }}
-                      className="bg-[#111] text-white font-medium rounded-xl px-6 py-3 w-full lg:w-48 tracking-wide hover:bg-[#222] transition-all duration-300"
-                    >
-                      ADD TO CART
-                    </Button>
-                  </div>
-
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          /* Empty State */
-          <div className="flex flex-col justify-center items-center text-center mt-28 gap-6">
-
-
-            <h2 className="text-medium lg:text-xl font-semibold tracking-wide text-[#444]">
-              Your Wishlist is Empty
-            </h2>
-
-            <Link
-              href="/"
-              className="bg-[#111] text-white font-medium py-3 px-8 rounded-xl tracking-wide hover:bg-[#222] transition-all duration-300"
+        <AnimatePresence>
+          {likeProduct.length > 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-white rounded-2xl border border-[#ECECEC] divide-y"
             >
-              BACK TO HOME
-            </Link>
-          </div>
-        )}
-      </div>
+              {likeProduct.map((item: any) => (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="flex flex-col sm:flex-row gap-6 p-6 items-start sm:items-center"
+                >
+                  {/* IMAGE */}
+                  <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F2F2F2] shrink-0">
+                    <Image
+                      src={item.img || "/images/placeholder.webp"}
+                      alt={item.name}
+                      fill
+                      sizes="96px"
+                      className="object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                  </div>
+
+                  {/* INFO */}
+                  <div className="flex-1 space-y-3">
+                    <h3 className="text-sm sm:text-base font-medium tracking-wide">
+                      {item.name}
+                    </h3>
+
+                    <ItemCount
+                      Quanty={item.Quanty}
+                      id={item.id}
+                      type="LikeProduct"
+                    />
+
+                    <button
+                      onClick={() => RemoveLikeProdcut(item.id)}
+                      className="text-xs tracking-widest text-gray-400 hover:text-black transition"
+                    >
+                      REMOVE
+                    </button>
+                  </div>
+
+                  {/* PRICE */}
+                  <div className="text-sm sm:text-base font-semibold">
+                    ₹{item.price}.00
+                  </div>
+
+                  {/* ACTION */}
+                  <button
+                    onClick={() => {
+                      AddCartProduct(item, "LikeProduct");
+                      RemoveLikeProdcut(item.id);
+                    }}
+                    className="border border-black px-6 py-3 text-xs tracking-[0.3em]
+                               hover:bg-black hover:text-white transition whitespace-nowrap"
+                  >
+                    ADD TO CART
+                  </button>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            /* EMPTY STATE */
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center py-24 gap-6"
+            >
+              <p className="tracking-wide text-gray-500">
+                Your wishlist is empty
+              </p>
+
+              <Link
+                href="/"
+                className="border border-black px-8 py-3 text-xs tracking-[0.3em]
+                           hover:bg-black hover:text-white transition"
+              >
+                CONTINUE SHOPPING
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
 
       <Footer />
     </div>

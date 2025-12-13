@@ -3,124 +3,146 @@
 import Nav from "../../../Component/NavBar/Nav";
 import Footer from "../../../Component/Footer/Footer";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@heroui/react";
 import { Heart } from "lucide-react";
 import { UsePanel } from "@/context/SerchPanelContext";
-import { ProductData } from "@/app/(User)/Component/ProductList/ProductData";
 import ItemCount from "@/app/(User)/Cart/component/ItemCount";
 import Star from "@/app/(User)/Component/ProductList/Star";
-import { toast } from "react-toastify";
-
-
-
 import PictureGallery from "./Component/PictureGallery";
-import { notify } from "@/app/(User)/Component/AddCartToast";
+import { notify } from "@/app/(User)/Component/ToastComponent";
+import { useApi } from "@/app/useApi";
 
 export default function ProductPage() {
   const params = useParams();
-  const [product, setProduct] = useState<any>(null);
-  const [mainImageIndex, setMainImageIndex] = useState(0);
-  const [items, setItemscount] = useState<number>(1);
+  const { callApi } = useApi();
   const { AddCartProduct, AddLikeProduct } = UsePanel();
 
+  const [product, setProduct] = useState<any>(null);
+  const [qty, setQty] = useState(1);
 
-  // Get product from data
-  const getProductData = useCallback(() => {
-    const res = ProductData.find(
-      (val) => val.category === params.type
-    )?.products.find((item) => item.id === Number(params.id));
+  const getProductData = useCallback(async () => {
+    const res = await callApi("get", `/product/get/${params.id}`);
     setProduct(res);
-  }, [params]);
+  }, []);
 
   useEffect(() => {
     getProductData();
-  }, [getProductData]);
+  }, []);
 
   if (!product)
     return (
-      <div className="flex justify-center items-center min-h-[70vh]">
-        Loading...
+      <div className="flex justify-center items-center min-h-screen text-gray-400">
+        Loading luxury product…
       </div>
     );
 
- let images=[
-  "/images/p1-2.webp",
-  "/images/p1-2.webp",
-  "/images/p1-3.webp"
-]
-
+  const productData = product[0];
+  const images = JSON.parse(productData.images || "[]");
+  
 
   return (
     <>
       <Nav />
 
-      <div className="max-w-6xl mx-auto lg:px-10 px-3 py-8 grid lg:grid-cols-2 gap-8">
-        {/* LEFT SIDE: IMAGES */}
-        
-        <PictureGallery images={images} name={product.name} />
+      {/* MAIN WRAPPER */}
+      <section className="max-w-7xl mx-auto px-4 lg:px-12 py-12">
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* LEFT – GALLERY */}
+          <PictureGallery images={images} name={productData.product_name} />
 
-        {/* RIGHT SIDE: PRODUCT INFO */}  
-        <div className="flex flex-col sticky top-24 gap-6">
-          <h1 className="text-2xl sm:text-3xl font-extrabold">
-            {product.name}
-          </h1>
+          {/* RIGHT – INFO */}
+          <div className="flex flex-col gap-8 lg:sticky lg:top-24">
+            {/* TITLE */}
+            <div>
+              <p className="uppercase tracking-[0.3em] text-xs text-gray-400">
+                Luxury Collection
+              </p>
 
-          <Star starNum={product.raring} />
+              <h1
+                className="mt-3 text-3xl sm:text-4xl font-semibold text-black"
+                style={{ fontFamily: "ui-serif, serif" }}
+              >
+                {productData.product_name}
+              </h1>
 
-          <p className="text-xl font-semibold mt-2">₹{product.price}.00</p>
+              <h2>{productData.sub_category.replace('""'," ")}</h2>
+            </div>
 
-          <div className="w-[150px] mt-2">
-            <ItemCount
-              id={product.id}
-              Quanty={1}
-              setItemscount={setItemscount}
-            />
-          </div>
+            {/* RATING */}
+            <Star starNum={4} />
 
-          <div className="flex flex-col gap-3 mt-4">
-            <Button
-              onPress={() => {
-                AddCartProduct(product);
+            {/* PRICE */}
+            <div className="flex items-center gap-4">
+              <span className="text-2xl font-semibold text-black">
+                ₹{productData.price}
+              </span>
 
-                notify({
-                  message: `${product.name} added to Cart!`,
-                  type: "success",
-                });
-                
-              }}
-              className="w-full bg-black text-white hover:bg-gray-900 py-3 rounded-lg"
-            >
-              Add to Cart
-            </Button>
+              {productData.discount_price && (
+                <span className="text-sm text-gray-400 line-through">
+                  ₹{productData.discount_price}
+                </span>
+              )}
+            </div>
 
-            <Button
-              startContent={<Heart size={18} color="#5443d0" strokeWidth={1} />}
-              onPress={() => {
-                AddLikeProduct(product, items);
-
-                 notify({
-                  message: `${product.name}  added to Wishlist!`,
-                  type: "success",
-                }); 
-              }}
-              className="w-full flex justify-center items-center border border-black hover:bg-black hover:text-white py-3 rounded-lg"
-            >
-              Add to Wishlist
-            </Button>
-          </div>
-
-          {/* Hero Drawer Info */}
-          <div className="mt-8 p-5 bg-black/10 rounded-xl shadow-inner">
-            <h2 className="font-bold text-lg">Product Details</h2>
-            <p className="text-gray-700 mt-2">
-              {product.description ||
-                "This is a premium product with high-quality design, inspired by luxury fashion."}
+            {/* DESCRIPTION */}
+            <p className="text-gray-600 leading-relaxed text-sm max-w-lg">
+              {productData.description}
             </p>
+
+            {/* QUANTITY */}
+            <div className="w-40">
+              <ItemCount Quanty={qty} stock={productData.stock} setItemscount={setQty} />
+            </div>
+
+            {/* ACTIONS */}
+            <div className="flex flex-col gap-4 max-w-sm">
+              <Button
+                onPress={() => {
+                  AddCartProduct({ ...productData, qty });
+                  notify({
+                    message: "Added to cart",
+                    type: "success",
+                  });
+                }}
+                className="
+                  bg-black text-white py-4 rounded-none
+                  text-xs tracking-[0.2em] font-semibold
+                  hover:bg-neutral-900 transition
+                "
+              >
+                ADD TO CART
+              </Button>
+
+              <Button
+                startContent={<Heart size={16} />}
+                onPress={() => {
+                  AddLikeProduct(productData);
+                  notify({
+                    message: "Added to wishlist",
+                    type: "success",
+                  });
+                }}
+                className="
+                  border border-black py-4 rounded-none
+                  text-xs tracking-[0.2em] font-semibold
+                  hover:bg-black hover:text-white transition
+                "
+              >
+                ADD TO WISHLIST
+              </Button>
+            </div>
+
+            {/* DETAILS */}
+            <div className="pt-6 border-t text-sm text-gray-600 space-y-2">
+              <p>
+                <span className="font-medium">Category:</span>{" "}
+                {productData.category_id}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <Footer />
     </>

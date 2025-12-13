@@ -1,104 +1,138 @@
 "use client";
+
 import { UsePanel } from "@/context/SerchPanelContext";
-import { Button } from "@heroui/react";
 import Image from "next/image";
 import { FcLikePlaceholder } from "react-icons/fc";
 import Star from "./Star";
-import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { product } from "@/context/Types/type";
+import { notify } from "../ToastComponent";
 
-import { notify } from "../AddCartToast";
+type ProductCard = {
+  id: string;
+  product_name: string;
+  description: string;
+  price: number;
+  discount_price: number | null;
+  images: string[];
+  product_colors: string[] | string;
+  stock: number;
+  category: {
+    category_name: string;
+  };
+};
 
 export default function CardModel({
   DataObj,
   CustomWH,
-  category,
 }: {
-  DataObj: product[];
-  CustomWH: string;
-  category: string;
+  DataObj: ProductCard[];
+  CustomWH?: string;
 }) {
   const { AddCartProduct, AddLikeProduct } = UsePanel();
   const router = useRouter();
 
+console.log("DataObj",DataObj,)
+
   return (
     <>
-      {DataObj &&
-        DataObj.map((item: product, idx: number) => (
+      {DataObj.products?.map((product) => (
+        <div
+          key={product.id}
+          className={`
+            group relative bg-white rounded-2xl overflow-hidden
+            border border-gray-100 shadow-sm
+            hover:shadow-2xl hover:-translate-y-2
+            transition-all duration-500
+            ${CustomWH ?? "w-72"}
+          `}
+        >
+          {/* IMAGE */}
           <div
-            key={idx}
-            className={`relative group flex flex-col items-center border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer ${
-              CustomWH ? CustomWH : "w-56 sm:w-64 md:w-72 lg:w-80 h-auto m-3"
-            }`}
+            onClick={() =>
+              router.push(`/all-Product/${product.product_name}/${product.id}`)
+            }
+            className="relative w-full h-72 cursor-pointer overflow-hidden"
           >
-            {/* Product Image */}
-            <div
-              className="relative w-full h-64 sm:h-72 lg:h-80 overflow-hidden"
-              onClick={() => router.push(`/all-Product/${category}/${item.id}`)}
-            >
-              <Image
-                src={item.img}
-                alt={item.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 33vw"
-                loading="lazy"
-              />
+            <Image
+              src={product.images?.[0]}
+              alt={product.product_name}
+              fill
+              priority
+              sizes="(max-width: 640px) 100vw,
+         (max-width: 1024px) 50vw,
+         33vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
+            />
 
-              {/* Wishlist Button */}
-              <div
+            {/* Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition" />
+
+            {/* Wishlist */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                AddLikeProduct(product);
+                notify({
+                  message: `${product.product_name} added to Wishlist`,
+                  type: "success",
+                });
+              }}
+              className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
+            >
+              <FcLikePlaceholder className="text-xl" />
+            </button>
+
+            {/* Hover Content */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-all duration-500">
+              <p className="text-xs text-white line-clamp-3 mb-3">
+                {product.description}
+              </p>
+
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  AddLikeProduct(item);
-
+                  AddCartProduct(product);
                   notify({
-                    message: `${item.name} added to Wishlist!`,
+                    message: `${product.product_name} added to Cart`,
                     type: "success",
                   });
                 }}
-                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center z-10 hover:scale-110 transition"
-                title="Add to Wishlist"
+                className="w-full py-2 rounded-lg bg-white text-black text-sm font-semibold hover:bg-black hover:text-white transition"
               >
-                <FcLikePlaceholder className="text-lg" />
-              </div>
-
-              {/* Hover Info Overlay */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4 text-white">
-                <p className="text-sm line-clamp-3">
-                  {item.description || "No description"}
-                </p>
-                <Button
-                  onPress={() => {
-                    AddCartProduct(item);
-
-                    notify({
-                      message: `${item.name} added to Cart!`,
-                      type: "success",
-                    });
-                  }}
-                  className="mt-3 bg-white text-black hover:bg-gray-900 hover:text-white transition px-3 py-1 rounded-sm text-sm"
-                >
-                  Add to Cart
-                </Button>
-              </div>
-            </div>
-
-            {/* Product Info */}
-            <div className="flex flex-col items-center p-3 w-full">
-              <h3
-                className="text-sm sm:text-base font-semibold text-center line-clamp-1"
-                style={{ fontFamily: "Inter, sans-serif" }}
-              >
-                {item.name}
-              </h3>
-              <Star starNum={item.rating} />
-              <p className="text-sm font-medium text-gray-800 mt-1">
-                Rs {item.price}.00
-              </p>
+                Add to Cart
+              </button>
             </div>
           </div>
-        ))}
+
+          {/* INFO */}
+          <div className="p-4 text-center space-y-1">
+            <p className="text-[11px] uppercase tracking-widest text-gray-400">
+              {product.category_name}
+            </p>
+
+            <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
+              {product.product_name}
+            </h3>
+
+            <Star starNum={4} />
+
+            <div className="flex justify-center gap-2 items-center">
+              <span className="text-base font-bold text-gray-900">
+                ₹{product.price}
+              </span>
+              {product.discount_price && (
+                <span className="text-xs text-gray-400 line-through">
+                  ₹{product.discount_price}
+                </span>
+              )}
+            </div>
+
+            <div className="text-xs text-gray-500 mt-1">
+              Stock: {product.stock}
+            </div>
+          </div>
+        </div>
+      ))}
     </>
   );
 }

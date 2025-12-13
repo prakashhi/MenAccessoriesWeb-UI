@@ -5,15 +5,15 @@ import Footer from "../Component/Footer/Footer";
 import Image from "next/image";
 import { Button } from "@heroui/react";
 import { UsePanel } from "@/context/SerchPanelContext";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import ItemCount from "./component/ItemCount";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function page() {
-  const [total, setTotal] = useState(0);
+export default function Page() {
   const { cartProduct, RemoveCartProduct } = UsePanel();
 
-  const TotalAmount = useMemo(
+  const total = useMemo(
     () =>
       cartProduct.reduce(
         (sum: number, item: any) => sum + item.price * item.Quanty,
@@ -22,125 +22,128 @@ export default function page() {
     [cartProduct]
   );
 
-  useEffect(() => {
-    setTotal(TotalAmount);
-  }, [TotalAmount]);
-
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F8F8]">
+    <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
       <Nav />
 
-      {/* Main */}
-      <div className="flex-1 mt-8 px-3 sm:px-5 max-w-5xl mx-auto w-full">
-        {/* Heading */}
+      <main className="flex-1 px-4 sm:px-6 lg:px-12 py-12 max-w-6xl mx-auto w-full">
+        {/* TITLE */}
+        <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center text-3xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
+          style={{ fontFamily: "ui-serif, serif" }}
+        >
+          SHOPPING CART
+        </motion.h1>
 
-        <h1 className="text-center text-3xl lg:text-4xl font-semibold mb-12 tracking-widest">
-          CART
-        </h1>
-
-        {/* Layout */}
-        <div className="flex flex-col mb-10 lg:flex-row gap-6 w-full">
+        <div className="flex flex-col lg:flex-row gap-10">
           {/* CART LIST */}
-          <div
-            className="flex-1 
-      bg-white rounded-xl shadow-sm p-4 sm:p-6
-      overflow-y-auto
-      max-h-full
-      lg:max-h-[50vh]"
-          >
-            {cartProduct.length > 0 ? (
-              <div className="flex flex-col divide-y divide-gray-200">
-                {cartProduct.map((val: any, i: number) => (
-                  <div
-                    key={i}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between py-5 gap-4"
-                  >
-                    {/* LEFT SIDE PRODUCT */}
-                    <div className="flex flex-row gap-4 sm:gap-6">
-                      <Image
-                        className="rounded-lg object-cover w-20 h-20 sm:w-24 sm:h-24"
-                        src={val.img}
-                        width={90}
-                        height={90}
-                        alt={val.name}
-                        priority
-                      />
-
-                      <div className="flex flex-col gap-2">
-                        <span className="font-semibold text-[14px] sm:text-lg leading-tight">
-                          {val.name}
-                        </span>
-
-                        {/* Item Counter */}
-                        <ItemCount Quanty={val.Quanty} id={val.id} />
-
-                        {/* Remove Button */}
-                        <Button
-                          size="sm"
-                          variant="flat"
-                          className="text-red-500 w-fit"
-                          onPress={() => RemoveCartProduct(val.id)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* PRICE (Moves below on mobile) */}
-                    <div className="flex sm:items-center sm:justify-end">
-                      <span className="font-bold text-base sm:text-lg">
-                        ₹{val.price}.00
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center py-10 gap-4">
-                <h2 className="text-medium lg:text-xl font-semibold tracking-wide text-[#444]">
-                  Your Cart is Empty
-                </h2>
-
-                <Link
-                  href="/"
-                  className="bg-black text-white px-6 py-2 rounded-lg hover:opacity-80 transition"
+          <div className="flex-1 bg-white rounded-2xl border border-[#ECECEC]">
+            <AnimatePresence>
+              {cartProduct.length > 0 ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="divide-y"
                 >
-                  Back To Home
-                </Link>
-              </div>
-            )}
+                  {cartProduct.map((item: any) => (
+                    <motion.div
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="flex flex-col sm:flex-row gap-6 p-6 items-start sm:items-center"
+                    >
+                      {/* IMAGE */}
+                      <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F2F2F2] shrink-0">
+                        <Image
+                          src={item.img || "/images/placeholder.webp"}
+                          alt={item.name}
+                          fill
+                          sizes="96px"
+                          className="object-cover transition-transform duration-500 hover:scale-105"
+                        />
+                      </div>
+
+                      {/* INFO */}
+                      <div className="flex-1 space-y-3">
+                        <h3 className="text-sm sm:text-base font-medium tracking-wide">
+                          {item.name}
+                        </h3>
+
+                        <ItemCount Quanty={item.Quanty} id={item.id} />
+
+                        <button
+                          onClick={() => RemoveCartProduct(item.id)}
+                          className="text-xs tracking-widest text-gray-400 hover:text-black transition"
+                        >
+                          REMOVE
+                        </button>
+                      </div>
+
+                      {/* PRICE */}
+                      <div className="text-sm sm:text-base font-semibold">
+                        ₹{item.price}.00
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center py-16 gap-6"
+                >
+                  <p className="tracking-wide text-gray-500">
+                    Your cart is empty
+                  </p>
+
+                  <Link
+                    href="/"
+                    className="border border-black px-8 py-3 text-xs tracking-[0.3em] hover:bg-black hover:text-white transition"
+                  >
+                    CONTINUE SHOPPING
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* TOTAL BOX */}
+          {/* SUMMARY */}
           {total > 0 && (
-            <div className="lg:w-[35%] w-full mb-10 lg:mb-0">
-              <div className="bg-white rounded-xl shadow-md p-5 sticky top-24">
-                <div className="flex justify-between mb-4 text-[15px] sm:text-lg">
-                  <span className="font-medium">Total Amount</span>
-                  <span className="font-bold">₹{total}.00</span>
+            <motion.aside
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="w-full lg:w-[34%]"
+            >
+              <div className="bg-white rounded-2xl border border-[#ECECEC] p-6 sticky top-24 space-y-6">
+                <div className="flex justify-between text-sm tracking-wide">
+                  <span>Total</span>
+                  <span className="font-semibold">₹{total}.00</span>
                 </div>
 
-                {/* Discount Input */}
-                <div className="flex mb-5">
+                {/* DISCOUNT */}
+                <div className="flex">
                   <input
-                    type="text"
-                    placeholder="Discount Code"
-                    className="flex-1 border border-gray-300 rounded-l-md px-3 py-2 text-sm outline-none"
+                    placeholder="Discount code"
+                    className="flex-1 border border-gray-300 px-4 py-3 text-sm outline-none"
                   />
-                  <Button className="bg-black text-white text-sm rounded-r-md px-4">
-                    Apply
-                  </Button>
+                  <button className="px-5 border border-black text-xs tracking-widest hover:bg-black hover:text-white transition">
+                    APPLY
+                  </button>
                 </div>
 
-                {/* Checkout */}
-                <Button className="bg-black text-white w-full py-3 rounded-lg text-center font-semibold hover:opacity-80">
-                  CHECK OUT
-                </Button>
+                {/* CHECKOUT */}
+                <button className="w-full bg-black text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition">
+                  CHECKOUT
+                </button>
               </div>
-            </div>
+            </motion.aside>
           )}
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { MdCategory } from "react-icons/md";
 import { useApi } from "@/app/useApi";
-import { toast } from "react-toastify";
+import { notify } from "@/app/(User)/Component/ToastComponent";
 
 import Image from "next/image";
 
@@ -27,22 +27,22 @@ export default function CategoryForm({ mode }) {
  
 
   const onSubmit = async (info) => {    
-     console.log(info) 
+
     const res = await callApi("post", "/category/Add", {
       data: { ...info },
     });
 
     if (res.error) {
-      toast.error(res.message || "Something is Wrong!");
+      notify({ message: res.message || "Something is Wrong!", type: "error" });
       return;
     }
 
     // Show success toast
-    toast.success(res.msg || "Category successfully Added!");
+    notify({ message: res.msg || "Category successfully Added!", type: "success" });
   };
 
   return (
-    <div className="w-full flex justify-center px-4 md:px-10 py-10">
+    <div className="w-full flex justify-center  lg:px-4 md:px-10 py-10">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="

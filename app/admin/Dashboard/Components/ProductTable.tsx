@@ -1,66 +1,112 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ConfirmDeleteModal from "./ConfirmDeleeteModel";
 import { MdEdit, MdDelete } from "react-icons/md";
+import { useApi } from "@/app/useApi";
+import { notify } from "@/app/(User)/Component/ToastComponent";
+import ProductDetailModal from "./DataShowModels/ProductDataShowModel";
 
-const sampleProducts = [
-  { id: 1, name: "Men T-Shirt", price: 299, stock: 50 },
-  { id: 2, name: "Watch", price: 999, stock: 10 },
-  { id: 3, name: "Sneakers", price: 1999, stock: 15 },
-];
+type Product = {
+  id: number;
+  product_name: string;
+  price: number;
+  stock: number;
+};
 
 export default function ProductTable() {
-  const [products, setProducts] = useState(sampleProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+
+  const { callApi } = useApi();
 
   const handleDelete = () => {
     setProducts(products.filter((p) => p.id !== deleteId));
     setDeleteId(null);
   };
 
+  const ProductData = useCallback(async () => {
+    const res = await callApi("get", "/product/get");
+
+    if (res.error) {
+      notify({
+        message: res.message || "Something went wrong",
+        type: "error",
+      });
+      return;
+    }
+
+    setProducts(res);
+  }, []);
+
+  useEffect(() => {
+    ProductData();
+  }, []);
+
+ 
+
   return (
-    <div className="space-y-6">
-      {/* Desktop Table */}
-      <div className="overflow-x-auto hidden md:block rounded-xl shadow-lg bg-white">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+    <div className="space-y-6 font-sans">
+      {
+        <ProductDetailModal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          product={selectedProduct}
+        />
+      }
+      {/* ================= Desktop Table ================= */}
+      <div className="hidden md:block overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <table className="min-w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-4 py-3 text-left text-gray-700 font-medium uppercase tracking-wider">
-                Product
-              </th>
-              <th className="px-4 py-3 text-left text-gray-700 font-medium uppercase tracking-wider">
-                Price
-              </th>
-              <th className="px-4 py-3 text-left text-gray-700 font-medium uppercase tracking-wider">
-                Stock
-              </th>
-              <th className="px-4 py-3 text-right text-gray-700 font-medium uppercase tracking-wider">
-                Actions
-              </th>
+              {["ID", "Product", "Price", "Stock"].map((h) => (
+                <th
+                  key={h}
+                  className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase"
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-100">
             {products.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50 transition">
-                <td className="px-4 py-3 text-gray-800 font-medium">{p.name}</td>
-                <td className="px-4 py-3 text-gray-800">₹{p.price}</td>
-                <td className="px-4 py-3 text-gray-800">{p.stock}</td>
-                <td className="px-4 py-3 flex justify-end gap-3">
-                  <Link
-                    href={`/admin/products/${p.id}/edit`}
-                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+              <tr
+                key={p.id}
+                onClick={() => {
+                  setSelectedProduct(p);
+                  setOpenModal(true);
+                }}
+                className="group transition hover:bg-gray-50"
+              >
+                <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                  #{p.id}
+                </td>
+
+                <td className="px-6 py-4 text-sm text-gray-700">
+                  {p.product_name}
+                </td>
+
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                  ₹{p.price}
+                </td>
+
+                <td className="px-6 py-4">
+                  <span
+                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
+                    ${
+                      p.stock > 0
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-red-50 text-red-600"
+                    }`}
                   >
-                    <MdEdit /> Edit
-                  </Link>
-                  <button
-                    onClick={() => setDeleteId(p.id)}
-                    className="flex items-center gap-1 text-red-600 hover:text-red-800"
-                  >
-                    <MdDelete /> Delete
-                  </button>
+                    {p.stock > 0 ? "In Stock" : "Out of Stock"}
+                  </span>
                 </td>
               </tr>
             ))}
@@ -68,37 +114,52 @@ export default function ProductTable() {
         </table>
       </div>
 
-      {/* Mobile Card View */}
+      {/* ================= Mobile Card View ================= */}
       <div className="grid grid-cols-1 gap-4 md:hidden">
         {products.map((p) => (
           <div
             key={p.id}
-            className="bg-white shadow-md rounded-xl p-4 flex flex-col gap-2 hover:shadow-lg transition"
+            onClick={() => {
+              setSelectedProduct(p);
+              setOpenModal(true);
+            }}
+            className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
           >
-            <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-800">{p.name}</span>
-              <span className="text-gray-500 text-sm">Stock: {p.stock}</span>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs text-gray-400 font-medium tracking-wide">
+                  PRODUCT ID
+                </p>
+                <p className="text-sm font-semibold text-gray-800">#{p.id}</p>
+              </div>
+
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-medium
+                ${
+                  p.stock > 0
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-red-50 text-red-600"
+                }`}
+              >
+                {p.stock > 0 ? "In Stock" : "Out"}
+              </span>
             </div>
-            <span className="text-gray-600">Price: ₹{p.price}</span>
-            <div className="flex gap-4 mt-2">
-              <Link
-                href={`/admin/products/${p.id}/edit`}
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
-              >
-                <MdEdit /> Edit
-              </Link>
-              <button
-                onClick={() => setDeleteId(p.id)}
-                className="flex items-center gap-1 text-red-600 hover:text-red-800"
-              >
-                <MdDelete /> Delete
-              </button>
+
+            <h3 className="mt-3 text-sm font-medium text-gray-900 leading-snug">
+              {p.product_name}
+            </h3>
+
+            <div className="mt-2 flex justify-between items-center">
+              <span className="text-sm font-semibold text-gray-900">
+                ₹{p.price}
+              </span>
+              <span className="text-xs text-gray-500">Qty: {p.stock}</span>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* ================= Delete Modal ================= */}
       <ConfirmDeleteModal
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}

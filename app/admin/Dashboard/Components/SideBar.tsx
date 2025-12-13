@@ -5,14 +5,10 @@ import {
   MdInventory,
   MdLogout,
   MdReceiptLong,
-  MdMenu,
 } from "react-icons/md";
 import Link from "next/link";
 import { useApi } from "@/app/useApi";
-import { toast } from "react-toastify";
-
-import Router from "next/router";
-
+import { notify } from "@/app/(User)/Component/ToastComponent";
 import { useRouter } from "next/navigation";
 
 interface SidebarProps {
@@ -21,75 +17,100 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
-  const { callApi, data, loading, error } = useApi();
-
+  const { callApi } = useApi();
   const router = useRouter();
 
   const handleLogOut = async () => {
-    let res = await callApi("post", "/admin/logout");
+    const res = await callApi("post", "/admin/logout");
 
     if (res?.error) {
-      toast.error(res.message || "Something went wrong!");
+      notify({
+        message: res.message || "Something went wrong!",
+        type: "error",
+      });
       return;
     }
 
-    // Show success toast
-    toast.info(res.msg || res.message);
-
-    // Redirect to admin dashboard
+    notify({ message: res.msg || res.message, type: "info" });
     router.push("/adminLogin");
   };
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-screen bg-white shadow-lg p-6 z-40
-          transition-transform duration-300
+          fixed top-0 left-0 h-screen w-64 z-40
+          bg-[#FAFAFA] backdrop-blur-xl
+          shadow-[0_20px_50px_rgba(0,0,0,0.12)]
+          px-6 py-8
+          transition-transform duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-          w-64
         `}
       >
-        <h2 className="text-2xl font-bold mb-10">Admin</h2>
-        <nav className="space-y-3">
-          <Link
-            href="/admin/Dashboard"
-            className="flex items-center gap-3 text-gray-700 hover:text-black"
-          >
-            <MdDashboard size={22} /> Dashboard
-          </Link>
+        {/* Brand */}
+        <div className="mb-12">
+          <p className="text-[11px] tracking-[0.35em] uppercase text-gray-400">
+            Control Panel
+          </p>
+          <h2 className="text-2xl font-semibold text-gray-900 mt-1">
+            Admin
+          </h2>
+        </div>
 
-          <Link
-            href="/admin/products"
-            className="flex items-center gap-3 text-gray-700 hover:text-black"
-          >
-            <MdInventory size={22} /> Products
-          </Link>
+        {/* Navigation */}
+        <nav className="space-y-2">
+          <NavItem href="/admin/Dashboard" icon={<MdDashboard />} label="Dashboard" />
+          <NavItem href="/admin/products" icon={<MdInventory />} label="Products" />
+          <NavItem href="/admin/Orders" icon={<MdReceiptLong />} label="Orders" />
 
-          <Link
-            href="/admin/Orders"
-            className="flex items-center gap-3 text-gray-700 hover:text-black"
-          >
-            <MdReceiptLong size={22} /> Orders
-          </Link>
+          {/* Divider */}
+          <div className="my-6 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
+          {/* Logout */}
           <button
             onClick={handleLogOut}
-            className="flex items-center cursor-pointer gap-3 text-red-600 mt-10"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl
+              text-red-600 hover:bg-red-50 transition text-sm font-medium"
           >
-            <MdLogout size={22} /> Logout
+            <MdLogout size={20} />
+            Logout
           </button>
         </nav>
       </aside>
 
-      {/* Overlay for Mobile when sidebar is open */}
+      {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setIsOpen(false)}
-        ></div>
+        />
       )}
     </>
+  );
+}
+
+/* Reusable Nav Item */
+function NavItem({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex items-center gap-3 px-4 py-2.5 rounded-xl
+        text-gray-700 hover:bg-gray-100 hover:text-gray-900
+        transition text-sm font-medium"
+    >
+      <span className="text-lg text-gray-400 group-hover:text-gray-800 transition">
+        {icon}
+      </span>
+      {label}
+    </Link>
   );
 }
