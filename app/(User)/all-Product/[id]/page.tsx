@@ -1,7 +1,7 @@
 "use client";
 
-import Nav from "../../../Component/NavBar/Nav";
-import Footer from "../../../Component/Footer/Footer";
+import Nav from "@/app/(User)/Component/NavBar/Nav";
+import Footer from "@/app/(User)/Component/Footer/Footer";
 import { useParams } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@heroui/react";
@@ -12,8 +12,13 @@ import Star from "@/app/(User)/Component/ProductList/Star";
 import PictureGallery from "./Component/PictureGallery";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 import { useApi } from "@/app/useApi";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import ProductDescription from "./Component/ProductDescription";
 
 export default function ProductPage() {
+
+  
   const params = useParams();
   const { callApi } = useApi();
   const { AddCartProduct, AddLikeProduct } = UsePanel();
@@ -22,8 +27,9 @@ export default function ProductPage() {
   const [qty, setQty] = useState(1);
 
   const getProductData = useCallback(async () => {
-    const res = await callApi("get", `/product/get/${params.id}`);
-    setProduct(res);
+    const res = await callApi("get", `/product/${params.id}`);
+    setProduct(res.data);
+    console.log(res.data);
   }, []);
 
   useEffect(() => {
@@ -37,9 +43,13 @@ export default function ProductPage() {
       </div>
     );
 
-  const productData = product[0];
-  const images = JSON.parse(productData.images || "[]");
-  
+  const images = product.image
+    .split("/")
+    .filter(Boolean)
+    .map((img: string) => `${process.env.NEXT_PUBLIC_IMG_URL}${img}`);
+
+  const parsedDescription =
+    typeof product?.description === "string" && product?.description  ? JSON.parse(product?.description) : product?.description;
 
   return (
     <>
@@ -49,12 +59,27 @@ export default function ProductPage() {
       <section className="max-w-7xl mx-auto px-4 lg:px-12 py-12">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* LEFT – GALLERY */}
-          <PictureGallery images={images} name={productData.product_name} />
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <PictureGallery images={images} name={product.name} />
+          </motion.div>
 
           {/* RIGHT – INFO */}
-          <div className="flex flex-col gap-8 lg:sticky lg:top-24">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut", delay: 0.15 }}
+            className="flex flex-col gap-8 lg:sticky lg:top-24"
+          >
             {/* TITLE */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+            >
               <p className="uppercase tracking-[0.3em] text-xs text-gray-400">
                 Luxury Collection
               </p>
@@ -63,43 +88,48 @@ export default function ProductPage() {
                 className="mt-3 text-3xl sm:text-4xl font-semibold text-black"
                 style={{ fontFamily: "ui-serif, serif" }}
               >
-                {productData.product_name}
+                {product.name}
               </h1>
 
-              <h2>{productData.sub_category.replace('""'," ")}</h2>
-            </div>
-
-            {/* RATING */}
-            <Star starNum={4} />
+              <h2 className="text-gray-300 text-sm mt-2.5">
+                SKU: {product?.serialNumber}
+              </h2>
+            </motion.div>
 
             {/* PRICE */}
             <div className="flex items-center gap-4">
-              <span className="text-2xl font-semibold text-black">
-                ₹{productData.price}
+              <span className="text-3xl font-semibold text-black">
+                ₹ {product.sellingPrice}
               </span>
 
-              {productData.discount_price && (
+              {product.customPrice !== 0 && (
                 <span className="text-sm text-gray-400 line-through">
-                  ₹{productData.discount_price}
+                  ₹{product.customPrice}
                 </span>
               )}
             </div>
 
             {/* DESCRIPTION */}
-            <p className="text-gray-600 leading-relaxed text-sm max-w-lg">
-              {productData.description}
-            </p>
+
+            <ProductDescription
+              description={parsedDescription.description}
+              specifications={parsedDescription.specifications}
+            />
 
             {/* QUANTITY */}
             <div className="w-40">
-              <ItemCount Quanty={qty} stock={productData.stock} setItemscount={setQty} />
+              <ItemCount
+                Quanty={qty}
+                stock={product.numberOfPieces}
+                setItemscount={setQty}
+              />
             </div>
 
             {/* ACTIONS */}
             <div className="flex flex-col gap-4 max-w-sm">
               <Button
                 onPress={() => {
-                  AddCartProduct({ ...productData, qty });
+                  AddCartProduct({ ...product, qty });
                   notify({
                     message: "Added to cart",
                     type: "success",
@@ -117,7 +147,7 @@ export default function ProductPage() {
               <Button
                 startContent={<Heart size={16} />}
                 onPress={() => {
-                  AddLikeProduct(productData);
+                  AddLikeProduct(product);
                   notify({
                     message: "Added to wishlist",
                     type: "success",
@@ -137,10 +167,10 @@ export default function ProductPage() {
             <div className="pt-6 border-t text-sm text-gray-600 space-y-2">
               <p>
                 <span className="font-medium">Category:</span>{" "}
-                {productData.category_id}
+                {product.categoryName}
               </p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 

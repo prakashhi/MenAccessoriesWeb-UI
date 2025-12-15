@@ -7,23 +7,23 @@ import { useCallback, useEffect, useState } from "react";
 import { useApi } from "@/app/useApi";
 import { notify } from "../ToastComponent";
 
+
+
 export default function Product() {
   const { callApi } = useApi();
 
   const [data, setData] = useState([]);
 
   const getData = useCallback(async () => {
-    const res = await callApi("get", "/product/get-with-category");
-
-    if (res?.error) {
+    const MenData = await callApi("get", "/9rock/cat-with-products");
+    if (MenData?.error) {
       notify({
-        message: res.message || "SomeThing is wrong!",
+        message: MenData?.message || "SomeThing is wrong!",
         type: "error",
       });
       return;
     }
-
-    setData(res);
+    setData(MenData?.data);
   }, []);
 
   useEffect(() => {
@@ -31,10 +31,9 @@ export default function Product() {
   }, []);
 
 
-
   return (
     <section className="pt-12 lg:pt-24 px-4 sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
-      {data &&
+      {data.length > 1 &&
         data.map((categoryItem, index) => (
           <div
             key={index}
@@ -48,13 +47,13 @@ export default function Product() {
                   className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900 tracking-tight"
                   style={{ fontFamily: "ui-serif, serif" }}
                 >
-                  {categoryItem.category.category_name}
+                  {categoryItem.name}
                 </h2>
                 <div className="w-14 h-0.5 bg-black mt-2 opacity-60" />
               </div>
 
               <Link
-                href={`/Category/${categoryItem.category.id}`}
+                href={`/Category/${categoryItem.id}`}
                 className="
                 inline-flex items-center justify-center
                 px-6 py-2.5
@@ -86,7 +85,7 @@ export default function Product() {
               "
               >
                 <CardModel
-                  DataObj={categoryItem}
+                  DataObj={categoryItem.products}
                   CustomWH="
                   min-w-[220px]
                   sm:min-w-[260px]

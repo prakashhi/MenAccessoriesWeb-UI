@@ -39,7 +39,7 @@ export default function Page() {
 
         <div className="flex flex-col lg:flex-row gap-10">
           {/* CART LIST */}
-          <div className="flex-1 bg-white rounded-2xl border border-[#ECECEC]">
+          <div className="flex-1  rounded-2xl ">
             <AnimatePresence>
               {cartProduct.length > 0 ? (
                 <motion.div

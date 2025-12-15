@@ -1,6 +1,10 @@
 import { Category } from "../Categotys";
 
+import { Facebook, Instagram, Linkedin,MessageCircle } from "lucide-react";
+
 import Link from "next/link";
+import SocialIcons from "./IconsComponet";
+import ContactComponent from "./ContectComponet";
 export default function Footer() {
   return (
     <>
@@ -10,21 +14,11 @@ export default function Footer() {
           <div>
             <h2 className="text-2xl font-semibold mb-3">Men Accessories</h2>
             <p className="text-sm text-gray-600 leading-6">
-              Premium men’s wallets, belts, bags & grooming essentials.
+              Premium men’s bracelet, rings, brooch & grooming essentials.
             </p>
 
             {/* SOCIAL ICONS */}
-            <div className="flex gap-4 mt-4">
-              <a href="#" className="text-gray-600 hover:text-black transition">
-                <i className="ri-facebook-fill text-xl"></i>
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition">
-                <i className="ri-instagram-line text-xl"></i>
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition">
-                <i className="ri-twitter-x-line text-xl"></i>
-              </a>
-            </div>
+           <SocialIcons/>
           </div>
 
           {/* SHOP */}
@@ -33,7 +27,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-600">
               <li>
                 <a href="#" className="hover:text-black transition">
-                  Wallets
+                  Bracelet
                 </a>
               </li>
               <li>
@@ -82,29 +76,7 @@ export default function Footer() {
           </div>
 
           {/* CONTACT */}
-          <div>
-            <h3 className="text-lg font-semibold mb-3">Contact</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li>📍 Mumbai, India</li>
-              <li>📞 +91 98765 43210</li>
-              <li>✉ support@menaccessories.com</li>
-            </ul>
-
-            {/* NEWSLETTER */}
-            <div className="mt-4">
-              <p className="text-sm mb-2">Subscribe for updates</p>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Email address"
-                  className="w-full px-3 py-2 bg-gray-100 text-black text-sm rounded-l-md outline-none"
-                />
-                <button className="bg-black text-white hover:bg-gray-800 font-medium px-4 py-2 rounded-r-md text-sm">
-                  Join
-                </button>
-              </div>
-            </div>
-          </div>
+         <ContactComponent/>
         </div>
 
         {/* BOTTOM */}
