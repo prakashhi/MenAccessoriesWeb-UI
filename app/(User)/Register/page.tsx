@@ -8,6 +8,7 @@ import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
+import CountryFiled from "./Componets/CountryFiledComponet";
 
 export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false);
@@ -17,6 +18,7 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm();
 
@@ -25,24 +27,47 @@ export default function RegisterPage() {
 
   const onSubmit = async (info) => {
     try {
-      const res = await callApi("post", "/user/register", {
+      const res = await callApi("post", "/signup", {
         data: {
-          name: info.fullName,
+          userName: info.fullName,
+
           email: info.email,
+
           password: info.password,
-          mobile_no: info.mobile_no,
+
+          address: info.address,
+
+          pinCode: info.pinCode,
+
+          contactNumber: info.mobile_no,
+
+          countryCode: info.countryCode,
+
+          countryCodeLabel: info.countryCodeLabel,
+
+          isSupplier: info.isSupplier,
+
+          country: info.country,
+
+          state: info.state,
         },
       });
 
       // Show success toast
-      notify({ message: res.msg || "Registration is successful!", type: "success" });
+      notify({
+        message: res.msg || "Registration is successful!",
+        type: "success",
+      });
 
       // Redirect to admin dashboard
       router.push("/Login");
     } catch (err: any) {
       // Show error toast
       console.log(error);
-      notify({ message: err?.response?.data?.message || "Something is Wrong!", type: "error" });
+      notify({
+        message: err?.response?.data?.message || "Something is Wrong!",
+        type: "error",
+      });
     }
   };
 
@@ -67,7 +92,7 @@ export default function RegisterPage() {
           {/* Full Name */}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Full Name
+              Username
             </label>
             <input
               type="text"
@@ -112,6 +137,7 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Mobile No */}
           <div>
             <label className="text-sm font-medium text-gray-700">
               Mobile No
@@ -120,7 +146,6 @@ export default function RegisterPage() {
               placeholder="1234567890"
               className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
               {...register("mobile_no", {
-                required: "Mobile No is required",
                 pattern: {
                   value: /^[6-9][0-9]{9}$/,
                   message: "Enter valid Mobile No",
@@ -130,6 +155,69 @@ export default function RegisterPage() {
             {errors.mobile_no && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.mobile_no.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Address</label>
+            <textarea
+              rows={3}
+              className="w-full px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
+              {...register("address")}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Pin Code
+            </label>
+
+            <input
+              className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
+              {...register("pinCode", {
+                pattern: {
+                  value: /^[A-Za-z0-9\s-]{3,10}$/,
+                  message: "Enter valid postal / zip code",
+                },
+              })}
+            />
+
+            {errors.pinCode && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.pinCode.message}
+              </p>
+            )}
+          </div>
+          <div className="pt-2 space-y-4">
+            <CountryFiled
+              register={register}
+              watch={watch}
+              setValue={setValue}
+              errors={errors}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Is Supplier
+            </label>
+
+            <div className="flex items-center gap-8 mt-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" value="true" {...register("isSupplier")} />
+                <span>Yes</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" value="false" {...register("isSupplier")} />
+                <span>No</span>
+              </label>
+            </div>
+
+            {errors.isSupplier && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.isSupplier.message}
               </p>
             )}
           </div>

@@ -8,6 +8,7 @@ import {
   FiLogOut,
   FiChevronRight,
   FiMail,
+  FiMapPin,
   FiPhone,
 } from "react-icons/fi";
 import Nav from "../Component/NavBar/Nav";
@@ -28,22 +29,24 @@ export default function AccountSection() {
   });
 
   const GetProfileData = async () => {
-    let res = await callApi("get", "/user/me");
-    setUserData((prev) => ({ ...prev, info: res.user }));
+    let [profileData, likeProductDat] = await Promise.all([
+      callApi("get", "/user/{id}"),
+      callApi("get", "/like-products/{userId}"),
+    ]);
 
-    if (res?.error) {
+    if (profileData.error || likeProductDat.error) {
       notify({
-        message: res.message || "Something went wrong!",
+        message: "Something went wrong!",
         type: "error",
       });
-
       return;
     }
 
-    notify({
-      message: res.msg || res.message,
-      type: "info",
-    });
+    setUserData((prev) => ({
+      ...prev,
+      info: profileData.data,
+      wishlist: likeProductDat.data,
+    }));
   };
 
   // Logout handler (sample)
@@ -51,7 +54,10 @@ export default function AccountSection() {
     let res = await callApi("post", "/user/logout");
 
     if (res?.error) {
-      notify({ message: res.message || "Something went wrong!", type: "error" });
+      notify({
+        message: res.message || "Something went wrong!",
+        type: "error",
+      });
       return;
     }
 
@@ -98,14 +104,13 @@ export default function AccountSection() {
     <>
       <Nav />
       <div className="w-full max-w-5xl mx-auto px-4 py-8">
-
-         <motion.h1
+        <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-3xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
           style={{ fontFamily: "ui-serif, serif" }}
         >
-         My Account
+          My Account
         </motion.h1>
 
         {/* Desktop: two-column, Mobile: stacked */}
@@ -229,44 +234,104 @@ export function NoData({ label, icon }) {
 
 /* ---------- Content Renderer ---------- */
 /* Renders the panel content for each menu key. */
+
 function ContentRenderer({ keyname, user, onLogout }: any) {
+  /* ---------------- INFO ---------------- */
   if (keyname === "info") {
     return (
       <section>
-        <h3 className="text-xl font-semibold mb-3">Personal Information</h3>
+        <h3 className="text-xl font-semibold mb-4">Personal Information</h3>
+
         <div className="grid sm:grid-cols-2 gap-4">
+          {/* NAME */}
           <div>
             <label className="text-sm text-gray-500">Full name</label>
-            <div className="mt-1 text-gray-900">{user.info?.name}</div>
+            <div className="mt-1 text-gray-900 flex items-center gap-2">
+              <FiUser className="text-gray-400" />
+              {user.userName}
+            </div>
           </div>
+
+          {/* EMAIL */}
           <div>
             <label className="text-sm text-gray-500">Email</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
-              <FiMail className="text-gray-400" /> {user.info?.email}
+              <FiMail className="text-gray-400" />
+              {user.email}
             </div>
           </div>
+
+          {/* PHONE */}
           <div>
             <label className="text-sm text-gray-500">Phone</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
-              <FiPhone className="text-gray-400" /> +91 {user.info?.mobile_no}
+              <FiPhone className="text-gray-400" />
+              {user.countryCode} {user.contactNumber}
             </div>
           </div>
-          {/* <div className="sm:col-span-2">
+
+          {/* ROLE */}
+          <div>
+            <label className="text-sm text-gray-500">Role</label>
+            <div className="mt-1 text-gray-900">{user.role}</div>
+          </div>
+
+          {/* ADDRESS */}
+          <div className="sm:col-span-2">
             <label className="text-sm text-gray-500">Address</label>
-            <div className="mt-1 text-gray-900">{user.address}</div>
-          </div> */}
+            <div className="mt-1 text-gray-900 flex items-center gap-2">
+              <FiMapPin className="text-gray-400" />
+              {user.address}, {user.state}, {user.country} - {user.pinCode}
+            </div>
+          </div>
+
+          {/* CREATED AT */}
+          <div>
+            <label className="text-sm text-gray-500">Joined On</label>
+            <div className="mt-1 text-gray-900">
+              {new Date(user.createdAt).toLocaleDateString()}
+            </div>
+          </div>
         </div>
+
+        {/* ---------------- BUSINESS INFO ---------------- */}
+        {user.isSupplier && (
+          <>
+            <h3 className="text-xl font-semibold mt-8 mb-4">
+              Business Information
+            </h3>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-500">Firm Name</label>
+                <div className="mt-1 text-gray-900">{user.firmName}</div>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-500">GSTIN</label>
+                <div className="mt-1 text-gray-900">{user.GSTIN}</div>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="text-sm text-gray-500">Firm Address</label>
+                <div className="mt-1 text-gray-900">{user.firmAddress}</div>
+              </div>
+            </div>
+          </>
+        )}
       </section>
     );
   }
 
+  /* ---------------- ORDERS ---------------- */
   if (keyname === "orders") {
     return (
       <section>
         <h3 className="text-xl font-semibold mb-3">My Orders</h3>
+
         <div className="space-y-3">
-          {user.orders.length > 0 ? (
-            user.orders.map((o: Order) => (
+          {user.orders?.length > 0 ? (
+            user.orders.map((o: any) => (
               <div
                 key={o.id}
                 className="flex items-center justify-between p-3 border border-gray-100 rounded-lg"
@@ -282,20 +347,22 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
               </div>
             ))
           ) : (
-            <NoData label="Orders" icon={"📭"} />
+            <NoData label="Orders" icon="📭" />
           )}
         </div>
       </section>
     );
   }
 
+  /* ---------------- WISHLIST ---------------- */
   if (keyname === "wishlist") {
     return (
       <section>
         <h3 className="text-xl font-semibold mb-3">Wishlist</h3>
-        <div className="grid grid-cols-1  justify-items-center w-full sm:grid-cols-2 gap-4">
-          {user.wishlist.length > 0 ? (
-            user.wishlist.map((w: Wish) => (
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {user.wishlist?.length > 0 ? (
+            user.wishlist.map((w: any) => (
               <div
                 key={w.id}
                 className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg"
@@ -303,23 +370,24 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
                 <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-400">
                   IMG
                 </div>
+
                 <div className="flex-1">
                   <div className="font-medium">{w.name}</div>
                   <div className="text-sm text-gray-500">₹{w.price}</div>
                 </div>
+
                 <button className="text-sm text-gray-600">View</button>
               </div>
             ))
           ) : (
-            <div className="flex w-full justify-items-center">
-              <NoData label="Wishlist" icon={"💔"} />
-            </div>
+            <NoData label="Wishlist" icon="💔" />
           )}
         </div>
       </section>
     );
   }
 
+  /* ---------------- LOGOUT ---------------- */
   if (keyname === "logout") {
     return (
       <section>
@@ -327,6 +395,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
         <p className="text-sm text-gray-600 mb-4">
           Click the button below to sign out of your account.
         </p>
+
         <button
           onClick={onLogout}
           className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"

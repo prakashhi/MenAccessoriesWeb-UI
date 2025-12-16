@@ -42,6 +42,8 @@ export function useApi<T = any>() {
           throw new Error(`Unsupported method: ${method}`);
       }
       setData(response.data);
+
+      
       return response.data;
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || err.message;

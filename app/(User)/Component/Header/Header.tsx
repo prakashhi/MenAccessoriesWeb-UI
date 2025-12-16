@@ -2,9 +2,12 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import HeaderImg from "@/public/Images/Styling-Jewellery-for-Men-4-key-rules-men-should-follow-4.webp";
+import headerimg from '@/public/Images/il_680x540.7199741956_g139.jpg'
+
 
 export default function Header() {
+
+
   return (
     <header className="relative pt-6 sm:pt-10 overflow-hidden">
       {/* Title */}
@@ -46,7 +49,7 @@ export default function Header() {
         >
           <Image
             className="w-full h-auto object-cover"
-            src={HeaderImg}
+            src={headerimg}
             alt="Header"
             priority
           />

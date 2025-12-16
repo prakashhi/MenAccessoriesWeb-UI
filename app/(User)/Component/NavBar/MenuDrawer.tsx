@@ -4,17 +4,13 @@ import { useState } from "react";
 import { Drawer, Button } from "@heroui/react";
 import Link from "next/link";
 import { LuX } from "react-icons/lu";
+import { UsePanel } from "@/context/Context";
 
 export default function MenuDrawer() {
   const [open, setOpen] = useState(false);
 
-  const menuItems = [
-    { name: "Home", href: "/" },
-    { name: "Men", href: "/Category/Men" },
-    { name: "Women", href: "/Category/Women" },
-    { name: "Accessories", href: "/Category/Accessories" },
-    { name: "Sale", href: "/Category/Sale" },
-  ];
+ {} UsePanel()
+likeProductList
 
   return (
     <>

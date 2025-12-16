@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import HeroProvider from "./HeroProvider";
-import { SearchPanelContextProvider } from "@/context/SerchPanelContext";
+import { SearchPanelContextProvider } from "@/context/Context";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

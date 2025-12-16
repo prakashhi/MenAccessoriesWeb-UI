@@ -4,7 +4,7 @@ import Nav from "../Component/NavBar/Nav";
 import Footer from "../Component/Footer/Footer";
 import Image from "next/image";
 import { Button } from "@heroui/react";
-import { UsePanel } from "@/context/SerchPanelContext";
+import { UsePanel } from "@/context/Context";
 import { useMemo } from "react";
 import Link from "next/link";
 import ItemCount from "./component/ItemCount";

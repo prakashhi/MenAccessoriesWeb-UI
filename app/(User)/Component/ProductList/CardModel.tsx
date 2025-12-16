@@ -1,6 +1,6 @@
 "use client";
 
-import { UsePanel } from "@/context/SerchPanelContext";
+import { UsePanel } from "@/context/Context";
 import Image from "next/image";
 import { FcLikePlaceholder } from "react-icons/fc";
 import Star from "./Star";
@@ -35,16 +35,6 @@ export default function CardModel({
 
   const { callApi } = useApi();
 
-  const getDataCategory = useCallback(async () => {
-    const res = await callApi("get", `/product/${DataObj?.id}`);
-    console.log("Card:", res);
-  }, []);
-
-
-  useEffect(() => {
-    getDataCategory();
-  }, []);
-
   return (
     <>
       {DataObj.length > 1 &&
@@ -65,7 +55,9 @@ export default function CardModel({
               className="relative w-full h-72 cursor-pointer overflow-hidden"
             >
               <Image
-                src={`${process.env.NEXT_PUBLIC_IMG_URL}${product?.image.split("/")[1]}`}
+                src={`${process.env.NEXT_PUBLIC_IMG_URL}${
+                  product?.image.split("/")[1]
+                }`}
                 alt={product.name}
                 fill
                 priority
@@ -82,11 +74,7 @@ export default function CardModel({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  AddLikeProduct(product);
-                  notify({
-                    message: `${product.name} added to Wishlist`,
-                    type: "success",
-                  });
+                  AddLikeProduct(product.name, product.id);
                 }}
                 className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
               >
@@ -102,11 +90,7 @@ export default function CardModel({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    AddCartProduct(product);
-                    notify({
-                      message: `${product.name} added to Cart`,
-                      type: "success",
-                    });
+                    AddCartProduct(product.name, product.id, userId);
                   }}
                   className="w-full py-2 rounded-lg bg-white text-black text-sm font-semibold hover:bg-black hover:text-white transition"
                 >

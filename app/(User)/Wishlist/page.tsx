@@ -2,14 +2,30 @@
 
 import Nav from "../Component/NavBar/Nav";
 import Footer from "../Component/Footer/Footer";
-import { UsePanel } from "@/context/SerchPanelContext";
+import { UsePanel } from "@/context/Context";
 import Image from "next/image";
 import Link from "next/link";
 import ItemCount from "../Cart/component/ItemCount";
 import { motion, AnimatePresence } from "framer-motion";
+import { useApi } from "@/app/useApi";
+import { notify } from "../Component/ToastComponent";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Page() {
-  const { likeProduct, AddCartProduct, RemoveLikeProdcut } = UsePanel();
+  const { AddCartProduct, RemoveLikeProduct, LikeProductList } = UsePanel();
+
+  const [likeProductList, setLikeProductList] = useState([]);
+
+  const { callApi } = useApi();
+
+  const getLikeProductData = useCallback(async () => {
+    let res = await LikeProductList();
+    setLikeProductList(res.data);
+  }, []);
+
+  useEffect(() => {
+    getLikeProductData();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
@@ -27,13 +43,13 @@ export default function Page() {
         </motion.h1>
 
         <AnimatePresence>
-          {likeProduct.length > 0 ? (
+          {likeProductList?.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="bg-white rounded-2xl border border-[#ECECEC] divide-y"
             >
-              {likeProduct.map((item: any) => (
+              {likeProductList.map((item: any) => (
                 <motion.div
                   key={item.id}
                   layout
@@ -59,14 +75,14 @@ export default function Page() {
                       {item.name}
                     </h3>
 
-                    <ItemCount
+                    {/* <ItemCount
                       Quanty={item.Quanty}
                       id={item.id}
                       type="LikeProduct"
-                    />
+                    /> */}
 
                     <button
-                      onClick={() => RemoveLikeProdcut(item.id)}
+                      onClick={() => RemoveLikeProduct(item.id)}
                       className="text-xs tracking-widest text-gray-400 hover:text-black transition"
                     >
                       REMOVE
@@ -81,8 +97,8 @@ export default function Page() {
                   {/* ACTION */}
                   <button
                     onClick={() => {
-                      AddCartProduct(item, "LikeProduct");
-                      RemoveLikeProdcut(item.id);
+                      AddCartProduct();
+                      RemoveLikeProduct(item.id);
                     }}
                     className="border border-black px-6 py-3 text-xs tracking-[0.3em]
                                hover:bg-black hover:text-white transition whitespace-nowrap"

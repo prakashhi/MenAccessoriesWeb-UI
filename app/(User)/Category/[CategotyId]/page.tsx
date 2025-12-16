@@ -15,9 +15,13 @@ export default function Page() {
   const params = useParams();
   const { callApi } = useApi();
 
+  console.log(params.id);
+
   const [data, setData] = useState<any[]>([]);
 
   const getData = useCallback(async () => {
+    // const res = await callApi("get", `/product-category-list?id=${params.id}&limit=100&offset=0`);
+
     const res = await callApi("get", "/9rock/cat-with-products");
 
     if (res?.error) {
@@ -28,7 +32,10 @@ export default function Page() {
       return;
     }
 
-    setData(res.data);
+    console.log("res", res);
+
+    // setData(res.data);
+    setData(res.data[0].products);
   }, []);
 
   useEffect(() => {
@@ -104,7 +111,7 @@ export default function Page() {
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="col-span-4 lg:col-span-3 sm:p-5 p-2"
             >
-              <RightSection ProductData={data?.[0]?.products} />
+              <RightSection ProductData={data} />
             </motion.div>
           </motion.div>
         </div>

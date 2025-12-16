@@ -12,7 +12,8 @@ export function middleware(req: NextRequest) {
     "/admin/products",
     "/admin",
   ];
-  const userProtected = ["/AccountInfo", "/Wishlist", "/Cart"];
+  // const userProtected = ["/AccountInfo", "/Wishlist", "/Cart"];
+  const userProtected = ["/AccountInfo", "/Wishlist"];
 
   const isProtected = protectedRoutes.some((path) =>
     req.nextUrl.pathname.startsWith(path)

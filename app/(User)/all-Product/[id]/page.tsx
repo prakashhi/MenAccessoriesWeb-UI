@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@heroui/react";
 import { Heart } from "lucide-react";
-import { UsePanel } from "@/context/SerchPanelContext";
+import { UsePanel } from "@/context/Context";
 import ItemCount from "@/app/(User)/Cart/component/ItemCount";
 import Star from "@/app/(User)/Component/ProductList/Star";
 import PictureGallery from "./Component/PictureGallery";
@@ -17,8 +17,6 @@ import { useRef } from "react";
 import ProductDescription from "./Component/ProductDescription";
 
 export default function ProductPage() {
-
-  
   const params = useParams();
   const { callApi } = useApi();
   const { AddCartProduct, AddLikeProduct } = UsePanel();
@@ -29,7 +27,6 @@ export default function ProductPage() {
   const getProductData = useCallback(async () => {
     const res = await callApi("get", `/product/${params.id}`);
     setProduct(res.data);
-    console.log(res.data);
   }, []);
 
   useEffect(() => {
@@ -49,7 +46,11 @@ export default function ProductPage() {
     .map((img: string) => `${process.env.NEXT_PUBLIC_IMG_URL}${img}`);
 
   const parsedDescription =
-    typeof product?.description === "string" && product?.description  ? JSON.parse(product?.description) : product?.description;
+    typeof product?.description === "string" && product?.description
+      ? JSON.parse(product?.description)
+      : product?.description;
+
+       console.log("vidoe0",product.video)
 
   return (
     <>
@@ -64,7 +65,7 @@ export default function ProductPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <PictureGallery images={images} name={product.name} />
+            <PictureGallery images={images} name={product.name} video={product.video} />
           </motion.div>
 
           {/* RIGHT – INFO */}
@@ -90,6 +91,8 @@ export default function ProductPage() {
               >
                 {product.name}
               </h1>
+
+              <h3>{product.size}</h3>
 
               <h2 className="text-gray-300 text-sm mt-2.5">
                 SKU: {product?.serialNumber}
@@ -129,11 +132,7 @@ export default function ProductPage() {
             <div className="flex flex-col gap-4 max-w-sm">
               <Button
                 onPress={() => {
-                  AddCartProduct({ ...product, qty });
-                  notify({
-                    message: "Added to cart",
-                    type: "success",
-                  });
+                  AddCartProduct(product.name, product.id);
                 }}
                 className="
                   bg-black text-white py-4 rounded-none
@@ -147,11 +146,7 @@ export default function ProductPage() {
               <Button
                 startContent={<Heart size={16} />}
                 onPress={() => {
-                  AddLikeProduct(product);
-                  notify({
-                    message: "Added to wishlist",
-                    type: "success",
-                  });
+                  AddLikeProduct(product.name, product.id);
                 }}
                 className="
                   border border-black py-4 rounded-none

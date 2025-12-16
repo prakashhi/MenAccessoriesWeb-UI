@@ -7,7 +7,7 @@ import {
 } from "@heroui/drawer";
 import { Button } from "@heroui/react";
 import Optioncomponet from "./OptionComponent";
-import { UsePanel } from "@/context/SerchPanelContext";
+import { UsePanel } from "@/context/Context";
 
 export default function MobileFilterDrawer() {
   const { isOpen, onOpenChange } = UsePanel();
