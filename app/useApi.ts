@@ -15,7 +15,7 @@ export function useApi<T = any>() {
   const [error, setError] = useState<string | null>(null);
 
   const callApi = async (
-    method: "get" | "post" | "put" | "delete",
+    method: "get" | "post" | "put" | "delete" | "patch",
     url: string,
     config?: AxiosRequestConfig
   ) => {
@@ -38,12 +38,14 @@ export function useApi<T = any>() {
         case "delete":
           response = await API.delete(url, config);
           break;
+        case "patch":
+          response = await API.patch(url, config);
+          break;
         default:
           throw new Error(`Unsupported method: ${method}`);
       }
       setData(response.data);
 
-      
       return response.data;
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || err.message;

@@ -1,83 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { UsePanel } from "@/context/Context";
+import { getGuestCart, getUserFromStorage } from "@/context/utils";
+import { useEffect, useState } from "react";
 
 interface ItemCountProps {
-  Quanty: number;
-  setItemscount: React.Dispatch<React.SetStateAction<number>>;
+  productId: string;
+  quantity: number;
   stock: number;
 }
 
 export default function ItemCount({
-  Quanty,
-  setItemscount,
+  productId,
+  quantity,
   stock,
 }: ItemCountProps) {
-  const [inputValue, setInputValue] = useState(String(Quanty));
+  const { incrementCartProduct, decrementCartProduct, setCartProductQty } =
+    UsePanel();
 
-  const isMin = Quanty <= 1;
-  const isMax = Quanty >= stock || stock === 0;
+  const [inputValue, setInputValue] = useState(String(quantity));
 
-  const clamp = (value: number) => {
-    if (value < 1) return 1;
-    if (value > stock) return stock;
-    return value;
-  };
+  // 🔥 Sync input with actual cart qty
+  useEffect(() => {
+    setInputValue(String(quantity));
+  }, [quantity]);
 
-  const decrease = () => {
-    if (!isMin) {
-      const val = Quanty - 1;
-      setItemscount(val);
-      setInputValue(String(val));
-    }
-  };
-
-  const increase = () => {
-    if (!isMax) {
-      const val = Quanty + 1;
-      setItemscount(val);
-      setInputValue(String(val));
-    }
-  };
-
-  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // allow empty while typing
-    if (e.target.value === "") {
-      setInputValue("");
-      return;
-    }
-
-    // only numbers
-    if (!/^\d+$/.test(e.target.value)) return;
-
-    setInputValue(e.target.value);
-  };
+  const isMin = quantity <= 1;
+  const isMax = quantity >= stock || stock === 0;
 
   const onBlur = () => {
     const num = Number(inputValue);
-    const safeValue = clamp(isNaN(num) ? 1 : num);
-
-    setItemscount(safeValue);
-    setInputValue(String(safeValue));
+    setCartProductQty(productId, isNaN(num) ? 1 : num);
   };
 
   return (
     <div className="flex flex-col gap-1">
-      {/* QTY CONTROL */}
       <div className="flex items-center border border-black w-fit select-none">
         {/* MINUS */}
         <button
-          onClick={decrease}
+          onClick={() => decrementCartProduct(productId)}
           disabled={isMin}
-          className={`
-            w-12 h-12 flex items-center justify-center
-            text-lg font-light transition
-            ${
-              isMin
-                ? "opacity-40 cursor-not-allowed"
-                : "hover:bg-black hover:text-white"
-            }
-          `}
+          className={`w-12 h-12 ${
+            isMin
+              ? "opacity-40 cursor-not-allowed"
+              : "hover:bg-black hover:text-white"
+          }`}
         >
           −
         </button>
@@ -85,43 +52,31 @@ export default function ItemCount({
         {/* INPUT */}
         <input
           value={inputValue}
-          onChange={onInputChange}
+          onChange={(e) => {
+            if (/^\d*$/.test(e.target.value)) setInputValue(e.target.value);
+          }}
           onBlur={onBlur}
-          inputMode="numeric"
-          className="
-            w-16 h-12 text-center text-sm font-semibold tracking-widest
-            border-x border-black outline-none
-            bg-transparent
-          "
+          className="w-16 h-12 text-center border-x border-black outline-none"
         />
 
         {/* PLUS */}
         <button
-          onClick={increase}
+          onClick={() => incrementCartProduct(productId)}
           disabled={isMax}
-          className={`
-            w-12 h-12 flex items-center justify-center
-            text-lg font-light transition
-            ${
-              isMax
-                ? "opacity-40 cursor-not-allowed"
-                : "hover:bg-black hover:text-white"
-            }
-          `}
+          className={`w-12 h-12 ${
+            isMax
+              ? "opacity-40 cursor-not-allowed"
+              : "hover:bg-black hover:text-white"
+          }`}
         >
           +
         </button>
       </div>
 
-      {/* STOCK INFO */}
       {stock === 0 ? (
-        <span className="text-xs text-red-500 font-medium">
-          Out of stock
-        </span>
+        <span className="text-xs text-red-500">Out of stock</span>
       ) : (
-        <span className="text-[11px] text-gray-500">
-          Max {stock} per order
-        </span>
+        <span className="text-[11px] text-gray-500">Max {stock} per order</span>
       )}
     </div>
   );

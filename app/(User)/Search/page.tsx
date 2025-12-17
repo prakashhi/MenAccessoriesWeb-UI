@@ -9,7 +9,6 @@ import { notify } from "../Component/ToastComponent";
 import SearchDataInfo from "./Componets/SearchDataInfo";
 import { motion } from "framer-motion";
 
-/* ------------------ ANIMATION VARIANTS ------------------ */
 
 const pageFade = {
   hidden: { opacity: 0, y: 30 },
@@ -48,7 +47,7 @@ const staggerItem = {
   },
 };
 
-/* ------------------ PAGE ------------------ */
+
 
 export default function Page() {
   const [categoryNameList, setCategoryNameList] = useState<any[]>([]);
@@ -58,7 +57,7 @@ export default function Page() {
 
   const { callApi } = useApi();
 
-  /* ------------------ API CALLS ------------------ */
+
 
   const GetCategoryName = useCallback(async () => {
     const response = await callApi(
@@ -76,6 +75,7 @@ export default function Page() {
 
     setCategoryNameList(response.data || []);
   }, [callApi]);
+   console.log(categoryNameList)
 
   const GetSuggestProduct = useCallback(async () => {
     const response = await callApi("get", "/9rock/cat-with-products");
@@ -142,7 +142,7 @@ export default function Page() {
           variants={sectionFade}
           initial="hidden"
           animate="show"
-          className="bg-white rounded-3xl border border-gray-200 shadow-[0_20px_40px_rgba(0,0,0,0.05)] p-5 sm:p-6 lg:p-8 space-y-8"
+          className="   p-1 sm:p-6 lg:p-8 space-y-8"
         >
           {/* SEARCH INPUT */}
           <div className="relative">
@@ -153,9 +153,7 @@ export default function Page() {
               onChange={(e) => setSearchWord(e.target.value.trim())}
             />
 
-            {searchWord && searchData && (
-              <SearchDataInfo Data={searchData} />
-            )}
+            {searchWord && searchData && <SearchDataInfo Data={searchData} />}
           </div>
 
           {/* ---------------- CATEGORIES ---------------- */}
@@ -165,11 +163,13 @@ export default function Page() {
             animate="show"
             className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4"
           >
+
+            {categoryNameList.length === 0 && <p>No categories found</p>}
             {categoryNameList.map((val, index) => (
               <motion.div key={index} variants={staggerItem}>
                 <Link
                   href={`/Category/${val.id}`}
-                  className="rounded-xl w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] lg:text-sm sm:text-xs md:text-sm py-3 px-2 text-center transition-all duration-300 tracking-widest font-medium"
+                  className="rounded-xl w-full  bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] lg:text-sm sm:text-xs md:text-sm py-3 px-2 text-center transition-all duration-300 tracking-widest font-medium"
                 >
                   {val.name}
                 </Link>

@@ -4,6 +4,10 @@ import { useEffect } from "react";
 import { CountryCode } from "@/app/utils/CountryCode";
 import { CountryListWithState } from "@/app/utils/CountryListWithState";
 
+const countryCodeByISO2 = new Map(
+  CountryCode.map((c) => [c.code, c])
+);
+console.log(countryCodeByISO2)
 interface Props {
   register: any;
   watch: any;
@@ -19,22 +23,28 @@ export default function CountryField({
 }: Props) {
   const selectedCountry = watch("country");
 
-  // 🔹 Auto set country code & label
+  // 🔹 Auto set dial code & country code label
   useEffect(() => {
     if (!selectedCountry) return;
 
-    const countryCodeData = CountryCode.find((c) => c.name === selectedCountry);
+    const country = CountryListWithState.find(
+      (c) => c.name === selectedCountry
+    );
 
-    if (countryCodeData) {
-      setValue("countryCode", countryCodeData.dial_code);
-      setValue("countryCodeLabel", countryCodeData.code);
+    if (!country) return;
+
+    const extra = countryCodeByISO2.get(country.iso2);
+
+    if (extra) {
+      setValue("countryCode", extra.dial_code); // +971
+      setValue("countryCodeLabel", extra.code); // AE
     } else {
       setValue("countryCode", "");
       setValue("countryCodeLabel", "");
     }
   }, [selectedCountry, setValue]);
 
-  // 🔹 Get states of selected country
+  // 🔹 States
   const states =
     CountryListWithState.find((c) => c.name === selectedCountry)?.states || [];
 
@@ -49,20 +59,28 @@ export default function CountryField({
           {...register("country")}
         >
           <option value="">Select Country</option>
-          {CountryListWithState.map((country) => (
-            <option key={country.iso2} value={country.name}>
-              {country.name}
-            </option>
-          ))}
+
+          {CountryListWithState.map((country) => {
+            const extra = countryCodeByISO2.get(country.iso2);
+
+            return (
+              <option key={country.iso2} value={country.name}>
+                {extra?.emoji ? `${extra.emoji} ` : ""}
+                {country.name}
+              </option>
+            );
+          })}
         </select>
 
         {errors?.country && (
-          <p className="text-red-500 text-sm mt-1">{errors.country.message}</p>
+          <p className="text-red-500 text-sm mt-1">
+            {errors.country.message}
+          </p>
         )}
       </div>
 
+      {/* COUNTRY CODE + LABEL */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* COUNTRY CODE */}
         <div>
           <label className="text-sm font-medium text-gray-700">
             Country Code
@@ -74,7 +92,6 @@ export default function CountryField({
           />
         </div>
 
-        {/* COUNTRY CODE LABEL */}
         <div>
           <label className="text-sm font-medium text-gray-700">
             Country Code Label
@@ -110,7 +127,9 @@ export default function CountryField({
         </select>
 
         {errors?.state && (
-          <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
+          <p className="text-red-500 text-sm mt-1">
+            {errors.state.message}
+          </p>
         )}
       </div>
     </>

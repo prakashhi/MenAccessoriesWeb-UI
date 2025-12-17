@@ -9,6 +9,7 @@ interface ProductDescriptionProps {
 }
 
 export default function ProductDescription({
+  extraInfo,
   description,
   specifications,
 }: ProductDescriptionProps) {
@@ -22,9 +23,7 @@ export default function ProductDescription({
           Description
         </h3>
 
-        <p className="text-gray-600 leading-relaxed text-sm">
-          {description}
-        </p>
+        <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
       </div>
 
       {/* TOGGLE DRAWER BUTTON */}
@@ -94,6 +93,24 @@ export default function ProductDescription({
                     </dd>
                   </div>
                 ))}
+
+              {extraInfo &&
+                Object.entries(extraInfo).map(
+                  ([key, value]) =>
+                    value && (
+                      <div
+                        key={key}
+                        className="flex justify-between gap-6 border-b border-gray-100 pb-2"
+                      >
+                        <dt className="text-gray-500 capitalize font-medium tracking-wide">
+                          {key.replace(/([A-Z])/g, " $1")}
+                        </dt>
+                        <dd className="text-gray-800 text-right font-medium">
+                          {value}
+                        </dd>
+                      </div>
+                    )
+                )}
             </dl>
           </motion.div>
         )}

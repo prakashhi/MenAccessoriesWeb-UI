@@ -15,6 +15,7 @@ import { useApi } from "@/app/useApi";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import ProductDescription from "./Component/ProductDescription";
+import { formatIndianPrice } from "@/app/utils/FotmatCurrency";
 
 export default function ProductPage() {
   const params = useParams();
@@ -22,7 +23,6 @@ export default function ProductPage() {
   const { AddCartProduct, AddLikeProduct } = UsePanel();
 
   const [product, setProduct] = useState<any>(null);
-  const [qty, setQty] = useState(1);
 
   const getProductData = useCallback(async () => {
     const res = await callApi("get", `/product/${params.id}`);
@@ -50,7 +50,12 @@ export default function ProductPage() {
       ? JSON.parse(product?.description)
       : product?.description;
 
-       console.log("vidoe0",product.video)
+  const extraInfo = {
+    Color: product.color,
+    Size: product.size,
+    weight: product.weight,
+    // Material: product.materialUsedName,
+  };
 
   return (
     <>
@@ -65,7 +70,11 @@ export default function ProductPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <PictureGallery images={images} name={product.name} video={product.video} />
+            <PictureGallery
+              images={images}
+              name={product.name}
+              video={product.video}
+            />
           </motion.div>
 
           {/* RIGHT – INFO */}
@@ -92,8 +101,6 @@ export default function ProductPage() {
                 {product.name}
               </h1>
 
-              <h3>{product.size}</h3>
-
               <h2 className="text-gray-300 text-sm mt-2.5">
                 SKU: {product?.serialNumber}
               </h2>
@@ -102,12 +109,12 @@ export default function ProductPage() {
             {/* PRICE */}
             <div className="flex items-center gap-4">
               <span className="text-3xl font-semibold text-black">
-                ₹ {product.sellingPrice}
+                ₹ {formatIndianPrice(product.sellingPrice)}
               </span>
 
               {product.customPrice !== 0 && (
                 <span className="text-sm text-gray-400 line-through">
-                  ₹{product.customPrice}
+                  ₹{ formatIndianPrice(product.customPrice) }
                 </span>
               )}
             </div>
@@ -115,16 +122,21 @@ export default function ProductPage() {
             {/* DESCRIPTION */}
 
             <ProductDescription
+              extraInfo={extraInfo}
               description={parsedDescription.description}
               specifications={parsedDescription.specifications}
             />
 
             {/* QUANTITY */}
+
+            {
+              
+            }
             <div className="w-40">
               <ItemCount
-                Quanty={qty}
-                stock={product.numberOfPieces}
-                setItemscount={setQty}
+                productId={product.id}
+                quantity={product.quantity || 1}
+                stock={product.stock}
               />
             </div>
 
@@ -132,7 +144,7 @@ export default function ProductPage() {
             <div className="flex flex-col gap-4 max-w-sm">
               <Button
                 onPress={() => {
-                  AddCartProduct(product.name, product.id);
+                  AddCartProduct(product);
                 }}
                 className="
                   bg-black text-white py-4 rounded-none
@@ -146,7 +158,7 @@ export default function ProductPage() {
               <Button
                 startContent={<Heart size={16} />}
                 onPress={() => {
-                  AddLikeProduct(product.name, product.id);
+                  AddLikeProduct(product);
                 }}
                 className="
                   border border-black py-4 rounded-none

@@ -42,6 +42,8 @@ export default function page() {
       message: res.msg || "Login successful!",
       type: "success",
     });
+
+    localStorage.setItem("UserData",JSON.stringify(res.data))
     router.push("/");
   };
 

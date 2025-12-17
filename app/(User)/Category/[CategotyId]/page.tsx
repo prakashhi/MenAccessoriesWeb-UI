@@ -35,7 +35,7 @@ export default function Page() {
     console.log("res", res);
 
     // setData(res.data);
-    setData(res.data[0].products);
+    setData(res.data[0]?.products);
   }, []);
 
   useEffect(() => {

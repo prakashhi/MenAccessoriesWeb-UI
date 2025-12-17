@@ -1,7 +1,9 @@
 export type product = {
-  id: number;
+  code: string;
+  id: string;
+  image: string;
   name: string;
-  img: string;
-  price: number;
-  Qty?:number
+  sellingPrice: number;
+  seqId: number;
+  stock:number;
 };

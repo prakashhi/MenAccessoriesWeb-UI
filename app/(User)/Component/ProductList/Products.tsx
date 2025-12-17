@@ -15,7 +15,7 @@ export default function Product() {
   const [data, setData] = useState([]);
 
   const getData = useCallback(async () => {
-    const MenData = await callApi("get", "/9rock/cat-with-products");
+    const MenData = await callApi("get", "https://backend.yugsingh.com/9rock/cat-with-products");
     if (MenData?.error) {
       notify({
         message: MenData?.message || "SomeThing is wrong!",

@@ -5,28 +5,49 @@ import Footer from "../Component/Footer/Footer";
 import Image from "next/image";
 import { Button } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ItemCount from "./component/ItemCount";
 import { motion, AnimatePresence } from "framer-motion";
+import { getUserFromStorage } from "@/context/utils";
+import { product } from "@/context/Types/type";
+import { formatIndianPrice } from "@/app/utils/FotmatCurrency";
+import PaymentSuccessModal from "./component/PaymentSucessModel";
+import { RiDeleteBinLine, RiShoppingCart2Line } from "react-icons/ri";
+import PaymentFailedModal from "./component/PaymentFailedModel";
 
 export default function Page() {
-  const { cartProduct, RemoveCartProduct } = UsePanel();
+  const user = getUserFromStorage();
+  const { RemoveCartProduct, CartProductList, guestCart } = UsePanel();
 
-  const total = useMemo(
-    () =>
-      cartProduct.reduce(
-        (sum: number, item: any) => sum + item.price * item.Quanty,
-        0
-      ),
-    [cartProduct]
+  const cartListData = useMemo(
+    () => (user ? CartProductList : Object.values(guestCart?.items || {})),
+    [user, CartProductList, guestCart]
   );
+
+  const total = useMemo(() => {
+    const list = user ? CartProductList : cartListData;
+
+    return list.reduce(
+      (sum: number, item: any) => sum + item.sellingPrice * item.quantity,
+      0
+    );
+  }, [CartProductList]);
+
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleCheckout = () => {
+    // Simulate payment success
+    setTimeout(() => {
+      setIsSuccess(true);
+    }, 500);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
       <Nav />
 
-      <main className="flex-1 px-4 sm:px-6 lg:px-12 py-12 max-w-6xl mx-auto w-full">
+      <main className="flex-1 px-4 sm:px-6 lg:px-12 py-12 max-w-7xl mx-auto w-full">
         {/* TITLE */}
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
@@ -41,13 +62,13 @@ export default function Page() {
           {/* CART LIST */}
           <div className="flex-1  rounded-2xl ">
             <AnimatePresence>
-              {cartProduct.length > 0 ? (
+              {cartListData.length > 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="divide-y"
                 >
-                  {cartProduct.map((item: any) => (
+                  {cartListData.map((item: any) => (
                     <motion.div
                       key={item.id}
                       layout
@@ -59,7 +80,11 @@ export default function Page() {
                       {/* IMAGE */}
                       <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F2F2F2] shrink-0">
                         <Image
-                          src={item.img || "/images/placeholder.webp"}
+                          src={
+                            `${process.env.NEXT_PUBLIC_IMG_URL}${
+                              item?.image.split("/")[1]
+                            }` || "/images/placeholder.webp"
+                          }
                           alt={item.name}
                           fill
                           sizes="96px"
@@ -73,7 +98,11 @@ export default function Page() {
                           {item.name}
                         </h3>
 
-                        <ItemCount Quanty={item.Quanty} id={item.id} />
+                        <ItemCount
+                          productId={item.id}
+                          quantity={item.quantity}
+                          stock={item.stock}
+                        />
 
                         <button
                           onClick={() => RemoveCartProduct(item.id)}
@@ -85,7 +114,7 @@ export default function Page() {
 
                       {/* PRICE */}
                       <div className="text-sm sm:text-base font-semibold">
-                        ₹{item.price}.00
+                        ₹ {formatIndianPrice(item.sellingPrice)}.00
                       </div>
                     </motion.div>
                   ))}
@@ -118,10 +147,12 @@ export default function Page() {
               animate={{ opacity: 1, y: 0 }}
               className="w-full lg:w-[34%]"
             >
-              <div className="bg-white rounded-2xl border border-[#ECECEC] p-6 sticky top-24 space-y-6">
+              <div className="bg-white rounded-xl border border-[#ECECEC] p-6 sticky top-24 space-y-6">
                 <div className="flex justify-between text-sm tracking-wide">
                   <span>Total</span>
-                  <span className="font-semibold">₹{total}.00</span>
+                  <span className="font-semibold">
+                    ₹{formatIndianPrice(total)}.00
+                  </span>
                 </div>
 
                 {/* DISCOUNT */}
@@ -136,13 +167,24 @@ export default function Page() {
                 </div>
 
                 {/* CHECKOUT */}
-                <button className="w-full bg-black text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition">
+                <button
+                  onClick={handleCheckout}
+                  className="w-full bg-black cur text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition"
+                >
+                  
                   CHECKOUT
                 </button>
               </div>
             </motion.aside>
           )}
         </div>
+
+        {/* Success Modal */}
+        <PaymentFailedModal
+          isOpen={isSuccess}
+          onClose={() => setIsSuccess(false)}
+          // amount={123456} // Example amount
+        />
       </main>
 
       <Footer />

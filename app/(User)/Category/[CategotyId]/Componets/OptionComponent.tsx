@@ -2,9 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { RiArrowDropDownLine } from "react-icons/ri";
-import { options } from "../option";
 import { useApi } from "@/app/useApi";
-import { useParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function OptionComponent() {
   const [open, setOpen] = useState<Record<number, boolean>>({});
@@ -24,8 +23,6 @@ export default function OptionComponent() {
       callApi("get", `http://localhost:3005/material-list?page=1&limit=10`),
     ]);
 
-    console.log([subCategoryRes, materialRes]);
-
     setState((prev) => ({
       ...prev,
       subCategories: subCategoryRes?.data,
@@ -36,8 +33,6 @@ export default function OptionComponent() {
   useEffect(() => {
     getfilterData();
   }, []);
-
-  console.log("Satellite", state);
 
   const toggle = (index: number) => {
     setOpen((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -65,7 +60,6 @@ export default function OptionComponent() {
 }
 
 function AccordionSection({ index, title, items, open, toggle }: any) {
-  const contentRef = useRef<HTMLDivElement>(null);
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
   const handleCheck = (id: string) => {
@@ -79,41 +73,58 @@ function AccordionSection({ index, title, items, open, toggle }: any) {
         onClick={() => toggle(index)}
         className="w-full flex justify-between items-center px-6 py-4"
       >
-        <span className="text-sm font-medium tracking-widest uppercase">
-          {title}
-        </span>
+        <span className="text-sm font-medium tracking-widest uppercase">{title}</span>
         <RiArrowDropDownLine
           size={24}
-          className={`transition-transform ${open ? "rotate-180" : ""}`}
+          className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
       {/* CONTENT */}
-      <div
-        ref={contentRef}
-        style={{
-          maxHeight: open ? `${contentRef.current?.scrollHeight}px` : "0px",
-        }}
-        className="overflow-hidden transition-all duration-300"
-      >
-        <div className="px-6 pb-5 space-y-3">
-          {Array.isArray(items) &&
-            items.map((item: any) => (
-              <label
-                key={item.id}
-                className="flex items-center gap-3 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={!!checkedItems[item.id]}
-                  onChange={() => handleCheck(item.id)}
-                  className="accent-black"
-                />
-                <span className="text-sm text-gray-600">{item.name}</span>
-              </label>
-            ))}
-        </div>
-      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="px-6 pb-5 space-y-3"
+          >
+            {Array.isArray(items) &&
+              items.map((item: any) => (
+                <label
+                  key={item.id}
+                  className="flex items-center gap-3 cursor-pointer relative"
+                >
+                  <input
+                    type="checkbox"
+                    checked={!!checkedItems[item.id]}
+                    onChange={() => handleCheck(item.id)}
+                    className="peer absolute opacity-0 w-6 h-6"
+                  />
+                  <span
+                    className={`w-6 h-6 flex-shrink-0 rounded-lg border-2 border-gray-300 flex items-center justify-center transition-all duration-300
+                      ${checkedItems[item.id] ? "bg-black border-black" : "bg-white"}`
+                    }
+                  >
+                    {checkedItems[item.id] && (
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </span>
+                  <span className="text-sm text-gray-700">{item.name}</span>
+                </label>
+              ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

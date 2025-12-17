@@ -1,7 +1,7 @@
 "use client";
 
 import CardModel from "@/app/(User)/Component/ProductList/CardModel";
-import { FaFilter, FaBoxOpen } from "react-icons/fa";
+import { FaFilter } from "react-icons/fa";
 import { Button } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
 import { RiArrowDropDownLine } from "react-icons/ri";
@@ -36,26 +36,20 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     switch (sort) {
       case "A → Z":
         return data.sort((a, b) => a.name.localeCompare(b.name));
-
       case "Z → A":
         return data.sort((a, b) => b.name.localeCompare(a.name));
-
       case "Price: Low → High":
         return data.sort((a, b) => a.price - b.price);
-
       case "Price: High → Low":
         return data.sort((a, b) => b.price - a.price);
-
       case "Newest First":
         return data.sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-
       case "Oldest First":
         return data.sort(
           (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         );
-
       default:
         return data;
     }
@@ -64,32 +58,11 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
   return (
     <section className="w-full">
       {/* ===== TOP BAR ===== */}
-      <div
-        className="
-          flex flex-col sm:flex-row
-          gap-3 sm:gap-4
-          items-stretch sm:items-center
-          justify-between
-          mb-6
-        "
-      >
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between mb-6">
         {/* MOBILE FILTER BUTTON */}
         <Button
           onPress={onOpen}
-          className="
-            sm:hidden
-            flex items-center justify-center gap-2
-            w-full
-            h-11
-            border border-gray-300
-            bg-white
-            text-[12px]
-            tracking-[0.25em]
-            font-medium
-            rounded-lg
-            hover:border-black
-            transition
-          "
+          className="sm:hidden flex items-center justify-center gap-2 w-full h-11 border border-gray-300 bg-white text-[12px] tracking-[0.25em] font-medium rounded-lg hover:border-gray-800 transition-all duration-300 shadow-sm"
         >
           <FaFilter size={13} />
           FILTER
@@ -100,21 +73,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="
-              appearance-none w-full
-              h-11
-              bg-white
-              border border-gray-300
-              pl-4 pr-10
-              rounded-lg
-              text-[13px]
-              tracking-wide
-              font-medium
-              text-[#111]
-              focus:outline-none
-              focus:border-black
-              transition
-            "
+            className="appearance-none w-full h-11 bg-white border border-gray-300 pl-4 pr-10 rounded-lg text-[13px] tracking-wide font-medium text-gray-900 focus:outline-none focus:border-gray-800 transition-all duration-300 shadow-sm"
           >
             {filterDataOption.map((val) => (
               <option key={val} value={val}>
@@ -125,34 +84,18 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
 
           <RiArrowDropDownLine
             size={22}
-            className="
-              absolute right-3 top-1/2 -translate-y-1/2
-              text-gray-500 pointer-events-none
-            "
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
           />
         </div>
       </div>
 
       {/* ===== PRODUCT GRID / EMPTY STATE ===== */}
       {sortedProducts.length > 0 ? (
-        <div
-          className="
-            grid
-            grid-cols-2
-            mb-10
-            sm:grid-cols-2
-            md:grid-cols-3
-            lg:grid-cols-3
-            xl:grid-cols-4
-            gap-x-4 gap-y-6
-            sm:gap-x-6 sm:gap-y-8
-            lg:gap-x-8 lg:gap-y-10
-          "
-        >
-          <CardModel DataObj={sortedProducts} CustomWH="w-full" />
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-x-4 gap-y-6 sm:gap-x-6 sm:gap-y-8 lg:gap-x-8 lg:gap-y-10 mb-10">
+          <CardModel DataObj={sortedProducts} CustomWH="w-full" className="hover:scale-[1.03] transition-transform duration-300 shadow-md hover:shadow-xl rounded-xl" />
         </div>
       ) : (
-        <EmptyTableComponent/>
+        <EmptyTableComponent />
       )}
     </section>
   );
