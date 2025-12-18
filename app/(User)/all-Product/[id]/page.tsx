@@ -10,28 +10,51 @@ import { UsePanel } from "@/context/Context";
 import ItemCount from "@/app/(User)/Cart/component/ItemCount";
 import Star from "@/app/(User)/Component/ProductList/Star";
 import PictureGallery from "./Component/PictureGallery";
-import { notify } from "@/app/(User)/Component/ToastComponent";
 import { useApi } from "@/app/useApi";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+
 import ProductDescription from "./Component/ProductDescription";
-import { formatIndianPrice } from "@/app/utils/FotmatCurrency";
+import { formatIndianPrice } from "@/app/utils/FormatCurrency";
+
+import { AnimatePresence } from "framer-motion";
+import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
+import { MoveRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ProductPage() {
   const params = useParams();
   const { callApi } = useApi();
-  const { AddCartProduct, AddLikeProduct } = UsePanel();
+
+  const router = useRouter();
+  const { AddCartProduct, AddLikeProduct, guestCart } = UsePanel();
 
   const [product, setProduct] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   const getProductData = useCallback(async () => {
-    const res = await callApi("get", `/product/${params.id}`);
+    const res = await callApi(
+      "get",
+      `https://backend.9rock.in/product/${params.id}`
+    );
     setProduct(res.data);
   }, []);
 
   useEffect(() => {
-    getProductData();
+    setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    getProductData();
+  }, [mounted]);
+
+  if (!mounted) return null;
+
+  // useEffect(() => {
+  //   getProductData();
+  // }, []);
 
   if (!product)
     return (
@@ -56,6 +79,8 @@ export default function ProductPage() {
     weight: product.weight,
     // Material: product.materialUsedName,
   };
+
+  let iscart = guestCart.items[product.id];
 
   return (
     <>
@@ -114,7 +139,7 @@ export default function ProductPage() {
 
               {product.customPrice !== 0 && (
                 <span className="text-sm text-gray-400 line-through">
-                  ₹{ formatIndianPrice(product.customPrice) }
+                  ₹{formatIndianPrice(product.customPrice)}
                 </span>
               )}
             </div>
@@ -129,31 +154,110 @@ export default function ProductPage() {
 
             {/* QUANTITY */}
 
-            {
-              
-            }
             <div className="w-40">
               <ItemCount
                 productId={product.id}
-                quantity={product.quantity || 1}
+                quantity={iscart?.quantity || 1}
                 stock={product.stock}
               />
             </div>
 
             {/* ACTIONS */}
             <div className="flex flex-col gap-4 max-w-sm">
-              <Button
-                onPress={() => {
-                  AddCartProduct(product);
-                }}
-                className="
-                  bg-black text-white py-4 rounded-none
-                  text-xs tracking-[0.2em] font-semibold
-                  hover:bg-neutral-900 transition
-                "
-              >
-                ADD TO CART
-              </Button>
+              <AnimatePresence mode="wait">
+                {!iscart ? (
+                  <motion.button
+                    key="add"
+                    onClick={async () => {
+                      setAdding(true);
+                      await AddCartProduct(product);
+                      setTimeout(() => setAdding(false), 600);
+                    }}
+                    initial={{ opacity: 0.9 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="
+        relative flex items-center justify-center gap-3
+        bg-black text-white py-4 rounded-none
+        text-xs tracking-[0.25em] font-semibold
+        overflow-hidden
+      "
+                  >
+                    <AnimatePresence mode="wait">
+                      {!iscart ? (
+                        <motion.span
+                          key="cart"
+                          initial={{ y: 10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -10, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="flex items-center gap-2"
+                        >
+                          <RiShoppingCart2Line size={16} />
+                          ADD TO CART
+                        </motion.span>
+                      ) : (
+                        <motion.span
+                          key="check"
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.35, ease: "easeOut" }}
+                          className="flex items-center gap-2 text-emerald-400"
+                        >
+                          <RiCheckLine size={18} />
+                          ADDED
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    onClick={() => setRedirecting(true)}
+                    whileHover="hover"
+                    animate={redirecting ? "exit" : "rest"}
+                    variants={{
+                      rest: { x: 0, opacity: 1 },
+                      hover: { x: 6 },
+                      exit: {
+                        x: 120,
+                        opacity: 0,
+                        transition: { duration: 0.5, ease: "easeInOut" },
+                      },
+                    }}
+                    onAnimationComplete={(variant) => {
+                      if (variant === "exit") router.push("/Cart");
+                    }}
+                    className="
+    group relative flex items-center cursor-pointer justify-center gap-3
+    bg-white text-black py-4 border border-black
+    rounded-none text-xs tracking-[0.25em] font-semibold
+    overflow-hidden
+  "
+                  >
+                    <motion.span
+                      variants={{
+                        rest: { x: 0 },
+                        hover: { x: 4 },
+                      }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="flex items-center gap-2"
+                    >
+                      SHOW IN CART
+                      <motion.span
+                        variants={{
+                          rest: { x: -6, opacity: 0 },
+                          hover: { x: 0, opacity: 1 },
+                        }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                      >
+                        <MoveRight size={14} />
+                      </motion.span>
+                    </motion.span>
+                  </motion.button>
+                )}
+              </AnimatePresence>
 
               <Button
                 startContent={<Heart size={16} />}

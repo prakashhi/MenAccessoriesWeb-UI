@@ -7,7 +7,7 @@ import { CountryListWithState } from "@/app/utils/CountryListWithState";
 const countryCodeByISO2 = new Map(
   CountryCode.map((c) => [c.code, c])
 );
-console.log(countryCodeByISO2)
+
 interface Props {
   register: any;
   watch: any;

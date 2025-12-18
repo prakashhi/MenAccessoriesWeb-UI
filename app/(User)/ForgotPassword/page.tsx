@@ -34,13 +34,6 @@ export default function page() {
       }
     );
 
-    if (res.error) {
-      notify({
-        message: res.msg || "Something is Wrong!",
-        type: "error",
-      });
-      return;
-    }
     notify({
       message: res.message || "Sended Link successful!",
       type: "success",

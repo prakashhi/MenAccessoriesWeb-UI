@@ -11,33 +11,47 @@ import ItemCount from "./component/ItemCount";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserFromStorage } from "@/context/utils";
 import { product } from "@/context/Types/type";
-import { formatIndianPrice } from "@/app/utils/FotmatCurrency";
+import { formatIndianPrice } from "@/app/utils/FormatCurrency";
 import PaymentSuccessModal from "./component/PaymentSucessModel";
 import { RiDeleteBinLine, RiShoppingCart2Line } from "react-icons/ri";
 import PaymentFailedModal from "./component/PaymentFailedModel";
+import GuestUserPaymentForm from "./component/GuestUserPaymentForm";
+import CartInfoModal from "./component/CartInfoModel";
+
+import { useRouter } from "next/navigation";
 
 export default function Page() {
-  const user = getUserFromStorage();
+  const user = useMemo(() => getUserFromStorage(), []);
   const { RemoveCartProduct, CartProductList, guestCart } = UsePanel();
 
-  const cartListData = useMemo(
-    () => (user ? CartProductList : Object.values(guestCart?.items || {})),
-    [user, CartProductList, guestCart]
-  );
+  const [openCartInfo, setOpenCartInfo] = useState(false);
+
+  const router = useRouter();
+
+  const cartListData = useMemo(() => {
+    if (user) {
+      return CartProductList();
+    }
+
+    return Object.values(guestCart?.items || {});
+  }, [user, guestCart, CartProductList]);
 
   const total = useMemo(() => {
-    const list = user ? CartProductList : cartListData;
-
-    return list.reduce(
+    return cartListData.reduce(
       (sum: number, item: any) => sum + item.sellingPrice * item.quantity,
       0
     );
-  }, [CartProductList]);
+  }, [cartListData]);
 
   const [isSuccess, setIsSuccess] = useState(false);
 
   const handleCheckout = () => {
     // Simulate payment success
+
+    if (!user) {
+      setOpenCartInfo(true);
+      return;
+    }
     setTimeout(() => {
       setIsSuccess(true);
     }, 500);
@@ -52,7 +66,7 @@ export default function Page() {
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center text-3xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
+          className="text-center text-2xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
           style={{ fontFamily: "ui-serif, serif" }}
         >
           SHOPPING CART
@@ -80,6 +94,7 @@ export default function Page() {
                       {/* IMAGE */}
                       <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F2F2F2] shrink-0">
                         <Image
+                          onClick={() => router.push(`/all-Product/${item.id}`)}
                           src={
                             `${process.env.NEXT_PUBLIC_IMG_URL}${
                               item?.image.split("/")[1]
@@ -167,24 +182,27 @@ export default function Page() {
                 </div>
 
                 {/* CHECKOUT */}
-                <button
-                  onClick={handleCheckout}
-                  className="w-full bg-black cur text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition"
+                <Button
+                  onPress={handleCheckout}
+                  className="w-full cursor-pointer bg-black cur text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition"
                 >
-                  
                   CHECKOUT
-                </button>
+                </Button>
               </div>
             </motion.aside>
           )}
         </div>
 
-        {/* Success Modal */}
-        <PaymentFailedModal
+        <CartInfoModal
+          open={openCartInfo}
+          onClose={() => setOpenCartInfo(false)}
+        />
+        {isSuccess == true && <GuestUserPaymentForm />}
+        {/* <PaymentFailedModal
           isOpen={isSuccess}
           onClose={() => setIsSuccess(false)}
           // amount={123456} // Example amount
-        />
+        /> */}
       </main>
 
       <Footer />

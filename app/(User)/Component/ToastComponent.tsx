@@ -2,6 +2,8 @@
 
 import { toast, ToastOptions } from "react-toastify";
 import { RiCheckLine, RiErrorWarningLine, RiInformationLine, RiAlertLine } from "react-icons/ri";
+import { CircleCheckBig } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 type ToastType = "success" | "error" | "info" | "warning";
 
@@ -22,7 +24,7 @@ const TOAST_THEME: Record<
       color: "#1F2937", // charcoal text
       borderLeft: "4px solid #C7B27C", // champagne gold
     },
-    icon: <RiCheckLine className="w-5 h-5 text-green-600" />,
+    icon: <CircleCheckBig  className="w-5 h-5 text-green-600" />,
   },
   error: {
     style: {
@@ -38,7 +40,7 @@ const TOAST_THEME: Record<
       color: "#1E3A8A",
       borderLeft: "4px solid #64748B",
     },
-    icon: <RiInformationLine className="w-5 h-5 text-blue-600" />,
+    icon: <Info size={20} strokeWidth={3} className="w-5 h-5 text-blue-600" />,
   },
   warning: {
     style: {

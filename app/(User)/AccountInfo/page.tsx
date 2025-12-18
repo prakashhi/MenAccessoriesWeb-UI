@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   FiUser,
   FiHeart,
@@ -17,11 +17,13 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { notify } from "@/app/(User)/Component/ToastComponent";
+import { getUserFromStorage } from "@/context/utils";
 
 type Order = { id: string; item: string; status: string; date?: string };
 type Wish = { id: number; name: string; price?: number };
 
 export default function AccountSection() {
+  const User = useMemo(() => getUserFromStorage(), []);
   const [user, setUserData] = useState({
     info: {},
     orders: [] as Order[],
@@ -30,17 +32,9 @@ export default function AccountSection() {
 
   const GetProfileData = async () => {
     let [profileData, likeProductDat] = await Promise.all([
-      callApi("get", "/user/{id}"),
-      callApi("get", "/like-products/{userId}"),
+      callApi("get", `/user/${User.id}`),
+      callApi("get", `/like-products/${User.id}`),
     ]);
-
-    if (profileData.error || likeProductDat.error) {
-      notify({
-        message: "Something went wrong!",
-        type: "error",
-      });
-      return;
-    }
 
     setUserData((prev) => ({
       ...prev,
@@ -52,15 +46,6 @@ export default function AccountSection() {
   // Logout handler (sample)
   const handleLogout = async () => {
     let res = await callApi("post", "/user/logout");
-
-    if (res?.error) {
-      notify({
-        message: res.message || "Something went wrong!",
-        type: "error",
-      });
-      return;
-    }
-
     // Show success toast
     notify({ message: res.msg || res.message, type: "info" });
 
@@ -107,7 +92,7 @@ export default function AccountSection() {
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center text-3xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
+          className="text-center text-2xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
           style={{ fontFamily: "ui-serif, serif" }}
         >
           My Account
@@ -358,9 +343,9 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
   if (keyname === "wishlist") {
     return (
       <section>
-        <h3 className="text-xl font-semibold mb-3">Wishlist</h3>
+        <h3 className="text-xl text-center font-semibold mb-3">Wishlist</h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="flex justify-center">
           {user.wishlist?.length > 0 ? (
             user.wishlist.map((w: any) => (
               <div
@@ -380,7 +365,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
               </div>
             ))
           ) : (
-            <NoData label="Wishlist" icon="💔" />
+            <NoData  label="Wishlist" icon="💔" />
           )}
         </div>
       </section>

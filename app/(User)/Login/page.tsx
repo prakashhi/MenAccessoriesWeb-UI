@@ -30,14 +30,6 @@ export default function page() {
       data: { email: info.email, password: info.password },
     });
 
-    if (res.error) {
-      notify({
-        message: res.msg || "Login failed!",
-        type: "error",
-      });
-      return;
-    }
-
     notify({
       message: res.msg || "Login successful!",
       type: "success",

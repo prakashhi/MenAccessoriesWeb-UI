@@ -12,23 +12,8 @@ export default function Nav() {
     likeProductLength: 0,
     CartProductLength: 0,
   });
-  const { cartProduct, likeProduct, LikeProductList, CartProductList } =
-    UsePanel();
+  const { LikeProductList, CartProductList ,GuestUserDataLength} = UsePanel();
 
-  const getLikeProductNumber = useCallback(async () => {
-    let res = await LikeProductList();
-    setState((prev) => ({ ...prev, likeProductLength: res.data?.length }));
-  }, []);
-
-  const getCartProductNumber = useCallback(async () => {
-    let res = await CartProductList();
-    setState((prev) => ({ ...prev, CartProductLength: res.data?.length }));
-  }, []);
-
-  useEffect(() => {
-    getLikeProductNumber();
-    getCartProductNumber();
-  }, []);
 
   return (
     <nav className="w-full sticky top-0 z-50 bg-white shadow-md">
@@ -53,9 +38,9 @@ export default function Nav() {
           </Link>
 
           <Link className="relative" href="/Wishlist">
-            {state.likeProductLength > 0 && (
+            {GuestUserDataLength.Like > 0 && (
               <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
-                {state.likeProductLength}
+                {GuestUserDataLength.Like}
               </div>
             )}
             <Heart
@@ -72,9 +57,9 @@ export default function Nav() {
           </Link>
 
           <Link className="relative" href="/Cart">
-            {state.CartProductLength > 0 && (
+            {GuestUserDataLength.Cart > 0 && (
               <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
-                {state.CartProductLength}
+                {GuestUserDataLength.Cart}
               </div>
             )}
             <ShoppingBag

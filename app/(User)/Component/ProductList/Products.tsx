@@ -7,33 +7,29 @@ import { useCallback, useEffect, useState } from "react";
 import { useApi } from "@/app/useApi";
 import { notify } from "../ToastComponent";
 
-
-
 export default function Product() {
   const { callApi } = useApi();
 
   const [data, setData] = useState([]);
 
   const getData = useCallback(async () => {
-    const MenData = await callApi("get", "https://backend.yugsingh.com/9rock/cat-with-products");
-    if (MenData?.error) {
-      notify({
-        message: MenData?.message || "SomeThing is wrong!",
-        type: "error",
-      });
-      return;
-    }
-    setData(MenData?.data);
+    const MenData = await callApi(
+      "get",
+      "https://backend.9rock.in/9rock/cat-with-products"
+    );
+     setData(MenData.data);
+
   }, []);
 
   useEffect(() => {
     getData();
   }, []);
 
+   console.log(data)
 
   return (
     <section className="pt-12 lg:pt-24 px-4 sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
-      {data.length > 1 &&
+      {data?.length > 1 &&
         data.map((categoryItem, index) => (
           <div
             key={index}

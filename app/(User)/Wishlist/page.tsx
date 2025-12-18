@@ -9,23 +9,27 @@ import ItemCount from "../Cart/component/ItemCount";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApi } from "@/app/useApi";
 import { notify } from "../Component/ToastComponent";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { getUserFromStorage } from "@/context/utils";
+import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 
 export default function Page() {
-  const { AddCartProduct, RemoveLikeProduct, LikeProductList } = UsePanel();
+  const user = useMemo(() => getUserFromStorage(), []);
+  const { AddCartProduct, RemoveLikeProduct, LikeProductList, guestCart } =
+    UsePanel();
 
   const [likeProductList, setLikeProductList] = useState([]);
 
-  const { callApi } = useApi();
+  const LikeListData = useMemo(() => {
+    if (user) {
+      return LikeProductList();
+    }
 
-  const getLikeProductData = useCallback(async () => {
-    let res = await LikeProductList();
-    setLikeProductList(res.data);
-  }, []);
+    return Object.values(guestCart?.likeProduct || {});
+  }, [user, guestCart, LikeProductList]);
 
-  useEffect(() => {
-    getLikeProductData();
-  }, []);
+
+  console.log(LikeListData);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
@@ -36,20 +40,20 @@ export default function Page() {
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center text-3xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
+          className="text-center text-2xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
           style={{ fontFamily: "ui-serif, serif" }}
         >
           WISHLIST
         </motion.h1>
 
         <AnimatePresence>
-          {likeProductList?.length > 0 ? (
+          {LikeListData?.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="bg-white rounded-2xl border border-[#ECECEC] divide-y"
             >
-              {likeProductList.map((item: any) => (
+              {LikeListData.map((item: any) => (
                 <motion.div
                   key={item.id}
                   layout
@@ -58,10 +62,11 @@ export default function Page() {
                   exit={{ opacity: 0 }}
                   className="flex flex-col sm:flex-row gap-6 p-6 items-start sm:items-center"
                 >
-                  {/* IMAGE */}
                   <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F2F2F2] shrink-0">
                     <Image
-                      src={item.img || "/images/placeholder.webp"}
+                      src={
+                        ImageShowUtil(item.image) || "/images/placeholder.webp"
+                      }
                       alt={item.name}
                       fill
                       sizes="96px"

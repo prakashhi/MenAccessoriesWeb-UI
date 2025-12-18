@@ -24,16 +24,6 @@ export default function Page() {
 
     const res = await callApi("get", "/9rock/cat-with-products");
 
-    if (res?.error) {
-      notify({
-        message: res.message || "Something went wrong!",
-        type: "error",
-      });
-      return;
-    }
-
-    console.log("res", res);
-
     // setData(res.data);
     setData(res.data[0]?.products);
   }, []);

@@ -1,7 +1,9 @@
 import { useState } from "react";
-import axios, { AxiosRequestConfig } from "axios";
+import { AxiosRequestConfig } from "axios";
 
 import API from "./api";
+import { notify } from "./(User)/Component/ToastComponent";
+import { showErrorOnce } from "./utils/apiErrorGuard";
 
 interface ApiState<T> {
   data: T | null;
@@ -19,12 +21,12 @@ export function useApi<T = any>() {
     url: string,
     config?: AxiosRequestConfig
   ) => {
+    setLoading(true);
     setError(null);
 
     try {
       let response;
 
-      setLoading(true);
       switch (method) {
         case "get":
           response = await API.get(url, config);
@@ -48,11 +50,29 @@ export function useApi<T = any>() {
 
       return response.data;
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || err.message;
+      let errorMsg;
+      errorMsg = err.response?.data?.message || err.message;
+
       setError(errorMsg);
-      // setData(null);
-      // ❗ DO NOT throw — avoids double toast
-      return { error: true, message: errorMsg };
+
+       console.log("ERR",err)
+
+      const key = `${method}-${url}`;
+
+      if (err.code == "ERR_NETWORK") {
+        // showErrorOnce(key, errorMsg);
+
+          notify({
+          message: errorMsg,
+          type: "error",
+        });
+        throw err;
+      } else {
+        notify({
+          message: errorMsg,
+          type: "error",
+        });
+      }
     } finally {
       setLoading(false);
     }

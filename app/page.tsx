@@ -8,6 +8,10 @@ import Product from "./(User)/Component/ProductList/Products";
 import Footer from "./(User)/Component/Footer/Footer";
 import MobileNavBar from "./Component/NavBar/MobileNavBar";
 
+
+
+
+
 export default function Home() {
   return (
     <>

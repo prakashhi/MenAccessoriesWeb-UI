@@ -39,13 +39,6 @@ export default function page() {
       },
     });
 
-    if (res.error) {
-      notify({
-        message: res.message || "Something is Wrong!",
-        type: "error",
-      });
-      return;
-    }
 
     notify({
       message: res.message || "Password reset successful!",

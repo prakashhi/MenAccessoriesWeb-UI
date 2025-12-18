@@ -13,7 +13,7 @@ export function middleware(req: NextRequest) {
     "/admin",
   ];
   // const userProtected = ["/AccountInfo", "/Wishlist", "/Cart"];
-  const userProtected = ["/AccountInfo", "/Wishlist"];
+  const userProtected = [ ""];
 
   const isProtected = protectedRoutes.some((path) =>
     req.nextUrl.pathname.startsWith(path)
@@ -34,7 +34,7 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
-    "/AccountInfo/:path*",
-    "/Wishlist/:path*",
+    // "/AccountInfo/:path*",
+    // "/Wishlist/:path*",
   ],
 };

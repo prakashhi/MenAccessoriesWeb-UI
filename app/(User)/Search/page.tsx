@@ -62,31 +62,17 @@ export default function Page() {
   const GetCategoryName = useCallback(async () => {
     const response = await callApi(
       "get",
-      "http://localhost:3005/product/subcategories?id=cfe77101-77f5-4811-9cdc-186ba9af9279&page=1&limit=100"
+      "/subcategories?id=cfe77101-77f5-4811-9cdc-186ba9af9279&page=1&limit=100"
     );
 
-    if (response?.error) {
-      notify({
-        message: response.message || "Something went wrong!",
-        type: "error",
-      });
-      return;
-    }
+     console.log("das",response)
 
-    setCategoryNameList(response.data || []);
+    setCategoryNameList(response?.data || []);
   }, [callApi]);
    console.log(categoryNameList)
 
   const GetSuggestProduct = useCallback(async () => {
-    const response = await callApi("get", "/9rock/cat-with-products");
-
-    if (response?.error) {
-      notify({
-        message: response.message || "Something went wrong!",
-        type: "error",
-      });
-      return;
-    }
+    const response = await callApi("get", "https://backend.9rock.in/9rock/cat-with-products");
 
     setSuggestProduct(response?.data?.[0]?.products || []);
   }, [callApi]);
@@ -96,16 +82,8 @@ export default function Page() {
 
     const res = await callApi(
       "get",
-      `/product-search-response?keyword=${words}`
+      `https://backend.9rock.in/product-search-response?keyword=${words}`
     );
-
-    if (res?.success !== true) {
-      notify({
-        message: res.message || "Something went wrong!",
-        type: "error",
-      });
-      return;
-    }
 
     setSearchData(res);
   };
@@ -201,7 +179,7 @@ export default function Page() {
             >
               <CardModel
                 DataObj={suggestProduct}
-                CustomWH="w-56 sm:w-64 md:w-72 h-[360px] rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
+                CustomWH="w-56 sm:w-64 md:w-72 h-[400px] rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
               />
             </motion.div>
           </div>
