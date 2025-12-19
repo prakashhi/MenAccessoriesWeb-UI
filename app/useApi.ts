@@ -24,6 +24,8 @@ export function useApi<T = any>() {
     setLoading(true);
     setError(null);
 
+    console.log(config);
+
     try {
       let response;
 
@@ -54,25 +56,12 @@ export function useApi<T = any>() {
       errorMsg = err.response?.data?.message || err.message;
 
       setError(errorMsg);
+        console.log(err.response.data)
 
-       console.log("ERR",err)
-
-      const key = `${method}-${url}`;
-
-      if (err.code == "ERR_NETWORK") {
-        // showErrorOnce(key, errorMsg);
-
-          notify({
-          message: errorMsg,
-          type: "error",
-        });
-        throw err;
-      } else {
-        notify({
-          message: errorMsg,
-          type: "error",
-        });
-      }
+      notify({
+        message: errorMsg,
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }

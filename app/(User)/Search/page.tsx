@@ -9,7 +9,6 @@ import { notify } from "../Component/ToastComponent";
 import SearchDataInfo from "./Componets/SearchDataInfo";
 import { motion } from "framer-motion";
 
-
 const pageFade = {
   hidden: { opacity: 0, y: 30 },
   show: {
@@ -47,8 +46,6 @@ const staggerItem = {
   },
 };
 
-
-
 export default function Page() {
   const [categoryNameList, setCategoryNameList] = useState<any[]>([]);
   const [suggestProduct, setSuggestProduct] = useState<any[]>([]);
@@ -57,25 +54,24 @@ export default function Page() {
 
   const { callApi } = useApi();
 
-
-
-  const GetCategoryName = useCallback(async () => {
+  const GetCategoryName = async () => {
     const response = await callApi(
       "get",
-      "/subcategories?id=cfe77101-77f5-4811-9cdc-186ba9af9279&page=1&limit=100"
+      "/product/subcategories?id=cfe77101-77f5-4811-9cdc-186ba9af9279&page=1&limit=100"
     );
 
-     console.log("das",response)
-
     setCategoryNameList(response?.data || []);
-  }, [callApi]);
-   console.log(categoryNameList)
+  };
 
-  const GetSuggestProduct = useCallback(async () => {
-    const response = await callApi("get", "https://backend.9rock.in/9rock/cat-with-products");
+
+  const GetSuggestProduct = async () => {
+    const response = await callApi(
+      "get",
+      "https://backend.9rock.in/9rock/cat-with-products"
+    );
 
     setSuggestProduct(response?.data?.[0]?.products || []);
-  }, [callApi]);
+  }
 
   const SearchProduct = async (words: string) => {
     if (!words) return;
@@ -141,8 +137,7 @@ export default function Page() {
             animate="show"
             className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4"
           >
-
-            {categoryNameList.length === 0 && <p>No categories found</p>}
+            
             {categoryNameList.map((val, index) => (
               <motion.div key={index} variants={staggerItem}>
                 <Link

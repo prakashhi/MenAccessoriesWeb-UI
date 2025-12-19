@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("admin_token")?.value;
-
   const userToken = req.cookies.get("User_token")?.value;
 
   const protectedRoutes = [
@@ -13,19 +11,11 @@ export function middleware(req: NextRequest) {
     "/admin",
   ];
   // const userProtected = ["/AccountInfo", "/Wishlist", "/Cart"];
-  const userProtected = [ ""];
-
-  const isProtected = protectedRoutes.some((path) =>
-    req.nextUrl.pathname.startsWith(path)
-  );
+  const userProtected = ["/AccountInfo"];
 
   // user check
   if (userProtected.some((path) => path.startsWith(path)) && !userToken) {
     return NextResponse.redirect(new URL("/Login", req.url));
-  }
-
-  if (isProtected && !token) {
-    return NextResponse.redirect(new URL("/adminLogin", req.url));
   }
 
   return NextResponse.next();
@@ -33,8 +23,7 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    // "/AccountInfo/:path*",
+    "/AccountInfo/:path*",
     // "/Wishlist/:path*",
   ],
 };

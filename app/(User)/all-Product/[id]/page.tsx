@@ -3,7 +3,7 @@
 import Nav from "@/app/(User)/Component/NavBar/Nav";
 import Footer from "@/app/(User)/Component/Footer/Footer";
 import { useParams } from "next/navigation";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@heroui/react";
 import { Heart } from "lucide-react";
 import { UsePanel } from "@/context/Context";
@@ -20,10 +20,18 @@ import { AnimatePresence } from "framer-motion";
 import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
 import { MoveRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getUserFromStorage } from "@/context/utils";
+
+interface ProductState {
+  Like: boolean;
+  Cart: boolean;
+}
 
 export default function ProductPage() {
+  const user = useMemo(() => getUserFromStorage(), []);
   const params = useParams();
   const { callApi } = useApi();
+  const { LikeProductList, CartProductList } = UsePanel();
 
   const router = useRouter();
   const { AddCartProduct, AddLikeProduct, guestCart } = UsePanel();
@@ -33,13 +41,47 @@ export default function ProductPage() {
   const [redirecting, setRedirecting] = useState(false);
   const [adding, setAdding] = useState(false);
 
-  const getProductData = useCallback(async () => {
-    const res = await callApi(
-      "get",
-      `https://backend.9rock.in/product/${params.id}`
-    );
-    setProduct(res.data);
-  }, []);
+  const [state, setState] = useState<ProductState>({
+    Like: false,
+    Cart: false,
+  });
+
+  const getProductData = useCallback(async () => {}, [
+    guestCart,
+    user,
+    params.id,
+    product,
+  ]);
+
+  const CartProductListData = async () => {
+    let res = await CartProductList();
+    return res;
+  };
+
+  const LikeProductListData = async () => {
+    let res = await LikeProductList();
+    return res;
+  };
+
+  useEffect(() => {
+    if (!product) return;
+
+    if (user) {
+      setState({
+        Cart:
+          Array.isArray(CartProductListData) &&
+          CartProductListData.some((i) => i.id === product.id),
+        Like:
+          Array.isArray(LikeProductListData) &&
+          LikeProductListData.some((i) => i.id === product.id),
+      });
+    } else {
+      setState({
+        Cart: !!guestCart?.items?.[product.id],
+        Like: !!guestCart?.likeProduct?.[product.id],
+      });
+    }
+  }, [guestCart, product, user]);
 
   useEffect(() => {
     setMounted(true);
@@ -47,14 +89,17 @@ export default function ProductPage() {
 
   useEffect(() => {
     if (!mounted) return;
-    getProductData();
+
+    (async () => {
+      const res = await callApi(
+        "get",
+        `https://backend.9rock.in/product/${params.id}`
+      );
+      setProduct(res.data);
+    })();
   }, [mounted]);
 
   if (!mounted) return null;
-
-  // useEffect(() => {
-  //   getProductData();
-  // }, []);
 
   if (!product)
     return (
@@ -79,8 +124,8 @@ export default function ProductPage() {
     weight: product.weight,
     // Material: product.materialUsedName,
   };
-
-  let iscart = guestCart.items[product.id];
+  const iscart = guestCart?.items?.[product.id];
+  // console.log(state);
 
   return (
     <>
@@ -154,18 +199,20 @@ export default function ProductPage() {
 
             {/* QUANTITY */}
 
-            <div className="w-40">
-              <ItemCount
-                productId={product.id}
-                quantity={iscart?.quantity || 1}
-                stock={product.stock}
-              />
-            </div>
+            {state.Cart == true && (
+              <div className="w-40">
+                <ItemCount
+                  productId={product.id}
+                  quantity={iscart?.quantity || 1}
+                  stock={product.stock}
+                />
+              </div>
+            )}
 
             {/* ACTIONS */}
             <div className="flex flex-col gap-4 max-w-sm">
               <AnimatePresence mode="wait">
-                {!iscart ? (
+                {state.Cart == false ? (
                   <motion.button
                     key="add"
                     onClick={async () => {
@@ -185,7 +232,7 @@ export default function ProductPage() {
       "
                   >
                     <AnimatePresence mode="wait">
-                      {!iscart ? (
+                      {state.Cart == false ? (
                         <motion.span
                           key="cart"
                           initial={{ y: 10, opacity: 0 }}
@@ -259,19 +306,35 @@ export default function ProductPage() {
                 )}
               </AnimatePresence>
 
-              <Button
-                startContent={<Heart size={16} />}
-                onPress={() => {
-                  AddLikeProduct(product);
-                }}
-                className="
+              {state.Like == false ? (
+                <Button
+                  startContent={<Heart size={16} />}
+                  onPress={() => {
+                    AddLikeProduct(product);
+                  }}
+                  className="
                   border border-black py-4 rounded-none
                   text-xs tracking-[0.2em] font-semibold
                   hover:bg-black hover:text-white transition
                 "
-              >
-                ADD TO WISHLIST
-              </Button>
+                >
+                  ADD TO WISHLIST
+                </Button>
+              ) : (
+                <Button
+                  startContent={<Heart size={16} />}
+                  onPress={() => {
+                    AddLikeProduct(product);
+                  }}
+                  className="
+                  border border-black py-4 rounded-none
+                  text-xs tracking-[0.2em] font-semibold
+                  hover:bg-black hover:text-white transition
+                "
+                >
+                  Saved
+                </Button>
+              )}
             </div>
 
             {/* DETAILS */}

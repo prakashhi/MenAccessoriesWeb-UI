@@ -10,7 +10,7 @@ import {
 import { product } from "./Types/type";
 import { useDisclosure } from "@heroui/react";
 import { useApi } from "@/app/useApi";
-import { notify } from "@/app/(User)/Component/ToastComponent";
+import { notify, toastActions } from "@/app/(User)/Component/ToastComponent";
 import {
   getUserFromStorage,
   getGuestCart,
@@ -41,9 +41,7 @@ type PanelContextType = {
   loading: boolean;
   onOpen: () => void;
   onOpenChange: () => void;
-  cartLength: () => number;
-
-  GuestUserDataLength: () => { Cart: number; Like: number };
+  GuestUserDataLength: { Cart: number; Like: number };
 };
 
 const SearchPanelContext = createContext<PanelContextType>();
@@ -129,10 +127,7 @@ export function SearchPanelContextProvider({
       });
 
       if (added) {
-        notify({
-          message: "Item added to cart",
-          type: "success",
-        });
+        toastActions.addToCart(`${Product.name}`);
       }
     } else {
       let response = await callApi("post", "/cart", {
@@ -142,10 +137,9 @@ export function SearchPanelContextProvider({
         },
       });
 
-      notify({
-        message: `${Product.name} added to Cart`,
-        type: "success",
-      });
+      if (response.success == true) {
+        toastActions.addToCart(`${Product.name}`);
+      }
     }
   };
 
@@ -165,16 +159,13 @@ export function SearchPanelContextProvider({
         };
       });
 
-      notify({
-        message: "Cart item deleted successfully",
-        type: "info",
-      });
+      toastActions.removeFromCart();
     } else {
       let response = await callApi("delete", `/cart/${userId}/${id}`);
-      notify({
-        message: response.message || "Cart item deleted successfully",
-        type: "success",
-      });
+
+      if (response.success == true) {
+        toastActions.removeFromCart();
+      }
     }
   };
 
@@ -208,10 +199,7 @@ export function SearchPanelContextProvider({
       });
 
       if (shouldNotify) {
-        notify({
-          message: "Item added to wishlist",
-          type: "success",
-        });
+        toastActions.addToWishlist(`${Product.name}`);
       }
 
       return;
@@ -222,11 +210,9 @@ export function SearchPanelContextProvider({
           userId: id,
         },
       });
-
-      notify({
-        message: "Item added to Wishlist",
-        type: "success",
-      });
+      if (response.success == true) {
+        toastActions.addToWishlist(`${Product.name}`);
+      }
     }
   };
 
@@ -246,24 +232,19 @@ export function SearchPanelContextProvider({
         };
       });
 
-      notify({
-        message: "wishlist item deleted successfully",
-        type: "info",
-      });
+      toastActions.removeFromWishlist();
     } else {
       let response = await callApi(
         "delete",
         `/like-product/${id}/${ProductId}`
       );
-
-      notify({
-        message: response.message || "Like product deleted successfully",
-        type: "success",
-      });
+      if (response.success == true) {
+        toastActions.removeFromWishlist();
+      }
     }
   };
 
-  const incrementCartProduct = async (productId: string) => {
+  const incrementCartProduct = async (productId: string, cardId?: string) => {
     if (user == null || !user) {
       setGuestCart((prev) => {
         if (!prev) return prev;
@@ -285,7 +266,7 @@ export function SearchPanelContextProvider({
         };
       });
     } else {
-      let response = await callApi("patch", `/cart/{cartId}`);
+      await callApi("patch", `/cart/${cardId}`);
     }
   };
 

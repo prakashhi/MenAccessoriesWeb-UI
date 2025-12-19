@@ -35,7 +35,7 @@ export default function page() {
       type: "success",
     });
 
-    localStorage.setItem("UserData",JSON.stringify(res.data))
+    localStorage.setItem("UserData", JSON.stringify(res.data));
     router.push("/");
   };
 

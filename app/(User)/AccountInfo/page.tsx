@@ -42,6 +42,7 @@ export default function AccountSection() {
       wishlist: likeProductDat.data,
     }));
   };
+   console.log(user)
 
   // Logout handler (sample)
   const handleLogout = async () => {
@@ -104,7 +105,7 @@ export default function AccountSection() {
             {/* Left menu (desktop) */}
             <nav className="hidden lg:block lg:w-72 border-r border-gray-100 p-6">
               <div className="mb-6">
-                <div className="text-lg font-semibold">{user.info?.name}</div>
+                <div className="text-lg font-semibold">{user.info?.userName}</div>
                 <div className="text-sm text-gray-500 mt-1">
                   {user.info?.email}
                 </div>
@@ -233,7 +234,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
             <label className="text-sm text-gray-500">Full name</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
               <FiUser className="text-gray-400" />
-              {user.userName}
+              {user.info?.userName}
             </div>
           </div>
 
@@ -242,7 +243,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
             <label className="text-sm text-gray-500">Email</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
               <FiMail className="text-gray-400" />
-              {user.email}
+              {user.info.email}
             </div>
           </div>
 
@@ -251,14 +252,14 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
             <label className="text-sm text-gray-500">Phone</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
               <FiPhone className="text-gray-400" />
-              {user.countryCode} {user.contactNumber}
+              {user.countryCode} {user.info.contactNumber}
             </div>
           </div>
 
           {/* ROLE */}
           <div>
             <label className="text-sm text-gray-500">Role</label>
-            <div className="mt-1 text-gray-900">{user.role}</div>
+            <div className="mt-1 text-gray-900">{user.info.role}</div>
           </div>
 
           {/* ADDRESS */}
@@ -266,7 +267,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
             <label className="text-sm text-gray-500">Address</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
               <FiMapPin className="text-gray-400" />
-              {user.address}, {user.state}, {user.country} - {user.pinCode}
+              {user.info.address}, {user.info.state}, {user.info.country} - {user.info.pinCode}
             </div>
           </div>
 
@@ -274,7 +275,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
           <div>
             <label className="text-sm text-gray-500">Joined On</label>
             <div className="mt-1 text-gray-900">
-              {new Date(user.createdAt).toLocaleDateString()}
+              {new Date(user.info.createdAt).toLocaleDateString()}
             </div>
           </div>
         </div>
@@ -289,17 +290,17 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm text-gray-500">Firm Name</label>
-                <div className="mt-1 text-gray-900">{user.firmName}</div>
+                <div className="mt-1 text-gray-900">{user.info.firmName}</div>
               </div>
 
               <div>
                 <label className="text-sm text-gray-500">GSTIN</label>
-                <div className="mt-1 text-gray-900">{user.GSTIN}</div>
+                <div className="mt-1 text-gray-900">{user.info.GSTIN}</div>
               </div>
 
               <div className="sm:col-span-2">
                 <label className="text-sm text-gray-500">Firm Address</label>
-                <div className="mt-1 text-gray-900">{user.firmAddress}</div>
+                <div className="mt-1 text-gray-900">{user.info.firmAddress}</div>
               </div>
             </div>
           </>

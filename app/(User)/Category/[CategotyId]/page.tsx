@@ -15,14 +15,15 @@ export default function Page() {
   const params = useParams();
   const { callApi } = useApi();
 
-  console.log(params.id);
-
   const [data, setData] = useState<any[]>([]);
 
   const getData = useCallback(async () => {
     // const res = await callApi("get", `/product-category-list?id=${params.id}&limit=100&offset=0`);
 
-    const res = await callApi("get", "/9rock/cat-with-products");
+    const res = await callApi(
+      "get",
+      "https://backend.9rock.in/9rock/cat-with-products"
+    );
 
     // setData(res.data);
     setData(res.data[0]?.products);
@@ -35,7 +36,7 @@ export default function Page() {
   return (
     <>
       {/* Mobile Drawer */}
-      <MobileFilterDrawer />
+     
 
       {/* Top Navigation */}
       <Nav />
@@ -53,7 +54,7 @@ export default function Page() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="flex justify-center lg:mt-14 my-6"
+            className="flex justify-center lg:mt-2 my-6"
           >
             <h2
               className="text-xl lg:text-3xl tracking-wide text-black"
@@ -65,6 +66,7 @@ export default function Page() {
               {data?.[0]?.category?.category_name}
             </h2>
           </motion.div>
+           
 
           {/* CONTENT GRID */}
           <motion.div
@@ -78,10 +80,11 @@ export default function Page() {
                 },
               },
             }}
-            className="grid lg:grid-cols-4 gap-6 lg:gap-8"
+            className=""
           >
+            
             {/* LEFT BAR */}
-            <motion.div
+            {/* <motion.div
               variants={{
                 hidden: { opacity: 0, x: -20 },
                 show: { opacity: 1, x: 0 },
@@ -90,22 +93,27 @@ export default function Page() {
               className="hidden lg:block"
             >
               <LeftBar />
-            </motion.div>
+            </motion.div> */}
 
             {/* RIGHT SECTION */}
+
+            
             <motion.div
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 show: { opacity: 1, y: 0 },
               }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="col-span-4 lg:col-span-3 sm:p-5 p-2"
+              className=" sm:p-5 p-2"
             >
+              
               <RightSection ProductData={data} />
             </motion.div>
           </motion.div>
         </div>
       </motion.main>
+
+      <MobileFilterDrawer />
 
       {/* FOOTER */}
       <Footer />

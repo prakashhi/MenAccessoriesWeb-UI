@@ -9,10 +9,13 @@ import { useApi } from "@/app/useApi";
 import { formatIndianPrice } from "@/app/utils/FormatCurrency";
 import ItemCount from "../../Cart/component/ItemCount";
 import { motion, AnimatePresence } from "framer-motion";
-import { CircleCheck } from 'lucide-react';
+import { CircleCheck } from "lucide-react";
 import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
 
+import { Heart } from "lucide-react";
+
 import { useEffect } from "react";
+import { HeartIcon } from "./HeartIcon";
 
 type ProductCard = {
   id: string;
@@ -38,21 +41,33 @@ export default function CardModel({
   const { AddCartProduct, AddLikeProduct, guestCart } = UsePanel();
   const router = useRouter();
 
+  // let iscart = !!guestCart?.items?.[product.id];
+ 
+
+  // useEffect(() => {
+  //   if (!iscart) return;
+
+  //   const timer = setTimeout(() => {
+  //     // keep cart but revert UI text
+  //   }, 1500);
+
+  //   return () => clearTimeout(timer);
+  // }, [iscart]);
+
+  if (DataObj.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-neutral-500 tracking-widest">NO PRODUCTS FOUND</p>
+      </div>
+    );
+  }
+
   return (
     <>
       {DataObj.length > 1 &&
         DataObj.map((product) => {
           let iscart = !!guestCart?.items?.[product.id];
-
-          useEffect(() => {
-            if (!iscart) return;
-
-            const timer = setTimeout(() => {
-              // keep cart but revert UI text
-            }, 1500);
-
-            return () => clearTimeout(timer);
-          }, [iscart]);
+          let isLike = !!guestCart?.likeProduct?.[product.id];
 
           return (
             <div
@@ -66,6 +81,7 @@ export default function CardModel({
           `}
             >
               {/* IMAGE */}
+
               <div
                 onClick={() => router.push(`/all-Product/${product.id}`)}
                 className="relative w-full h-82 cursor-pointer overflow-hidden"
@@ -87,15 +103,21 @@ export default function CardModel({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition" />
 
                 {/* Wishlist */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    AddLikeProduct(product);
-                  }}
-                  className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
-                >
-                  <FcLikePlaceholder className="text-xl" />
-                </button>
+                {isLike == true ? (
+                  <div className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition">
+                    <Heart className="w-5 h-5 text-red-600 fill-red-600" />
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      AddLikeProduct(product);
+                    }}
+                    className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
+                  >
+                    <FcLikePlaceholder className="text-xl" />
+                  </button>
+                )}
 
                 {/* Hover Content */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-all duration-500">

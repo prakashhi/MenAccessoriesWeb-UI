@@ -17,8 +17,16 @@ import { RiDeleteBinLine, RiShoppingCart2Line } from "react-icons/ri";
 import PaymentFailedModal from "./component/PaymentFailedModel";
 import GuestUserPaymentForm from "./component/GuestUserPaymentForm";
 import CartInfoModal from "./component/CartInfoModel";
+import {
+  FiHeart,
+  FiShoppingBag,
+  FiX,
+  FiChevronRight,
+  FiTrash2,
+} from "react-icons/fi";
 
 import { useRouter } from "next/navigation";
+import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
@@ -28,18 +36,20 @@ export default function Page() {
 
   const router = useRouter();
 
-  const cartListData = useMemo(() => {
+  const cartListData = useMemo(async () => {
     if (user) {
-      return CartProductList();
+      let res = await CartProductList();
     }
-
     return Object.values(guestCart?.items || {});
-  }, [user, guestCart, CartProductList]);
+  }, [user, guestCart]);
 
   const total = useMemo(() => {
-    return cartListData.reduce(
-      (sum: number, item: any) => sum + item.sellingPrice * item.quantity,
-      0
+    return (
+      Array.isArray(cartListData) &&
+      cartListData.reduce(
+        (sum: number, item: any) => sum + item.sellingPrice * item.quantity,
+        0
+      )
     );
   }, [cartListData]);
 
@@ -63,16 +73,27 @@ export default function Page() {
 
       <main className="flex-1 px-4 sm:px-6 lg:px-12 py-12 max-w-7xl mx-auto w-full">
         {/* TITLE */}
-        <motion.h1
+        {/* <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-2xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
           style={{ fontFamily: "ui-serif, serif" }}
         >
           SHOPPING CART
-        </motion.h1>
+        </motion.h1> */}
 
-        <div className="flex flex-col lg:flex-row gap-10">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center text-2xl lg:text-4xl font-medium tracking-[0.3em] mb-8"
+          style={{ fontFamily: "ui-serif, serif" }}
+        >
+          SHOPPING CART
+        </motion.h1>
+        <div className="w-24 h-px bg-neutral-300 mx-auto"></div>
+
+        <div className="flex flex-col lg:flex-row gap-10 mt-24">
           {/* CART LIST */}
           <div className="flex-1  rounded-2xl ">
             <AnimatePresence>
@@ -121,7 +142,7 @@ export default function Page() {
 
                         <button
                           onClick={() => RemoveCartProduct(item.id)}
-                          className="text-xs tracking-widest text-gray-400 hover:text-black transition"
+                          className="text-xs cursor-pointer tracking-widest text-gray-400 hover:text-black transition"
                         >
                           REMOVE
                         </button>
@@ -135,22 +156,12 @@ export default function Page() {
                   ))}
                 </motion.div>
               ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex flex-col items-center py-16 gap-6"
-                >
-                  <p className="tracking-wide text-gray-500">
-                    Your cart is empty
-                  </p>
-
-                  <Link
-                    href="/"
-                    className="border border-black px-8 py-3 text-xs tracking-[0.3em] hover:bg-black hover:text-white transition"
-                  >
-                    CONTINUE SHOPPING
-                  </Link>
-                </motion.div>
+                <EmptyDataModel
+                  message="Your Cart is Empty"
+                  Icon={
+                    <FiShoppingBag className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-neutral-400" />
+                  }
+                />
               )}
             </AnimatePresence>
           </div>
@@ -196,13 +207,8 @@ export default function Page() {
         <CartInfoModal
           open={openCartInfo}
           onClose={() => setOpenCartInfo(false)}
+          children={<GuestUserPaymentForm />}
         />
-        {isSuccess == true && <GuestUserPaymentForm />}
-        {/* <PaymentFailedModal
-          isOpen={isSuccess}
-          onClose={() => setIsSuccess(false)}
-          // amount={123456} // Example amount
-        /> */}
       </main>
 
       <Footer />

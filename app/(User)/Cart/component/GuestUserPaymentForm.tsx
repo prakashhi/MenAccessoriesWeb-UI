@@ -4,17 +4,13 @@ import { useApi } from "@/app/useApi";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
 import CountryFiled from "@/app/(User)/Register/Component/CountryFiledComponet";
-import CartInfoModal from "./CartInfoModel";
+import PaymentSuccessModal from "./PaymentSucessModel";
 
 export default function GuestUserPaymentForm() {
-  const [showPass, setShowPass] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -26,165 +22,150 @@ export default function GuestUserPaymentForm() {
   const router = useRouter();
   const { callApi, error, loading } = useApi();
 
-  const onSubmit = async (info) => {
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const onSubmit = async (info: any) => {
     try {
       const res = await callApi("post", "/signup", {
         data: {
           email: info.email,
-
           address: info.address,
-
           pinCode: info.pinCode,
-
           contactNumber: info.mobile_no,
-
           countryCode: info.countryCode,
-
           countryCodeLabel: info.countryCodeLabel,
-
           country: info.country,
-
           state: info.state,
         },
       });
 
-      // Show success toast
-      notify({
-        message: res.msg || "Registration is successful!",
-        type: "success",
-      });
-
-      // Redirect to admin dashboard
       router.push("/Login");
     } catch (err: any) {
-      // Show error toast
-      console.log(error);
       notify({
-        message: err?.response?.data?.message || "Something is Wrong!",
+        message: err?.response?.data?.message || "Something went wrong!",
         type: "error",
       });
     }
   };
 
-  const passwordValue = watch("password");
-
   return (
-    <div className="min-h-screen flex justify-center items-center bg-linear-to-b from-[#f5f5f5] to-[#e5e5e5] px-4">
-      <div className="w-full my-5 max-w-md backdrop-blur-xl bg-white/50 border border-white/30 shadow-2xl rounded-3xl p-8 space-y-8">
-        {/* BRAND */}
-        <div className="text-center">
-          <h1 className="text-4xl font-serif tracking-widest text-black">
-            {" "}
-            RockRoars
-          </h1>
-          <p className="text-gray-600 mt-2 text-sm tracking-wide">
-            Create your luxury experience
+    <div className="min-h-screen flex items-center justify-center px-4 py-6  from-gray-100 to-gray-200">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100">
+        {/* HEADER */}
+        <div className="px-6 pt-6 pb-4 border-b border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Guest Checkout
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Enter your delivery details
           </p>
         </div>
 
-        <CartInfoModal>
-          {/* FORM */}
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            {/* Email */}
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <input
-                type="email"
-                className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
-                placeholder="you@example.com"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^\S+@\S+\.\S+$/,
-                    message: "Enter valid email",
-                  },
-                })}
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+        {/* FORM */}
+        <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-6 space-y-5">
+          {/* Email */}
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              className="mt-1 w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-black outline-none"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^\S+@\S+\.\S+$/,
+                  message: "Enter valid email",
+                },
+              })}
+            />
+            {errors.email && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.email.message as string}
+              </p>
+            )}
+          </div>
 
-            {/* Mobile No */}
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Mobile No
-              </label>
-              <input
-                placeholder="1234567890"
-                className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
-                {...register("mobile_no", {
-                  pattern: {
-                    value: /^[6-9][0-9]{9}$/,
-                    message: "Enter valid Mobile No",
-                  },
-                })}
-              />
-              {errors.mobile_no && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.mobile_no.message}
-                </p>
-              )}
-            </div>
+          {/* Mobile */}
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Mobile Number
+            </label>
+            <input
+              placeholder="9876543210"
+              className="mt-1 w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-black outline-none"
+              {...register("mobile_no", {
+                pattern: {
+                  value: /^[6-9][0-9]{9}$/,
+                  message: "Enter valid mobile number",
+                },
+              })}
+            />
+            {errors.mobile_no && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.mobile_no.message as string}
+              </p>
+            )}
+          </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Address
-              </label>
-              <textarea
-                rows={3}
-                className="w-full px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
-                {...register("address")}
-              />
-            </div>
+          {/* Address */}
+          <div>
+            <label className="text-sm font-medium text-gray-700">Address</label>
+            <textarea
+              rows={3}
+              className="mt-1 w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-black outline-none resize-none"
+              {...register("address")}
+            />
+          </div>
 
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Pin Code
-              </label>
+          {/* Pin Code */}
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Pin / Zip Code
+            </label>
+            <input
+              className="mt-1 w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-black outline-none"
+              {...register("pinCode", {
+                pattern: {
+                  value: /^[A-Za-z0-9\s-]{3,10}$/,
+                  message: "Enter valid pin code",
+                },
+              })}
+            />
+            {errors.pinCode && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.pinCode.message as string}
+              </p>
+            )}
+          </div>
 
-              <input
-                className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
-                {...register("pinCode", {
-                  pattern: {
-                    value: /^[A-Za-z0-9\s-]{3,10}$/,
-                    message: "Enter valid postal / zip code",
-                  },
-                })}
-              />
+          {/* Country / State */}
+          <CountryFiled
+            register={register}
+            watch={watch}
+            setValue={setValue}
+            errors={errors}
+          />
 
-              {errors.pinCode && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.pinCode.message}
-                </p>
-              )}
-            </div>
-            <div className="pt-2 space-y-4">
-              <CountryFiled
-                register={register}
-                watch={watch}
-                setValue={setValue}
-                errors={errors}
-              />
-            </div>
+          {/* SUBMIT */}
+          <button
+            type="submit"
+            className="w-full h-12 flex items-center justify-center rounded-xl bg-black text-white text-sm font-medium hover:bg-black/90 transition"
+          >
+            {loading ? (
+              <Image src={Loader} alt="loading" width={22} height={22} />
+            ) : (
+              "Continue"
+            )}
+          </button>
 
-            {/* Register Button */}
-            <button
-              type="submit"
-              className="w-full flex justify-center py-3 bg-black text-white font-medium rounded-xl shadow-lg hover:bg-black/90 transition"
-            >
-              {loading == true ? (
-                <Image width={20} height={20} alt="Loading" src={Loader} />
-              ) : (
-                "Create Account "
-              )}
-            </button>
-          </form>
-        </CartInfoModal>
+          <PaymentSuccessModal
+            isOpen={isSuccess}
+            onClose={() => setIsSuccess(false)}
+            amount={123456} // Example amount
+          />
+        </form>
       </div>
     </div>
   );
