@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
 interface ProductDescriptionProps {
+  extraInfo:Record<string, string>
   description: string;
   specifications: Record<string, string>;
 }

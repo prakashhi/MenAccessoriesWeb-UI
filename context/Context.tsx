@@ -18,6 +18,12 @@ import {
   updateGuestCart,
 } from "./utils";
 
+import {
+  CartItem,
+  CartProductInfo,
+  ProductInfoType,
+} from "@/app/(User)/Type/Types";
+
 type GuestCartItem = product & { quantity: number };
 type GuestCart = {
   items: Record<string, GuestCartItem>;
@@ -32,10 +38,10 @@ type PanelContextType = {
   guestCart: GuestCart;
   AddLikeProduct: (Product: product) => Promise<void>;
   RemoveLikeProduct: (ProductId: string) => Promise<void>;
-  LikeProductList: () => Promise<any>;
-  CartProductList: () => Promise<any>;
-  incrementCartProduct: (productId: string) => Promise<void>;
-  decrementCartProduct: (productId: string) => Promise<void>;
+  LikeProductList: (userid: string) => Promise<any>;
+  CartProductList: (userid: string) => Promise<any>;
+  incrementCartProduct: (productId: string, cardId: string) => Promise<void>;
+  decrementCartProduct: (productId: string, cardId: string) => Promise<void>;
   setCartProductQty: (productId: string, qty: number) => Promise<void>;
   isOpen: boolean;
   loading: boolean;
@@ -76,6 +82,8 @@ export function SearchPanelContextProvider({
     const userData = getUserFromStorage();
     setUser(userData);
 
+    console.log(userData);
+
     const cart = getGuestCart();
 
     setGuestCart(cart);
@@ -98,7 +106,7 @@ export function SearchPanelContextProvider({
   }, [guestCart]);
 
   // All functions
-  const AddCartProduct = async (Product: product) => {
+  const AddCartProduct = async (Product: ProductInfoType) => {
     if (user == null || !user) {
       let added = false;
       setGuestCart((prev) => {
@@ -134,6 +142,7 @@ export function SearchPanelContextProvider({
         data: {
           productId: Product.id,
           userId: id,
+          variantSizeId: Product.variantId ?? null,
         },
       });
 
@@ -161,7 +170,7 @@ export function SearchPanelContextProvider({
 
       toastActions.removeFromCart();
     } else {
-      let response = await callApi("delete", `/cart/${userId}/${id}`);
+      let response = await callApi("delete", `/cart/${id}/${ProductId}`);
 
       if (response.success == true) {
         toastActions.removeFromCart();
@@ -234,17 +243,22 @@ export function SearchPanelContextProvider({
 
       toastActions.removeFromWishlist();
     } else {
+       console.log("Api",id,ProductId)
       let response = await callApi(
         "delete",
         `/like-product/${id}/${ProductId}`
       );
-      if (response.success == true) {
+      if (response?.success == true) {
         toastActions.removeFromWishlist();
       }
     }
   };
 
-  const incrementCartProduct = async (productId: string, cardId?: string) => {
+  const incrementCartProduct = async (
+    productId: string,
+    cardId: string,
+    quantity: number
+  ) => {
     if (user == null || !user) {
       setGuestCart((prev) => {
         if (!prev) return prev;
@@ -266,11 +280,17 @@ export function SearchPanelContextProvider({
         };
       });
     } else {
-      await callApi("patch", `/cart/${cardId}`);
+      await callApi("patch", `/cart/${cardId}`, {
+        data: { quantity: quantity },
+      });
     }
   };
 
-  const decrementCartProduct = async (productId: string) => {
+  const decrementCartProduct = async (
+    productId: string,
+    cardId: string,
+    quantity: number
+  ) => {
     if (user == null || !user) {
       setGuestCart((prev) => {
         if (!prev) return prev;
@@ -290,7 +310,9 @@ export function SearchPanelContextProvider({
         };
       });
     } else {
-      let response = await callApi("patch", `/cart/{cartId}`);
+      await callApi("patch", `/cart/${cardId}`, {
+        data: { quantity: quantity },
+      });
     }
   };
 
@@ -317,21 +339,21 @@ export function SearchPanelContextProvider({
     }
   };
 
-  const LikeProductList = async () => {
-    if (user !== null || user) {
-      let response = await callApi("get", `/like-products/${id}`);
+  const LikeProductList = async (userid: string) => {
+    if (user !== null || !user) {
+      let response = await callApi("get", `/like-products/${userid}`);
       return response;
     }
   };
 
-  const CartProductList = useCallback(async () => {
-    if (user !== null && user) {
-      let response = await callApi("get", `/cart/${id}`);
+  const CartProductList = async (userid: string) => {
+    if (user !== null || !user) {
+      let response = await callApi("get", `/cart/${userid}`);
       return response;
     } else {
       return Object.values(guestCart.items);
     }
-  }, [user, id, callApi, guestCart.items]);
+  };
 
   return (
     <SearchPanelContext.Provider

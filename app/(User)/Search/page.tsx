@@ -78,7 +78,7 @@ export default function Page() {
 
     const res = await callApi(
       "get",
-      `https://backend.9rock.in/product-search-response?keyword=${words}`
+      `/product-search-response?keyword=${words}`
     );
 
     setSearchData(res);

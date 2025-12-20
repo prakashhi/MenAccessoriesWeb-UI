@@ -10,7 +10,14 @@ import {
 } from "react-icons/fi";
 import { useEffect, useMemo, useState } from "react";
 
-export default function EmptyDataModel({ message, Icon }: { message: string }) {
+
+export default function EmptyDataModel({
+  message,
+  Icon,
+}: {
+  message: string;
+  Icon: React.ReactNode;
+}) {
   return (
     <>
       <motion.div
@@ -39,7 +46,7 @@ export default function EmptyDataModel({ message, Icon }: { message: string }) {
           >
             {message}
           </h2>
-          <p className="text-xs sm:text-sm tracking-[0.1em] sm:tracking-[0.15em] text-neutral-500 font-light max-w-xs sm:max-w-sm md:max-w-md mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm tracking-widest sm:tracking-[0.15em] text-neutral-500 font-light max-w-xs sm:max-w-sm md:max-w-md mx-auto leading-relaxed">
             Curate your collection of desired pieces. Each item you save
             reflects your timeless taste.
           </p>
@@ -59,7 +66,7 @@ export default function EmptyDataModel({ message, Icon }: { message: string }) {
             />
           </span>
           <div
-            className="absolute inset-0 bg-neutral-900 translate-x-[-100%] 
+            className="absolute inset-0 bg-neutral-900 translate-x-full
                               group-hover:translate-x-0 transition-transform duration-500"
           />
         </Link>

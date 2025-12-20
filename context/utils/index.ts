@@ -1,3 +1,4 @@
+import { getAuthData } from "@/app/utils/localStorageUtil";
 import { product } from "../Types/type";
 
 type CartItem = {
@@ -19,7 +20,7 @@ export function getUserFromStorage() {
   if (typeof window === "undefined") return null;
 
   try {
-    const data = localStorage.getItem("UserData");
+    const data = getAuthData("UserData");
     return data ? JSON.parse(data) : null;
   } catch {
     return null;

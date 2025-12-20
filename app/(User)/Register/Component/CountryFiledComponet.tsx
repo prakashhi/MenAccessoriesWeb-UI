@@ -111,7 +111,7 @@ export default function CountryField({
         <select
           className="w-full mt-1 px-4 py-3 bg-white border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70"
           {...register("state", {
-            required: states.length ? "State is required" : false,
+            // required: states.length ? "State is required" : false,
           })}
           disabled={!states.length}
         >

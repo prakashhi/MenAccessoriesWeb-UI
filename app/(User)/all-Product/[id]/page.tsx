@@ -21,10 +21,15 @@ import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
 import { MoveRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getUserFromStorage } from "@/context/utils";
+import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+
+import { CartItem, CartProductInfo ,LikeItem} from "@/app/(User)/Type/Types";
 
 interface ProductState {
   Like: boolean;
   Cart: boolean;
+  LikeData: LikeItem | null;
+  CartData: CartItem | null;
 }
 
 export default function ProductPage() {
@@ -44,43 +49,38 @@ export default function ProductPage() {
   const [state, setState] = useState<ProductState>({
     Like: false,
     Cart: false,
+    LikeData: null,
+    CartData: null,
   });
-
-  const getProductData = useCallback(async () => {}, [
-    guestCart,
-    user,
-    params.id,
-    product,
-  ]);
-
-  const CartProductListData = async () => {
-    let res = await CartProductList();
-    return res;
-  };
-
-  const LikeProductListData = async () => {
-    let res = await LikeProductList();
-    return res;
-  };
 
   useEffect(() => {
     if (!product) return;
 
-    if (user) {
-      setState({
-        Cart:
-          Array.isArray(CartProductListData) &&
-          CartProductListData.some((i) => i.id === product.id),
-        Like:
-          Array.isArray(LikeProductListData) &&
-          LikeProductListData.some((i) => i.id === product.id),
-      });
-    } else {
-      setState({
-        Cart: !!guestCart?.items?.[product.id],
-        Like: !!guestCart?.likeProduct?.[product.id],
-      });
-    }
+    const LoadData = async () => {
+      if (user) {
+        let CartData = await CartProductList(user.id);
+        let LikeData = await LikeProductList(user.id);
+
+        let Like = LikeData.data.find((i) => i.product?.id == product.id);
+        let Cart = CartData.data.find((i) => i.product.productId == product.id);
+
+        setState((prev) => ({
+          ...prev,
+          LikeData: Like,
+          CartData: Cart,
+          Like: !!Like,
+          Cart: !!Cart,
+        }));
+      } else {
+        setState((prev) => ({
+          ...prev,
+          Cart: !!guestCart?.items?.[product.id],
+          Like: !!guestCart?.likeProduct?.[product.id],
+        }));
+      }
+    };
+
+    LoadData();
   }, [guestCart, product, user]);
 
   useEffect(() => {
@@ -91,10 +91,7 @@ export default function ProductPage() {
     if (!mounted) return;
 
     (async () => {
-      const res = await callApi(
-        "get",
-        `https://backend.9rock.in/product/${params.id}`
-      );
+      const res = await callApi("get", `/product/${params.id}`);
       setProduct(res.data);
     })();
   }, [mounted]);
@@ -108,14 +105,24 @@ export default function ProductPage() {
       </div>
     );
 
-  const images = product.image
-    .split("/")
-    .filter(Boolean)
-    .map((img: string) => `${process.env.NEXT_PUBLIC_IMG_URL}${img}`);
+     console.log(product)
+
+  // const images = product.image
+  //   .split("/")
+  //   .filter(Boolean)
+  //   .map((img: string) => `${process.env.NEXT_PUBLIC_IMG_URL}${img}`);
+
+  // const parsedDescription = typeof product.description === "string" && product.description
+  //     ? JSON.parse(product.description)
+  //     : product.description;
+
+  const isJsonString = (value: string) =>
+    value.trim().startsWith("{") || value.trim().startsWith("[");
 
   const parsedDescription =
-    typeof product?.description === "string" && product?.description
-      ? JSON.parse(product?.description)
+    typeof product?.description === "string" &&
+    isJsonString(product.description)
+      ? JSON.parse(product.description)
       : product?.description;
 
   const extraInfo = {
@@ -125,7 +132,8 @@ export default function ProductPage() {
     // Material: product.materialUsedName,
   };
   const iscart = guestCart?.items?.[product.id];
-  // console.log(state);
+
+  console.log(state);
 
   return (
     <>
@@ -141,7 +149,7 @@ export default function ProductPage() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <PictureGallery
-              images={images}
+              images={ product.image}
               name={product.name}
               video={product.video}
             />
@@ -202,8 +210,11 @@ export default function ProductPage() {
             {state.Cart == true && (
               <div className="w-40">
                 <ItemCount
+                  cartId={state.CartData?.id}
                   productId={product.id}
-                  quantity={iscart?.quantity || 1}
+                  quantity={
+                    user ? state.CartData?.quantity ?? 1 : iscart?.quantity ?? 1
+                  }
                   stock={product.stock}
                 />
               </div>
@@ -324,7 +335,7 @@ export default function ProductPage() {
                 <Button
                   startContent={<Heart size={16} />}
                   onPress={() => {
-                    AddLikeProduct(product);
+                   router.push('/Wishlist')
                   }}
                   className="
                   border border-black py-4 rounded-none

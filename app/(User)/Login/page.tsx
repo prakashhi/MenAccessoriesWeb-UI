@@ -3,7 +3,7 @@
 import { useApi } from "@/app/useApi";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import Loader from "@/public/svg/tube-spinner.svg";
 import { notify } from "@/app/(User)/Component/ToastComponent";
@@ -12,30 +12,37 @@ import Image from "next/image";
 
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { setAuthData } from "@/app/utils/localStorageUtil";
 
 export default function page() {
   const [showPass, setShowPass] = useState(false);
-
+  type Info = {
+    email: string;
+    password: string;
+  };
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<Info>();
 
   const router = useRouter();
   const { callApi, error, loading } = useApi();
 
-  const onSubmit = async (info) => {
+  const onSubmit: SubmitHandler<Info> = async (info) => {
     const res = await callApi("post", "/login", {
       data: { email: info.email, password: info.password },
     });
+
+    console.log(res);
 
     notify({
       message: res.msg || "Login successful!",
       type: "success",
     });
 
-    localStorage.setItem("UserData", JSON.stringify(res.data));
+    setAuthData("UserData", JSON.stringify(res.data), 24 * 60 * 60 * 1000);
+    setAuthData("Token", JSON.stringify(res.jwtToken), 24 * 60 * 60 * 1000);
     router.push("/");
   };
 

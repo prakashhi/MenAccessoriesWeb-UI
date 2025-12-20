@@ -21,13 +21,12 @@ export function useApi<T = any>() {
     url: string,
     config?: AxiosRequestConfig
   ) => {
-    setLoading(true);
-    setError(null);
-
-    console.log(config);
+  
 
     try {
       let response;
+      setLoading(true);
+      setError(null);
 
       switch (method) {
         case "get":
@@ -43,7 +42,7 @@ export function useApi<T = any>() {
           response = await API.delete(url, config);
           break;
         case "patch":
-          response = await API.patch(url, config);
+          response = await API.patch(url, config?.data);
           break;
         default:
           throw new Error(`Unsupported method: ${method}`);
@@ -56,7 +55,7 @@ export function useApi<T = any>() {
       errorMsg = err.response?.data?.message || err.message;
 
       setError(errorMsg);
-        console.log(err.response.data)
+      console.log(err.response.data);
 
       notify({
         message: errorMsg,

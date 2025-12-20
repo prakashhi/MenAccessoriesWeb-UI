@@ -3,7 +3,7 @@
 import Nav from "../Component/NavBar/Nav";
 import Footer from "../Component/Footer/Footer";
 import Image from "next/image";
-import { Button } from "@heroui/react";
+import { Button, image } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -17,6 +17,9 @@ import { RiDeleteBinLine, RiShoppingCart2Line } from "react-icons/ri";
 import PaymentFailedModal from "./component/PaymentFailedModel";
 import GuestUserPaymentForm from "./component/GuestUserPaymentForm";
 import CartInfoModal from "./component/CartInfoModel";
+
+import { IconType } from "react-icons";
+
 import {
   FiHeart,
   FiShoppingBag,
@@ -27,30 +30,49 @@ import {
 
 import { useRouter } from "next/navigation";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
+import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+
+import { CartItem, CartProductInfo } from "@/app/(User)/Type/Types";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
   const { RemoveCartProduct, CartProductList, guestCart } = UsePanel();
 
-  const [openCartInfo, setOpenCartInfo] = useState(false);
+  const [openCartInfo, setOpenCartInfo] = useState<boolean>(false);
+
+  const [cartListData, setCartListData] = useState<CartProductInfo[]>([]);
 
   const router = useRouter();
 
-  const cartListData = useMemo(async () => {
-    if (user) {
-      let res = await CartProductList();
-    }
-    return Object.values(guestCart?.items || {});
+  useEffect(() => {
+    const cartListData = async () => {
+      if (user) {
+        let res = await CartProductList(user.id);
+        setCartListData(res.data);
+      } else {
+        setCartListData(Object.values(guestCart?.items || {}));
+      }
+    };
+
+    cartListData();
   }, [user, guestCart]);
 
-  const total = useMemo(() => {
-    return (
-      Array.isArray(cartListData) &&
-      cartListData.reduce(
-        (sum: number, item: any) => sum + item.sellingPrice * item.quantity,
+  const total: number = useMemo(() => {
+    if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
+
+    if (user) {
+      return cartListData.reduce(
+        (sum: number, item: any) =>
+          sum + Number(item.product.productPrice) * item.quantity,
         0
-      )
-    );
+      );
+    } else {
+      return cartListData.reduce(
+        (sum: number, item: any) =>
+          sum + Number(item.sellingPrice) * item.quantity,
+        0
+      );
+    }
   }, [cartListData]);
 
   const [isSuccess, setIsSuccess] = useState(false);
@@ -67,6 +89,7 @@ export default function Page() {
     }, 500);
   };
 
+  console.log("Data", cartListData);
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
       <Nav />
@@ -115,13 +138,14 @@ export default function Page() {
                       {/* IMAGE */}
                       <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F2F2F2] shrink-0">
                         <Image
+                          alt={item.name}
                           onClick={() => router.push(`/all-Product/${item.id}`)}
                           src={
-                            `${process.env.NEXT_PUBLIC_IMG_URL}${
-                              item?.image.split("/")[1]
-                            }` || "/images/placeholder.webp"
+                            user
+                              ? ImageShowUtil(item.product.productImage)
+                              : ImageShowUtil(item.image) ||
+                                "/images/placeholder.webp"
                           }
-                          alt={item.name}
                           fill
                           sizes="96px"
                           className="object-cover transition-transform duration-500 hover:scale-105"
@@ -131,17 +155,31 @@ export default function Page() {
                       {/* INFO */}
                       <div className="flex-1 space-y-3">
                         <h3 className="text-sm sm:text-base font-medium tracking-wide">
-                          {item.name}
+                          {user ? item.product.productName : item.name}
                         </h3>
 
                         <ItemCount
-                          productId={item.id}
+                          productId={item.id || item.product.productId}
                           quantity={item.quantity}
                           stock={item.stock}
+                          cartId={item.id}
                         />
 
                         <button
-                          onClick={() => RemoveCartProduct(item.id)}
+                          onClick={() => {
+                            if (user) {
+                              RemoveCartProduct(item.product.productId);
+                              setCartListData((prev) =>
+                                prev.filter(
+                                  (p) =>
+                                    p.product.productId !==
+                                    item.product.productId
+                                )
+                              );
+                            } else {
+                              RemoveCartProduct(item.id);
+                            }
+                          }}
                           className="text-xs cursor-pointer tracking-widest text-gray-400 hover:text-black transition"
                         >
                           REMOVE
@@ -150,7 +188,11 @@ export default function Page() {
 
                       {/* PRICE */}
                       <div className="text-sm sm:text-base font-semibold">
-                        ₹ {formatIndianPrice(item.sellingPrice)}.00
+                        ₹{" "}
+                        {user
+                          ? formatIndianPrice(item.product.productPrice)
+                          : formatIndianPrice(item.sellingPrice)}
+                        .00
                       </div>
                     </motion.div>
                   ))}

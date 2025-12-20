@@ -4,16 +4,43 @@ import Link from "next/link";
 import { Heart, User, ShoppingBag, Search } from "lucide-react";
 import { UsePanel } from "@/context/Context";
 
-import data from "../../Search";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getUserFromStorage } from "@/context/utils";
 
 export default function Nav() {
+  const user = useMemo(() => getUserFromStorage(), []);
   const [state, setState] = useState({
     likeProductLength: 0,
     CartProductLength: 0,
   });
-  const { LikeProductList, CartProductList ,GuestUserDataLength} = UsePanel();
+  const { LikeProductList, CartProductList, GuestUserDataLength } = UsePanel();
 
+  useEffect(() => {
+    const LengthData = async () => {
+      if (!user) {
+        setState({
+          likeProductLength: GuestUserDataLength.Like,
+          CartProductLength: GuestUserDataLength.Cart,
+        });
+        return;
+      }
+
+      let [CartData, LikeData] = await Promise.all([
+        CartProductList(user.id),
+        LikeProductList(user.id),
+      ]);
+
+      setState((prev) => ({
+        ...prev,
+        likeProductLength: LikeData.data.length ?? 0,
+        CartProductLength: CartData.data.length ?? 0,
+      }));
+    };
+
+    LengthData();
+  }, [GuestUserDataLength]);
+
+  console.log("nav", state, GuestUserDataLength.Cart);
 
   return (
     <nav className="w-full sticky top-0 z-50 bg-white shadow-md">
@@ -38,9 +65,9 @@ export default function Nav() {
           </Link>
 
           <Link className="relative" href="/Wishlist">
-            {GuestUserDataLength.Like > 0 && (
+            {state.likeProductLength > 0 && (
               <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
-                {GuestUserDataLength.Like}
+                {state.likeProductLength}
               </div>
             )}
             <Heart
@@ -57,9 +84,9 @@ export default function Nav() {
           </Link>
 
           <Link className="relative" href="/Cart">
-            {GuestUserDataLength.Cart > 0 && (
+            {state.CartProductLength > 0 && (
               <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
-                {GuestUserDataLength.Cart}
+                {state.CartProductLength}
               </div>
             )}
             <ShoppingBag

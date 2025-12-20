@@ -16,40 +16,60 @@ import { useApi } from "@/app/useApi";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { notify } from "@/app/(User)/Component/ToastComponent";
+import { notify, toastActions } from "@/app/(User)/Component/ToastComponent";
 import { getUserFromStorage } from "@/context/utils";
 
 type Order = { id: string; item: string; status: string; date?: string };
 type Wish = { id: number; name: string; price?: number };
 
+type IconType = "📭" | "💔";
+
+export interface User {
+  id: string;
+
+  userName: string;
+  email: string;
+  role: "user" | "admin" | "supplier";
+
+  isSupplier: boolean;
+
+  contactNumber: string;
+  country: string;
+  countryCode: string;
+  countryCodeLabel: string;
+  state: string;
+  address: string;
+  pinCode: string;
+
+  profilePicture: string;
+
+  firmName: string | null;
+  firmAddress: string | null;
+  GSTIN: string | null;
+
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  deletedAt: string | null;
+}
+
 export default function AccountSection() {
-  const User = useMemo(() => getUserFromStorage(), []);
+  const userData = useMemo(() => getUserFromStorage(), []);
+
   const [user, setUserData] = useState({
-    info: {},
+    info:[] ,
     orders: [] as Order[],
     wishlist: [] as Wish[],
   });
 
-  const GetProfileData = async () => {
-    let [profileData, likeProductDat] = await Promise.all([
-      callApi("get", `/user/${User.id}`),
-      callApi("get", `/like-products/${User.id}`),
-    ]);
-
-    setUserData((prev) => ({
-      ...prev,
-      info: profileData.data,
-      wishlist: likeProductDat.data,
-    }));
-  };
-   console.log(user)
-
   // Logout handler (sample)
   const handleLogout = async () => {
-    let res = await callApi("post", "/user/logout");
-    // Show success toast
-    notify({ message: res.msg || res.message, type: "info" });
+    localStorage.removeItem("UserData");
+    localStorage.removeItem("Token");
 
+    notify({
+      message: "Log Out Successfully",
+      type: "info",
+    });
     // Redirect to admin dashboard
     router.push("/Login");
   };
@@ -83,6 +103,22 @@ export default function AccountSection() {
   };
 
   useEffect(() => {
+    const GetProfileData = async () => {
+      if (userData == null || !userData) {
+        router.push("/Login");
+      } else {
+        let [profileData, likeProductDat] = await Promise.all([
+          callApi("get", `/user/${User.id}`),
+          callApi("get", `/like-products/${User.id}`),
+        ]);
+
+        setUserData((prev) => ({
+          ...prev,
+          info: profileData.data,
+          wishlist: likeProductDat.data,
+        }));
+      }
+    };
     GetProfileData();
   }, []);
 
@@ -105,9 +141,11 @@ export default function AccountSection() {
             {/* Left menu (desktop) */}
             <nav className="hidden lg:block lg:w-72 border-r border-gray-100 p-6">
               <div className="mb-6">
-                <div className="text-lg font-semibold">{user.info?.userName}</div>
+                <div className="text-lg font-semibold">
+                  {user.info.userName}
+                </div>
                 <div className="text-sm text-gray-500 mt-1">
-                  {user.info?.email}
+                  {user.info.email}
                 </div>
               </div>
 
@@ -204,7 +242,7 @@ export default function AccountSection() {
   );
 }
 
-export function NoData({ label, icon }) {
+export function NoData({ label, icon }: { label: string; icon: IconType }) {
   return (
     <div className="w-full flex flex-col items-center justify-center py-10 text-center">
       <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
@@ -267,7 +305,8 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
             <label className="text-sm text-gray-500">Address</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
               <FiMapPin className="text-gray-400" />
-              {user.info.address}, {user.info.state}, {user.info.country} - {user.info.pinCode}
+              {user.info.address}, {user.info.state}, {user.info.country} -{" "}
+              {user.info.pinCode}
             </div>
           </div>
 
@@ -300,7 +339,9 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
 
               <div className="sm:col-span-2">
                 <label className="text-sm text-gray-500">Firm Address</label>
-                <div className="mt-1 text-gray-900">{user.info.firmAddress}</div>
+                <div className="mt-1 text-gray-900">
+                  {user.info.firmAddress}
+                </div>
               </div>
             </div>
           </>
@@ -366,7 +407,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
               </div>
             ))
           ) : (
-            <NoData  label="Wishlist" icon="💔" />
+            <NoData label="Wishlist" icon="💔" />
           )}
         </div>
       </section>

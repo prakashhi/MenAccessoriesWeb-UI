@@ -13,46 +13,64 @@ import { CircleCheck } from "lucide-react";
 import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
 
 import { Heart } from "lucide-react";
-
-import { useEffect } from "react";
-import { HeartIcon } from "./HeartIcon";
-
-type ProductCard = {
-  id: string;
-  product_name: string;
-  description: string;
-  price: number;
-  discount_price: number | null;
-  images: string[];
-  product_colors: string[] | string;
-  stock: number;
-  category: {
-    category_name: string;
-  };
-};
+import { ProductInfoType, CategoryInfo } from "@/app/(User)/Type/Types";
 
 export default function CardModel({
   DataObj,
   CustomWH,
 }: {
-  DataObj: ProductCard[];
+  DataObj: ProductInfoType[];
   CustomWH?: string;
 }) {
+  interface SizeVariant {
+    size: string;
+    stock: number;
+  }
+
+  interface Product {
+    id: string;
+    seqId: number;
+    name: string;
+    numberOfPieces: number;
+    color: string;
+    workDays: number;
+    sellingPrice: number;
+    difference: number;
+    isSpecial: boolean;
+    serialNumber: string;
+    stock: number;
+    doublePremium: boolean;
+    code: string;
+    QRCode: string;
+    customPrice: number;
+    systemPrice: number;
+    size: string;
+    weight: string;
+    description: string;
+    image: string;
+    nineRockImage: string | null;
+    video: string | null;
+    materialUsed: string;
+    materialUsedName: string;
+    canBeMade: number;
+    addedByName: string | null;
+    updatedByName: string | null;
+    deletedByName: string | null;
+    isActive: boolean;
+    addedBy: string | null;
+    categoryId: string | null;
+    categoryName: string | null;
+    updatedBy: string | null;
+    deletedBy: string | null;
+    createdAt: string; // ISO date string
+    updatedAt: string; // ISO date string
+    variantId: string | null;
+    isHaveSizeVariants: boolean;
+    sizeVariants: SizeVariant[];
+  }
+
   const { AddCartProduct, AddLikeProduct, guestCart } = UsePanel();
   const router = useRouter();
-
-  // let iscart = !!guestCart?.items?.[product.id];
- 
-
-  // useEffect(() => {
-  //   if (!iscart) return;
-
-  //   const timer = setTimeout(() => {
-  //     // keep cart but revert UI text
-  //   }, 1500);
-
-  //   return () => clearTimeout(timer);
-  // }, [iscart]);
 
   if (DataObj.length === 0) {
     return (
@@ -65,7 +83,7 @@ export default function CardModel({
   return (
     <>
       {DataObj.length > 1 &&
-        DataObj.map((product) => {
+        DataObj.map((product: Product) => {
           let iscart = !!guestCart?.items?.[product.id];
           let isLike = !!guestCart?.likeProduct?.[product.id];
 
@@ -100,7 +118,7 @@ export default function CardModel({
                 />
 
                 {/* Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition" />
 
                 {/* Wishlist */}
                 {isLike == true ? (
@@ -145,7 +163,7 @@ export default function CardModel({
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -6 }}
                           transition={{ duration: 0.4, ease: "easeOut" }}
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-2 cursor-pointer"
                         >
                           <RiShoppingCart2Line size={16} />
                           ADD TO CART
@@ -157,7 +175,7 @@ export default function CardModel({
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.6, ease: "easeInOut" }}
-                          className="flex items-center gap-2 text-emerald-600"
+                          className="flex items-center cursor-pointer gap-2 text-emerald-600"
                         >
                           <motion.span
                             initial={{ scale: 0.85 }}
@@ -190,11 +208,11 @@ export default function CardModel({
                   <span className="text-base font-bold text-gray-900">
                     ₹{formatIndianPrice(product.sellingPrice)}
                   </span>
-                  {product.discount_price && (
+                  {/* {product.discount_price && (
                     <span className="text-xs text-gray-400 line-through">
                       ₹{formatIndianPrice(product.discount_price)}
                     </span>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>

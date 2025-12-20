@@ -19,19 +19,27 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
 
+import { LikeItem } from "@/app/(User)/Type/Types";
+
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
   const { AddCartProduct, RemoveLikeProduct, LikeProductList, guestCart } =
     UsePanel();
 
-  const [likeProductList, setLikeProductList] = useState([]);
+  const [likeProductList, setLikeProductList] = useState<any[]>([]);
   const [hoveredItem, setHoveredItem] = useState(null);
 
-  const LikeListData = useMemo(() => {
-    if (user) {
-      return LikeProductList();
-    }
-    return Object.values(guestCart?.likeProduct || {});
+  useEffect(() => {
+    const LikeData = async () => {
+      if (user) {
+        let response = await LikeProductList(user.id);
+        setLikeProductList(response.data);
+      } else {
+        setLikeProductList(Object.values(guestCart?.likeProduct || {}));
+      }
+    };
+
+    LikeData();
   }, [user, guestCart]);
 
   return (
@@ -54,16 +62,16 @@ export default function Page() {
         </div>
 
         <AnimatePresence mode="wait">
-          {LikeListData?.length > 0 ? (
+          {likeProductList?.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ staggerChildren: 0.1 }}
               className="space-y-4 sm:space-y-6"
             >
-              {LikeListData.map((item: any) => (
+              {likeProductList.map((item: any) => (
                 <motion.div
-                  key={item.id}
+                  key={item.likeId || item.product?.id || item.id}
                   layout
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -76,22 +84,24 @@ export default function Page() {
                 >
                   {/* HOVER BACKGROUND EFFECT - MOBILE OPTIMIZED */}
                   <div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-neutral-50 to-transparent 
-                                translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 hidden sm:block"
+                    className="absolute inset-0 bg-linear-to-r from-transparent via-neutral-50 to-transparent 
+                                translate-x-full group-hover:translate-x-full transition-transform duration-1000 hidden sm:block"
                   />
 
                   <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8">
                     {/* IMAGE - RESPONSIVE */}
                     <div
                       className="relative w-full sm:w-24 md:w-32 lg:w-36 h-48 sm:h-24 md:h-32 lg:h-36 overflow-hidden bg-neutral-100 
-                                  border border-neutral-200 rounded-md group-hover:border-neutral-300 transition-all duration-500 flex-shrink-0"
+                                  border border-neutral-200 rounded-md group-hover:border-neutral-300 transition-all duration-500 shrink-0"
                     >
                       <Image
-                        src={
-                          ImageShowUtil(item.image) ||
-                          "/images/placeholder.webp"
-                        }
                         alt={item.name}
+                        src={
+                          user
+                            ? ImageShowUtil(item.product.image)
+                            : ImageShowUtil(item.image) ||
+                              "/images/placeholder.webp"
+                        }
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 768px) 96px, (max-width: 1024px) 128px, 144px"
                         className="object-cover object-center transition-transform duration-700 
@@ -101,7 +111,19 @@ export default function Page() {
 
                       {/* MOBILE REMOVE BUTTON */}
                       <button
-                        onClick={() => RemoveLikeProduct(item.id)}
+                        onClick={() => {
+                          if (user) {
+                            RemoveLikeProduct(item.product.id);
+
+                            setLikeProductList((prev) =>
+                              prev.filter(
+                                (p) => p.product.id !== item.product.id
+                              )
+                            );
+                          } else {
+                            RemoveLikeProduct(item.id);
+                          }
+                        }}
                         className="absolute top-2 right-2 sm:top-3 sm:right-3 w-8 h-8 sm:w-7 sm:h-7 cursor-pointer rounded-full bg-white/90 backdrop-blur-sm 
                                  flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 
                                  transition-all duration-300 hover:bg-white border border-neutral-200 shadow-sm sm:shadow-none"
@@ -119,13 +141,16 @@ export default function Page() {
                                      mb-1 sm:mb-2 line-clamp-2 sm:line-clamp-1"
                           style={{ fontFamily: "'Cormorant Garamond', serif" }}
                         >
-                          {item.name}
+                          {user ? item.product.name : item.name}
                         </h3>
 
                         {/* PRICE - MOBILE FIRST */}
                         <div className="flex items-center justify-between sm:justify-start sm:block">
                           <p className="text-lg sm:text-xl md:text-2xl font-light text-neutral-900 tracking-tight">
-                            ₹{formatIndianPrice(item.sellingPrice)}
+                            ₹
+                            {user
+                              ? formatIndianPrice(item.product.sellingPrice)
+                              : formatIndianPrice(item.sellingPrice)}
                           </p>
 
                           {/* MOBILE ACTIONS */}
@@ -147,7 +172,19 @@ export default function Page() {
                               </span>
                             </button>
                             <button
-                              onClick={() => RemoveLikeProduct(item.id)}
+                              onClick={() => {
+                                if (user) {
+                                  RemoveLikeProduct(item.product.id);
+
+                                  setLikeProductList((prev) =>
+                                    prev.filter(
+                                      (p) => p.product.id !== item.product.id
+                                    )
+                                  );
+                                } else {
+                                  RemoveLikeProduct(item.id);
+                                }
+                              }}
                               className="p-2 cursor-pointer text-neutral-400 hover:text-neutral-900 transition-colors"
                               aria-label="Remove"
                             >
@@ -169,7 +206,7 @@ export default function Page() {
                     </div>
 
                     {/* DESKTOP ACTION BUTTONS */}
-                    <div className="hidden sm:flex flex-col gap-3 md:gap-4 items-end flex-shrink-0 w-full sm:w-auto">
+                    <div className="hidden sm:flex flex-col gap-3 md:gap-4 items-end shrink-0 w-full sm:w-auto">
                       <button
                         onClick={() => {
                           AddCartProduct(item);
@@ -188,13 +225,25 @@ export default function Page() {
                           />
                         </span>
                         <div
-                          className="absolute inset-0 bg-neutral-900 translate-x-[-100%] 
+                          className="absolute inset-0 bg-neutral-900 translate-x-full 
                                       group-hover/btn:translate-x-0 transition-transform duration-500"
                         />
                       </button>
 
                       <button
-                        onClick={() => RemoveLikeProduct(item.id)}
+                        onClick={() => {
+                          if (user) {
+                            RemoveLikeProduct(item.product.id);
+
+                            setLikeProductList((prev) =>
+                              prev.filter(
+                                (p) => p.product.id !== item.product.id
+                              )
+                            );
+                          } else {
+                            RemoveLikeProduct(item.id);
+                          }
+                        }}
                         className="text-xs tracking-[0.2em] md:tracking-[0.3em] text-neutral-400 hover:text-neutral-900 
                                  transition-colors duration-300 flex items-center gap-1"
                       >
@@ -219,7 +268,7 @@ export default function Page() {
         </AnimatePresence>
 
         {/* BOTTOM DECORATIVE LINE - RESPONSIVE */}
-        {LikeListData?.length > 0 && (
+        {likeProductList?.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -227,8 +276,8 @@ export default function Page() {
             className="mt-8 sm:mt-12 md:mt-16 pt-6 sm:pt-8 border-t border-neutral-200"
           >
             <p className="text-xs tracking-[0.2em] text-neutral-500 text-center">
-              {LikeListData.length} ITEM{LikeListData.length > 1 ? "S" : ""}{" "}
-              CURATED
+              {likeProductList.length} ITEM
+              {likeProductList.length > 1 ? "S" : ""} CURATED
             </p>
           </motion.div>
         )}

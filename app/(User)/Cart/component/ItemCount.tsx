@@ -8,12 +8,14 @@ interface ItemCountProps {
   productId: string;
   quantity: number;
   stock: number;
+  cartId:string;
 }
 
 export default function ItemCount({
   productId,
   quantity,
   stock,
+  cartId,
 }: ItemCountProps) {
   const { incrementCartProduct, decrementCartProduct, setCartProductQty } =
     UsePanel();
@@ -38,7 +40,7 @@ export default function ItemCount({
       <div className="flex items-center border border-black w-fit select-none">
         {/* MINUS */}
         <button
-          onClick={() => decrementCartProduct(productId)}
+          onClick={() => decrementCartProduct(productId,cartId)}
           disabled={isMin}
           className={`w-12 h-12 ${
             isMin
@@ -61,7 +63,7 @@ export default function ItemCount({
 
         {/* PLUS */}
         <button
-          onClick={() => incrementCartProduct(productId)}
+          onClick={() => incrementCartProduct(productId,cartId)}
           disabled={isMax}
           className={`w-12 h-12 ${
             isMax

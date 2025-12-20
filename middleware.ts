@@ -4,26 +4,17 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const userToken = req.cookies.get("User_token")?.value;
 
-  const protectedRoutes = [
-    "/admin/Dashboard",
-    "/admin/Orders",
-    "/admin/products",
-    "/admin",
-  ];
-  // const userProtected = ["/AccountInfo", "/Wishlist", "/Cart"];
-  const userProtected = ["/AccountInfo"];
+  // const Usercheck = ["/AccountInfo", "/Wishlist", "/Cart","/*"];
+  const userProtected = [""];
 
   // user check
-  if (userProtected.some((path) => path.startsWith(path)) && !userToken) {
-    return NextResponse.redirect(new URL("/Login", req.url));
-  }
+  // if (userProtected.some((path) => path.startsWith(path)) && !userToken) {
+  //   return NextResponse.redirect(new URL("/Login", req.url));
+  // }
 
-  return NextResponse.next();
+  // return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/AccountInfo/:path*",
-    // "/Wishlist/:path*",
-  ],
+  // matcher: ["/AccountInfo/:path*"],
 };

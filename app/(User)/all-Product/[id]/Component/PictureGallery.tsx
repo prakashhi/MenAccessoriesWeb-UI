@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 
 interface ProductGalleryProps {
   images: string[];
@@ -10,14 +11,29 @@ interface ProductGalleryProps {
   name: string;
 }
 
-export default function ProductGallery({ images, video, name }: ProductGalleryProps) {
+export default function ProductGallery({
+  images,
+  video,
+  name,
+}: ProductGalleryProps) {
   const [mainIndex, setMainIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(!!video);
 
   // Create thumbnails array with media type
-  const thumbnails: { type: "video" | "image"; url: string }[] = [
-    ...(video ? [{ type: "video", url: video }] : []),
-    ...images.map((img) => ({ type: "image", url: img })),
+
+  const safeImages: string[] = Array.isArray(images)
+    ? images
+    : typeof images === "string" && images
+    ? [images]
+    : [];
+
+  type MediaThumbnail = {
+    type: "image" | "video";
+    url: string;
+  };
+  const thumbnails: MediaThumbnail[] = [
+    ...(video ? [{ type: "video" as const, url: video }] : []),
+    ...safeImages.map((img) => ({ type: "image" as const, url: img })),
   ];
 
   const handleClick = (idx: number) => {
@@ -32,6 +48,7 @@ export default function ProductGallery({ images, video, name }: ProductGalleryPr
     }
   };
 
+
   return (
     <div className="flex flex-col gap-4">
       {/* MAIN MEDIA */}
@@ -40,7 +57,11 @@ export default function ProductGallery({ images, video, name }: ProductGalleryPr
           {showVideo && video ? (
             <motion.video
               key="video"
-              src={video.startsWith("/") ? `${process.env.NEXT_PUBLIC_IMG_URL}${video}` : `${process.env.NEXT_PUBLIC_IMG_URL}${video}`} // local or API
+              src={
+                video.startsWith("/")
+                  ? `${process.env.NEXT_PUBLIC_IMG_URL}${video}`
+                  : `${process.env.NEXT_PUBLIC_IMG_URL}${video}`
+              } // local or API
               controls
               autoPlay={false}
               className="absolute inset-0 w-full h-full object-cover rounded-xl"
@@ -59,7 +80,7 @@ export default function ProductGallery({ images, video, name }: ProductGalleryPr
               className="absolute inset-0"
             >
               <Image
-                src={images[mainIndex]}
+                src={ImageShowUtil(safeImages[mainIndex]) }
                 alt={name}
                 fill
                 className="object-cover rounded-xl"
@@ -71,19 +92,24 @@ export default function ProductGallery({ images, video, name }: ProductGalleryPr
       </div>
 
       {/* THUMBNAILS */}
-      <div className={`flex items-center ${thumbnails.length > 2 ? "justify-between" : "justify-evenly"} gap-3 mt-2`}>
+      <div
+        className={`flex items-center ${
+          thumbnails.length > 2 ? "justify-between" : "justify-evenly"
+        } gap-3 mt-2`}
+      >
         {thumbnails.map((media, idx) => (
           <div
             key={idx}
             onClick={() => handleClick(idx)}
             className={`relative cursor-pointer rounded-lg overflow-hidden border-2
-              ${media.type === "video"
-                ? showVideo
+              ${
+                media.type === "video"
+                  ? showVideo
+                    ? "border-gray-500"
+                    : "border-gray-300"
+                  : mainIndex === (video ? idx - 1 : idx)
                   ? "border-gray-500"
                   : "border-gray-300"
-                : mainIndex === (video ? idx - 1 : idx)
-                ? "border-gray-500"
-                : "border-gray-300"
               } transition-all duration-300 hover:scale-105`}
           >
             {media.type === "video" ? (
@@ -92,7 +118,7 @@ export default function ProductGallery({ images, video, name }: ProductGalleryPr
               </div>
             ) : (
               <Image
-                src={media.url}
+                src={ ImageShowUtil(media.url)}
                 width={110}
                 height={110}
                 alt={`thumb-${idx}`}

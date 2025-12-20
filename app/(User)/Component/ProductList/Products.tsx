@@ -1,36 +1,55 @@
 "use client";
 
-import { ProductData } from "./ProductData";
 import Link from "next/link";
 import CardModel from "./CardModel";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useApi } from "@/app/useApi";
-import { notify } from "../ToastComponent";
+import { ProductInfoType, CategoryInfo } from "@/app/(User)/Type/Types";
 
 export default function Product() {
   const { callApi } = useApi();
 
-  const [data, setData] = useState([]);
+  const [product, setProduct] = useState<ProductInfoType[]>([]);
+  const [category, setCategory] = useState<CategoryInfo[]>([]);
 
   const getData = useCallback(async () => {
-    const MenData = await callApi(
-      "get",
-      "https://backend.9rock.in/9rock/cat-with-products"
-    );
-     setData(MenData.data);
-
+    const [category, product] = await Promise.all([
+      callApi(
+        "get",
+        `/product/category-list?page=1&limit=100&hideWithOutImage=false`
+      ),
+      callApi(
+        "get",
+        `/product-list?page=1&limit=100&sortOrder=desc&showInStockProducts=false`
+      ),
+    ]);
+    setCategory(category.data);
+    setProduct(product.data);
   }, []);
+
+   console.log(category)
+
+
+
+  const groupedData = useMemo(() => {
+    if (!category.length || !product.length) return [];
+
+    return category.map((category) => ({
+      ...category,
+      products: product.filter((product) => product.categoryId === category.id),
+    }));
+  }, [category, product]);
+
+  console.log(groupedData);
 
   useEffect(() => {
     getData();
   }, []);
 
-   console.log(data)
-
   return (
     <section className="pt-12 lg:pt-24 px-4 sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
-      {data?.length > 1 &&
-        data.map((categoryItem, index) => (
+      {groupedData?.length > 1 &&
+        groupedData.map((categoryItem, index) => (
           <div
             key={index}
             className="mb-20 animate-fadeUp"
@@ -67,7 +86,7 @@ export default function Product() {
             {/* PRODUCTS SCROLL */}
             <div className="relative">
               {/* Scroll Fade Effect */}
-              <div className="pointer-events-none absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-[#FAFAFA] to-transparent z-10" />
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-12 bg-linear-to-l from-[#FAFAFA] to-transparent z-10" />
 
               <div
                 className="
@@ -77,7 +96,7 @@ export default function Product() {
                 scroll-smooth
                 snap-x snap-mandatory
                 overscroll-x-contain
-                [&>*]:snap-start
+                *:snap-start
               "
               >
                 <CardModel
