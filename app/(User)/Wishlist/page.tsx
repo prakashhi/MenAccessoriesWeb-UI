@@ -19,7 +19,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
 
-import { LikeItem } from "@/app/(User)/Type/Types";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);

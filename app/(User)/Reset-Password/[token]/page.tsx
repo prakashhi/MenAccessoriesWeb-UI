@@ -3,42 +3,43 @@
 import { useApi } from "@/app/useApi";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import Loader from "@/public/svg/tube-spinner.svg";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 
 import Image from "next/image";
 
-import { toast } from "react-toastify";
-import Link from "next/link";
-
 export default function page() {
-  const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const params = useParams();
-  console.log(params);
+
+  type ResetPass = {
+    token: "string";
+    email: "string";
+    newPassword: "string";
+    confirmPassword: "string";
+  };
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm();
+  } = useForm<ResetPass>();
 
   const router = useRouter();
   const { callApi, error, loading } = useApi();
 
-  const onSubmit = async (info) => {
+  const onSubmit: SubmitHandler<ResetPass> = async (info) => {
     const res = await callApi("post", "/user/validate-reset-password-token", {
       data: {
         token: params.token,
         email: "string",
-        newPassword: info.password,
+        newPassword: info.newPassword,
       },
     });
-
 
     notify({
       message: res.message || "Password reset successful!",
@@ -47,7 +48,7 @@ export default function page() {
     router.push("/Login");
   };
 
-  const passwordValue = watch("password");
+  const passwordValue = watch("newPassword");
 
   return (
     <div className="min-h-screen py-4 flex justify-center items-center bg-linear-to-b from-[#f5f5f5] to-[#e5e5e5] px-4">
@@ -75,7 +76,7 @@ export default function page() {
                 type={"text"}
                 className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
                 placeholder="••••••••"
-                {...register("password", {
+                {...register("newPassword", {
                   required: "Password is required",
                   minLength: {
                     value: 6,
@@ -85,9 +86,9 @@ export default function page() {
               />
             </div>
 
-            {errors.password && (
+            {errors.newPassword && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.password.message}
+                {errors.newPassword.message}
               </p>
             )}
           </div>
@@ -105,7 +106,7 @@ export default function page() {
                 {...register("confirmPassword", {
                   required: "Confirm your password",
                   validate: (value) =>
-                    value === passwordValue || "Passwords do not match",
+                    value == passwordValue || "Passwords do not match",
                 })}
               />
 

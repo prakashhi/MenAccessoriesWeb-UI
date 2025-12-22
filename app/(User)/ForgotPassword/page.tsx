@@ -3,29 +3,25 @@
 import { useApi } from "@/app/useApi";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
+
 import Loader from "@/public/svg/tube-spinner.svg";
 import { notify } from "@/app/(User)/Component/ToastComponent";
+import { useForm, SubmitHandler } from "react-hook-form";
 
 import Image from "next/image";
 
-import { toast } from "react-toastify";
-import Link from "next/link";
-
 export default function page() {
-  const [showPass, setShowPass] = useState(false);
-
+  type Data = { email: string };
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<Data>();
 
   const router = useRouter();
   const { callApi, error, loading } = useApi();
 
-  const onSubmit = async (info) => {
+  const onSubmit: SubmitHandler<Data> = async (info) => {
     const res = await callApi(
       "post",
       "http://localhost:3005/user/send-reset-password-email",

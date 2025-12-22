@@ -22,26 +22,38 @@ import {
   CartItem,
   CartProductInfo,
   ProductInfoType,
+  LikeProductType,
 } from "@/app/(User)/Type/Types";
 
 type GuestCartItem = product & { quantity: number };
+
 type GuestCart = {
   items: Record<string, GuestCartItem>;
-  likeProduct: Record<string, GuestCartItem>;
+  likeProduct: Record<string, product>;
 };
+
+type AddToCart = product | ProductInfoType;
 
 type PanelContextType = {
   cartProduct: product[];
   setCartProduct: React.Dispatch<React.SetStateAction<product[]>>;
-  AddCartProduct: (Product: product) => Promise<void>;
+  AddCartProduct: (Product: AddToCart) => Promise<void>;
   RemoveCartProduct: (id: string) => Promise<void>;
   guestCart: GuestCart;
   AddLikeProduct: (Product: product) => Promise<void>;
   RemoveLikeProduct: (ProductId: string) => Promise<void>;
   LikeProductList: (userid: string) => Promise<any>;
   CartProductList: (userid: string) => Promise<any>;
-  incrementCartProduct: (productId: string, cardId: string) => Promise<void>;
-  decrementCartProduct: (productId: string, cardId: string) => Promise<void>;
+  incrementCartProduct: (
+    productId: string,
+    cardId: string,
+    quantity: number
+  ) => Promise<void>;
+  decrementCartProduct: (
+    productId: string,
+    cardId: string,
+    quantity: number
+  ) => Promise<void>;
   setCartProductQty: (productId: string, qty: number) => Promise<void>;
   isOpen: boolean;
   loading: boolean;
@@ -50,9 +62,17 @@ type PanelContextType = {
   GuestUserDataLength: { Cart: number; Like: number };
 };
 
-const SearchPanelContext = createContext<PanelContextType>();
+const SearchPanelContext = createContext<PanelContextType | null>(null);
 
-export const UsePanel = () => useContext(SearchPanelContext);
+export const UsePanel = () => {
+  const context = useContext(SearchPanelContext);
+
+  if (!context) {
+    throw new Error("UsePanel must be used inside SearchPanelContextProvider");
+  }
+
+  return context;
+};
 
 export function SearchPanelContextProvider({
   children,
@@ -82,11 +102,11 @@ export function SearchPanelContextProvider({
     const userData = getUserFromStorage();
     setUser(userData);
 
-    console.log(userData);
-
     const cart = getGuestCart();
 
-    setGuestCart(cart);
+    console.log("Cart", cart);
+
+    setGuestCart((prev) => ({ ...prev, items: cart.items }));
   }, [mounted]);
 
   const id = user?.id;
@@ -106,7 +126,7 @@ export function SearchPanelContextProvider({
   }, [guestCart]);
 
   // All functions
-  const AddCartProduct = async (Product: ProductInfoType) => {
+  const AddCartProduct = async (Product: AddToCart) => {
     if (user == null || !user) {
       let added = false;
       setGuestCart((prev) => {
@@ -178,7 +198,7 @@ export function SearchPanelContextProvider({
     }
   };
 
-  const AddLikeProduct = async (Product: product) => {
+  const AddLikeProduct = async (Product: product): Promise<void> => {
     if (user == null || !user) {
       let shouldNotify = false;
       setGuestCart((prev) => {
@@ -243,7 +263,6 @@ export function SearchPanelContextProvider({
 
       toastActions.removeFromWishlist();
     } else {
-       console.log("Api",id,ProductId)
       let response = await callApi(
         "delete",
         `/like-product/${id}/${ProductId}`

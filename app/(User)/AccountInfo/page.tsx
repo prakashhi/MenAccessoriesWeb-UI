@@ -18,47 +18,20 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { notify, toastActions } from "@/app/(User)/Component/ToastComponent";
 import { getUserFromStorage } from "@/context/utils";
-
-type Order = { id: string; item: string; status: string; date?: string };
-type Wish = { id: number; name: string; price?: number };
+import { User, LikeProductType, OrderType } from "@/app/(User)/Type/Types";
+import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+import Image from "next/image";
+import { Button } from "@heroui/react";
 
 type IconType = "📭" | "💔";
-
-export interface User {
-  id: string;
-
-  userName: string;
-  email: string;
-  role: "user" | "admin" | "supplier";
-
-  isSupplier: boolean;
-
-  contactNumber: string;
-  country: string;
-  countryCode: string;
-  countryCodeLabel: string;
-  state: string;
-  address: string;
-  pinCode: string;
-
-  profilePicture: string;
-
-  firmName: string | null;
-  firmAddress: string | null;
-  GSTIN: string | null;
-
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-  deletedAt: string | null;
-}
 
 export default function AccountSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
 
   const [user, setUserData] = useState({
-    info:[] ,
-    orders: [] as Order[],
-    wishlist: [] as Wish[],
+    info: {} as User,
+    orders: [] as OrderType[],
+    wishlist: [] as LikeProductType[],
   });
 
   // Logout handler (sample)
@@ -71,7 +44,8 @@ export default function AccountSection() {
       type: "info",
     });
     // Redirect to admin dashboard
-    router.push("/Login");
+
+    router.replace("/Login");
   };
 
   const menu = [
@@ -103,14 +77,19 @@ export default function AccountSection() {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const GetProfileData = async () => {
-      if (userData == null || !userData) {
-        router.push("/Login");
+      if (!userData?.id) {
+        router.replace("/Login");
+        return;
       } else {
         let [profileData, likeProductDat] = await Promise.all([
-          callApi("get", `/user/${User.id}`),
-          callApi("get", `/like-products/${User.id}`),
+          callApi("get", `/user/${userData.id}`),
+          callApi("get", `/like-products/${userData.id}`),
         ]);
+
+        if (!mounted) return;
 
         setUserData((prev) => ({
           ...prev,
@@ -120,7 +99,12 @@ export default function AccountSection() {
       }
     };
     GetProfileData();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
+
 
   return (
     <>
@@ -142,7 +126,7 @@ export default function AccountSection() {
             <nav className="hidden lg:block lg:w-72 border-r border-gray-100 p-6">
               <div className="mb-6">
                 <div className="text-lg font-semibold">
-                  {user.info.userName}
+                  {user.info.userName ?? null}
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
                   {user.info.email}
@@ -260,6 +244,7 @@ export function NoData({ label, icon }: { label: string; icon: IconType }) {
 /* Renders the panel content for each menu key. */
 
 function ContentRenderer({ keyname, user, onLogout }: any) {
+  const router = useRouter();
   /* ---------------- INFO ---------------- */
   if (keyname === "info") {
     return (
@@ -290,7 +275,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
             <label className="text-sm text-gray-500">Phone</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
               <FiPhone className="text-gray-400" />
-              {user.countryCode} {user.info.contactNumber}
+              {user.countryCode} {user.info.contactNumber ?? "N/A"}
             </div>
           </div>
 
@@ -305,8 +290,8 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
             <label className="text-sm text-gray-500">Address</label>
             <div className="mt-1 text-gray-900 flex items-center gap-2">
               <FiMapPin className="text-gray-400" />
-              {user.info.address}, {user.info.state}, {user.info.country} -{" "}
-              {user.info.pinCode}
+              {user.info.address ?? "N/A"}, {user.info.state},{" "}
+              {user.info.country} - {user.info.pinCode}
             </div>
           </div>
 
@@ -387,23 +372,36 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
       <section>
         <h3 className="text-xl text-center font-semibold mb-3">Wishlist</h3>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col gap-3 justify-center max-h-[350px] overflow-y-auto">
           {user.wishlist?.length > 0 ? (
             user.wishlist.map((w: any) => (
               <div
-                key={w.id}
+                key={w.likeId}
                 className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg"
               >
-                <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-400">
-                  IMG
+                <div className="w-12 h-12 bg-gray-100 rounded-md relative overflow-hidden">
+                  <Image
+                    fill
+                    alt={w.product.name}
+                    src={ImageShowUtil(w.product.image)}
+                    className="object-contain"
+                   
+                  />
                 </div>
 
                 <div className="flex-1">
-                  <div className="font-medium">{w.name}</div>
-                  <div className="text-sm text-gray-500">₹{w.price}</div>
+                  <div className="font-medium">{w.product.name}</div>
+                  <div className="text-sm text-gray-500">
+                    ₹{w.product.price}
+                  </div>
                 </div>
 
-                <button className="text-sm text-gray-600">View</button>
+                <Button
+                  onPress={() => router.push("/Wishlist")}
+                  className="text-sm rounded-xl px-8 cursor-pointer hover:bg-gray-50 py-0 border border-gray-50 text-gray-600 hover:text-black"
+                >
+                  View
+                </Button>
               </div>
             ))
           ) : (

@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { RiCloseLine } from "react-icons/ri";
+import { Variants } from "framer-motion";
 
 interface PaymentFailedModalProps {
   isOpen: boolean;
@@ -19,9 +20,20 @@ export default function PaymentFailedModal({
     show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
   };
 
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+
+  const fadeUp: Variants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+    },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.4, 0, 0.2, 1], // ✅ correct
+      },
+    },
   };
 
   return (
@@ -55,7 +67,7 @@ export default function PaymentFailedModal({
             >
               {/* ❌ ICON */}
               <motion.div
-                className="w-28 h-28 rounded-full bg-gradient-to-br from-red-200/30 to-red-300/20 flex items-center justify-center shadow-lg"
+                className="w-28 h-28 rounded-full bg-linear-to-br from-red-200/30 to-red-300/20 flex items-center justify-center shadow-lg"
                 variants={fadeUp}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1.1 }}
@@ -84,7 +96,7 @@ export default function PaymentFailedModal({
               {/* BUTTON */}
               <motion.button
                 onClick={onClose}
-                className="mt-6 w-full bg-gradient-to-r from-red-900 via-red-800 to-red-700 text-white py-3 rounded-xl font-semibold tracking-wide shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                className="mt-6 w-full bg-linear-to-r from-red-900 via-red-800 to-red-700 text-white py-3 rounded-xl font-semibold tracking-wide shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
                 variants={fadeUp}
               >
                 Try Again

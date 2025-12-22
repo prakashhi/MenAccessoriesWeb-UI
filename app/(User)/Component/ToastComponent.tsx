@@ -16,11 +16,15 @@ import {
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 
+import React from "react";
+
+
+
 type ToastType = "success" | "error" | "info" | "warning";
 type ActionType = "cart_add" | "cart_remove" | "wishlist_add" | "wishlist_remove" | "out_of_stock" | "price_drop";
 
 interface NotifyProps {
-  message: string;
+  message?: string;
   type?: ToastType;
   duration?: number;
   action?: ActionType;
@@ -68,7 +72,7 @@ const responsiveStyles = {
 const ACTION_CONFIG: Record<ActionType, {
   title: string;
   defaultMessage: string;
-  icon: JSX.Element;
+  icon:React.ReactNode;
   color: string;
   duration: number;
 }> = {
@@ -119,7 +123,7 @@ const ACTION_CONFIG: Record<ActionType, {
 /* 🎩 Toast Theme Styles */
 const TOAST_THEME: Record<ToastType, { 
   style: ToastOptions["style"]; 
-  icon: JSX.Element;
+  icon: React.ReactNode;
 }> = {
   success: {
     style: {
@@ -187,7 +191,7 @@ export const notify = ({
       className="flex items-center gap-4"
     >
       {/* Icon Section */}
-      <div className={`flex-shrink-0 w-10 h-10 rounded-sm flex items-center justify-center 
+      <div className={`shrink-0 w-10 h-10 rounded-sm flex items-center justify-center 
         ${actionConfig ? `bg-${actionConfig.color.replace('#', '')}/10` : 'bg-gray-50'}`}>
         {actionConfig ? actionConfig.icon : TOAST_THEME[type].icon}
       </div>
@@ -226,9 +230,9 @@ export const notify = ({
             // Navigate to cart or close toast
             window.location.href = '/Cart';
           }}
-          className="text-xs tracking-[0.1em] uppercase border border-charcoal px-3 py-1.5 
+          className="text-xs tracking-widest  uppercase border border-charcoal px-3 py-1.5 
                    hover:bg-charcoal hover:text-white hover:bg-black transition-all duration-300 
-                   whitespace-nowrap flex-shrink-0"
+                   whitespace-nowrap shrink-0"
         >
           VIEW CART
         </button>

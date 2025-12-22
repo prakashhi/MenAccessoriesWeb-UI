@@ -102,7 +102,6 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
       transition={{ duration: 0.4 }}
       className="w-full"
     >
-      
       {/* ===== CONTROL BAR ===== */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-100 py-3 px-4 sm:px-6 backdrop-blur-sm">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 max-w-7xl mx-auto">
@@ -177,25 +176,12 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
         mx-auto
       "
           >
-            <CardModel
-              DataObj={sortedProducts}
-              CustomWH="w-full"
-              className="
-          rounded-lg
-          sm:rounded-xl
-          overflow-hidden
-          bg-white
-          shadow-sm
-          border border-gray-100
-          hover:shadow-md
-          hover:border-gray-200
-          transition-all
-          duration-300
-        "
-            />
+            <CardModel DataObj={sortedProducts} CustomWH="w-full" />
           </motion.div>
         ) : (
-          <EmptyTableComponent />
+          <div className="flex items-center justify-center min-h-[70vh]">
+            <EmptyTableComponent />
+          </div>
         )}
       </div>
 

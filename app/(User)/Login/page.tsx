@@ -34,7 +34,7 @@ export default function page() {
       data: { email: info.email, password: info.password },
     });
 
-    console.log(res);
+ 
 
     notify({
       message: res.msg || "Login successful!",

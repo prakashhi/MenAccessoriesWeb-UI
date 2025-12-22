@@ -21,8 +21,6 @@ export function useApi<T = any>() {
     url: string,
     config?: AxiosRequestConfig
   ) => {
-  
-
     try {
       let response;
       setLoading(true);
@@ -55,7 +53,7 @@ export function useApi<T = any>() {
       errorMsg = err.response?.data?.message || err.message;
 
       setError(errorMsg);
-      console.log(err.response.data);
+      
 
       notify({
         message: errorMsg,

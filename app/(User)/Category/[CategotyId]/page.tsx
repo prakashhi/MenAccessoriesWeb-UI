@@ -17,7 +17,6 @@ export default function Page() {
 
   const [data, setData] = useState<any[]>([]);
 
-   console.log(params)
 
   const getData = useCallback(async () => {
     const res = await callApi("get", `/product-category-list?id=${params.CategotyId}&limit=100&offset=0`);
@@ -31,7 +30,7 @@ export default function Page() {
     setData(res.data);
   }, []);
 
-   console.log("Categoty",data)
+  
 
   useEffect(() => {
     getData();

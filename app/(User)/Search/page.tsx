@@ -8,8 +8,9 @@ import { useApi } from "@/app/useApi";
 import { notify } from "../Component/ToastComponent";
 import SearchDataInfo from "./Componets/SearchDataInfo";
 import { motion } from "framer-motion";
+import { Variants} from "framer-motion";
 
-const pageFade = {
+const pageFade:Variants = {
   hidden: { opacity: 0, y: 30 },
   show: {
     opacity: 1,
@@ -18,7 +19,7 @@ const pageFade = {
   },
 };
 
-const sectionFade = {
+const sectionFade:Variants = {
   hidden: { opacity: 0, scale: 0.98 },
   show: {
     opacity: 1,
@@ -37,7 +38,7 @@ const staggerContainer = {
   },
 };
 
-const staggerItem = {
+const staggerItem:Variants = {
   hidden: { opacity: 0, y: 12 },
   show: {
     opacity: 1,

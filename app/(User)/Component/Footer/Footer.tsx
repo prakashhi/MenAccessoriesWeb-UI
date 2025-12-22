@@ -1,8 +1,4 @@
-import { Category } from "../Categotys";
 
-import { Facebook, Instagram, Linkedin,MessageCircle } from "lucide-react";
-
-import Link from "next/link";
 import SocialIcons from "./IconsComponet";
 import ContactComponent from "./ContectComponet";
 export default function Footer() {
@@ -18,7 +14,7 @@ export default function Footer() {
             </p>
 
             {/* SOCIAL ICONS */}
-           <SocialIcons/>
+            <SocialIcons />
           </div>
 
           {/* SHOP */}
@@ -76,7 +72,7 @@ export default function Footer() {
           </div>
 
           {/* CONTACT */}
-         <ContactComponent/>
+          <ContactComponent />
         </div>
 
         {/* BOTTOM */}

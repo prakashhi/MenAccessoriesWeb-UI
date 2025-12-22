@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-export default function SearchComponents({ Data }) {
+export default function SearchComponents({ Data }: { Data: any }) {
   if (!Data) return null;
 
   const router = useRouter();
@@ -29,7 +29,7 @@ export default function SearchComponents({ Data }) {
             </p>
 
             <div className="flex gap-3 overflow-x-auto scrollbar-hide">
-              {Data.categories.map((cat) => (
+              {Data.categories.map((cat:any) => (
                 <motion.div
                   key={cat.id}
                   onClick={() => router.push(`/Category/${cat.id}`)}
@@ -71,7 +71,7 @@ export default function SearchComponents({ Data }) {
             </p>
 
             <div className="flex flex-col gap-2">
-              {Data.products.map((product) => (
+              {Data.products.map((product:any) => (
                 <motion.div
                   onClick={() => router.push(`/all-Product/${product.id}`)}
                   key={product.id}

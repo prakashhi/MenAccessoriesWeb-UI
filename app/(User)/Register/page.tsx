@@ -3,12 +3,14 @@
 import { useApi } from "@/app/useApi";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
 import CountryFiled from "./Component/CountryFiledComponet";
+
+import { RegisterType } from "@/app/(User)/Type/Types";
 
 export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false);
@@ -20,16 +22,16 @@ export default function RegisterPage() {
     watch,
     setValue,
     formState: { errors },
-  } = useForm();
+  } = useForm<RegisterType>();
 
   const router = useRouter();
   const { callApi, error, loading } = useApi();
 
-  const onSubmit = async (info) => {
+  const onSubmit: SubmitHandler<RegisterType> = async (info) => {
     try {
       const res = await callApi("post", "/signup", {
         data: {
-          userName: info.fullName,
+          userName: info.userName,
 
           email: info.email,
 
@@ -39,7 +41,7 @@ export default function RegisterPage() {
 
           pinCode: info.pinCode,
 
-          contactNumber: info.mobile_no,
+          contactNumber: info.contactNumber,
 
           countryCode: info.countryCode,
 
@@ -98,7 +100,7 @@ export default function RegisterPage() {
               type="text"
               className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
               placeholder="John Doe"
-              {...register("fullName", {
+              {...register("userName", {
                 required: "Full name is required",
                 minLength: {
                   value: 3,
@@ -106,9 +108,9 @@ export default function RegisterPage() {
                 },
               })}
             />
-            {errors.fullName && (
+            {errors.userName && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.fullName.message}
+                {errors.userName.message}
               </p>
             )}
           </div>
@@ -145,16 +147,16 @@ export default function RegisterPage() {
             <input
               placeholder="1234567890"
               className="w-full mt-1 px-4 py-3 bg-white/60 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70 transition"
-              {...register("mobile_no", {
+              {...register("contactNumber", {
                 pattern: {
                   value: /^[6-9][0-9]{9}$/,
                   message: "Enter valid Mobile No",
                 },
               })}
             />
-            {errors.mobile_no && (
+            {errors.contactNumber && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.mobile_no.message}
+                {errors.contactNumber.message}
               </p>
             )}
           </div>

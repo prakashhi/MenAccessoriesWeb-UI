@@ -37,8 +37,8 @@ export interface ProductInfoType {
   categoryName: string | null;
   updatedBy: string | null;
   deletedBy: string | null;
-  createdAt: string;   // ISO date string
-  updatedAt: string;   // ISO date string
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
   variantId: string | null;
   isHaveSizeVariants: boolean;
   sizeVariants: SizeVariant[];
@@ -55,13 +55,11 @@ export interface CategoryInfo {
   updatedAt: string; // ISO date string
 }
 
-
 export interface VariantSize {
   variantSizeId: string;
   variantSizeName: string;
   variantSizeStock: number;
 }
-
 
 export interface CartProductInfo {
   productName: string;
@@ -75,7 +73,6 @@ export interface CartProductInfo {
   categoryName: string;
 }
 
-
 export interface CartItem {
   id: string;
   quantity: number;
@@ -83,8 +80,67 @@ export interface CartItem {
   variantSize: VariantSize;
 }
 
-export interface LikeItem {
-  likeId: string;
-  product: ProductInfoType;
+export interface User {
+  id: string;
+
+  userName: string;
+  email: string;
+  role: "user" | "admin" | "supplier";
+
+  isSupplier: boolean;
+
+  contactNumber: string;
+  country: string;
+  countryCode: string;
+  countryCodeLabel: string;
+  state: string;
+  address: string;
+  pinCode: string;
+
+  profilePicture: string;
+
+  firmName: string | null;
+  firmAddress: string | null;
+  GSTIN: string | null;
+
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  deletedAt: string | null;
 }
 
+export type OrderType = {
+  id: string;
+  item: string;
+  status: string;
+  date?: string;
+};
+
+export type LikeProductType = {
+  likeId: string;
+  product: ProductInfoType;
+};
+
+export type RegisterType = {
+  userName: string;
+
+  email: string;
+
+  password: string;
+
+  address: string | null;
+
+  pinCode: string | null;
+
+  contactNumber: string | null;
+
+  countryCode: string | null;
+
+  countryCodeLabel: string | null;
+
+  isSupplier: string | null;
+
+  country: string | null;
+
+  state: string | null;
+  confirmPassword:string |  null
+};

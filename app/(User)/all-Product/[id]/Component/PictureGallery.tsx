@@ -1,131 +1,130 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+import { Play } from "lucide-react";
 
 interface ProductGalleryProps {
-  images: string[];
-  video?: string; // optional video URL
+  images?: (string | null | undefined)[];
+  video?: string | null;
   name: string;
 }
 
+type MediaItem =
+  | { type: "image"; url: string }
+  | { type: "video"; url: string };
+
+const FALLBACK_IMAGE = "/placeholder.png"; // put in /public
+
 export default function ProductGallery({
-  images,
+  images = [],
   video,
   name,
 }: ProductGalleryProps) {
-  const [mainIndex, setMainIndex] = useState(0);
-  const [showVideo, setShowVideo] = useState(!!video);
+  /* ---------------- NORMALIZE MEDIA ---------------- */
 
-  // Create thumbnails array with media type
+  const media: MediaItem[] = useMemo(() => {
+    const imgItems =
+      images
+        ?.filter((i): i is string => Boolean(i && i.trim()))
+        .map((url) => ({ type: "image" as const, url })) ?? [];
 
-  const safeImages: string[] = Array.isArray(images)
-    ? images
-    : typeof images === "string" && images
-    ? [images]
-    : [];
+    const videoItem =
+      video && video.trim() ? [{ type: "video" as const, url: video }] : [];
 
-  type MediaThumbnail = {
-    type: "image" | "video";
-    url: string;
-  };
-  const thumbnails: MediaThumbnail[] = [
-    ...(video ? [{ type: "video" as const, url: video }] : []),
-    ...safeImages.map((img) => ({ type: "image" as const, url: img })),
-  ];
+    return [...videoItem, ...imgItems];
+  }, [images, video]);
 
-  const handleClick = (idx: number) => {
-    const media = thumbnails[idx];
-    if (media.type === "video") {
-      setShowVideo(true);
-    } else {
-      setShowVideo(false);
-      // Calculate image index
-      const imgIndex = video ? idx - 1 : idx;
-      setMainIndex(imgIndex);
-    }
-  };
+  /* ---------------- STATE ---------------- */
 
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  /* ---------------- EMPTY STATE ---------------- */
+
+  if (media.length === 0) {
+    return (
+      <div className="w-full h-[420px] flex items-center justify-center bg-gray-100 rounded-xl">
+        <span className="text-gray-400 text-sm">No media available</span>
+      </div>
+    );
+  }
+
+  const active = media[activeIndex];
+
+  /* ---------------- RENDER ---------------- */
 
   return (
     <div className="flex flex-col gap-4">
-      {/* MAIN MEDIA */}
-      <div className="relative w-full h-[420px] sm:h-[500px] lg:h-[560px] rounded-xl overflow-hidden shadow-lg">
+      {/* BIG PREVIEW */}
+      <div className="relative w-full h-[420px] sm:h-[500px] lg:h-[560px] rounded-xl overflow-hidden bg-gray-100 shadow-lg">
         <AnimatePresence mode="wait">
-          {showVideo && video ? (
+          {active.type === "video" ? (
             <motion.video
-              key="video"
-              src={
-                video.startsWith("/")
-                  ? `${process.env.NEXT_PUBLIC_IMG_URL}${video}`
-                  : `${process.env.NEXT_PUBLIC_IMG_URL}${video}`
-              } // local or API
+              key={active.url}
+              src={`${process.env.NEXT_PUBLIC_IMG_URL}${active.url}`}
               controls
-              autoPlay={false}
-              className="absolute inset-0 w-full h-full object-cover rounded-xl"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.02 }}
-              transition={{ duration: 0.45, ease: "easeOut" }}
+              className="absolute inset-0 w-full h-full object-cover"
+              initial={{ opacity: 0.2 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             />
           ) : (
             <motion.div
-              key={mainIndex}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.02 }}
-              transition={{ duration: 0.45, ease: "easeOut" }}
+              key={active.url}
               className="absolute inset-0"
+              initial={{ opacity: 0.2 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
               <Image
-                src={ImageShowUtil(safeImages[mainIndex]) }
+                src={ImageShowUtil(active.url) || FALLBACK_IMAGE}
                 alt={name}
                 fill
-                className="object-cover rounded-xl"
                 priority
+                className="object-cover"
               />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* THUMBNAILS */}
+      {/* THUMBNAILS (ALWAYS SHOWN) */}
       <div
-        className={`flex items-center ${
-          thumbnails.length > 2 ? "justify-between" : "justify-evenly"
-        } gap-3 mt-2`}
+        className={`flex gap-3 overflow-x-auto py-2 ${
+          media.length == 1
+            ? "justify-center"
+            : media.length > 1
+            ? "justify-evenly"
+            : "justify-between"
+        } `}
       >
-        {thumbnails.map((media, idx) => (
-          <div
+        {media.map((item, idx) => (
+          <button
             key={idx}
-            onClick={() => handleClick(idx)}
-            className={`relative cursor-pointer rounded-lg overflow-hidden border-2
-              ${
-                media.type === "video"
-                  ? showVideo
-                    ? "border-gray-500"
-                    : "border-gray-300"
-                  : mainIndex === (video ? idx - 1 : idx)
-                  ? "border-gray-500"
-                  : "border-gray-300"
-              } transition-all duration-300 hover:scale-105`}
+            onClick={() => setActiveIndex(idx)}
+            className={`relative shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition
+              ${idx === activeIndex ? "border-black" : "border-gray-300"}`}
           >
-            {media.type === "video" ? (
-              <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center bg-black text-white font-bold text-xs">
-                VIDEO
+            {item.type === "video" ? (
+              <div className="relative w-full h-full bg-black flex items-center justify-center">
+                <Play className="w-6 h-6 text-white absolute z-10" />
+                <video
+                  src={`${process.env.NEXT_PUBLIC_IMG_URL}${item.url}`}
+                  muted
+                  className="w-full h-full object-cover opacity-60"
+                />
               </div>
             ) : (
               <Image
-                src={ ImageShowUtil(media.url)}
-                width={110}
-                height={110}
-                alt={`thumb-${idx}`}
-                className="object-cover w-24 h-24 sm:w-28 sm:h-28"
+                src={ImageShowUtil(item.url) || FALLBACK_IMAGE}
+                alt="thumbnail"
+                fill
+                className="object-cover"
               />
             )}
-          </div>
+          </button>
         ))}
       </div>
     </div>

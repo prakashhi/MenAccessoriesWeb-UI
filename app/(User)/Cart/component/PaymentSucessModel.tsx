@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { RiCheckLine } from "react-icons/ri";
+import { Variants } from "framer-motion";
 
 interface PaymentSuccessModalProps {
   isOpen: boolean;
@@ -19,11 +20,20 @@ export default function PaymentSuccessModal({
     show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
   };
 
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+ const fadeUp: Variants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+    },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.4, 0, 0.2, 1], // ✅ correct
+      },
+    },
   };
-
   return (
     <AnimatePresence>
       {isOpen && (

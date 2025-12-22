@@ -27,7 +27,7 @@ export default function Product() {
     setProduct(product.data);
   }, []);
 
-   console.log(category)
+  
 
 
 
@@ -40,7 +40,7 @@ export default function Product() {
     }));
   }, [category, product]);
 
-  console.log(groupedData);
+
 
   useEffect(() => {
     getData();

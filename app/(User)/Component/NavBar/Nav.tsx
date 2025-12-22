@@ -30,6 +30,7 @@ export default function Nav() {
         LikeProductList(user.id),
       ]);
 
+
       setState((prev) => ({
         ...prev,
         likeProductLength: LikeData.data.length ?? 0,
@@ -40,7 +41,7 @@ export default function Nav() {
     LengthData();
   }, [GuestUserDataLength]);
 
-  console.log("nav", state, GuestUserDataLength.Cart);
+ 
 
   return (
     <nav className="w-full sticky top-0 z-50 bg-white shadow-md">

@@ -34,13 +34,17 @@ import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 
 import { CartItem, CartProductInfo } from "@/app/(User)/Type/Types";
 
+type GuestCartItem = product & { quantity: number };
+
+type CartListItem = GuestCartItem | CartItem;
+
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
+
   const { RemoveCartProduct, CartProductList, guestCart } = UsePanel();
 
   const [openCartInfo, setOpenCartInfo] = useState<boolean>(false);
-
-  const [cartListData, setCartListData] = useState<CartProductInfo[]>([]);
+  const [cartListData, setCartListData] = useState<CartListItem[]>([]);
 
   const router = useRouter();
 
@@ -50,7 +54,8 @@ export default function Page() {
         let res = await CartProductList(user.id);
         setCartListData(res.data);
       } else {
-        setCartListData(Object.values(guestCart?.items || {}));
+        let value = Object.values(guestCart.items);
+        setCartListData(value);
       }
     };
 
@@ -63,7 +68,7 @@ export default function Page() {
     if (user) {
       return cartListData.reduce(
         (sum: number, item: any) =>
-          sum + Number(item.product.productPrice) * item.quantity,
+          sum + Number(item.product.productPrice) * Number(item.quantity),
         0
       );
     } else {
@@ -89,7 +94,7 @@ export default function Page() {
     }, 500);
   };
 
-  console.log("Data", cartListData);
+  console.log("cartListData", cartListData);
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
       <Nav />
@@ -138,13 +143,18 @@ export default function Page() {
                       {/* IMAGE */}
                       <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F2F2F2] shrink-0">
                         <Image
-                          alt={item.name}
-                          onClick={() => router.push(`/all-Product/${item.id}`)}
+                          alt={item.name ?? "Product image"}
+                          onClick={() =>
+                            router.push(
+                              `/all-Product/${
+                                user ? item.product.productId : item.id
+                              }`
+                            )
+                          }
                           src={
-                            user
-                              ? ImageShowUtil(item.product.productImage)
-                              : ImageShowUtil(item.image) ||
-                                "/images/placeholder.webp"
+                            ImageShowUtil(
+                              user ? item.product?.productImage : item?.image
+                            ) || "/images/placeholder.webp"
                           }
                           fill
                           sizes="96px"
@@ -159,9 +169,9 @@ export default function Page() {
                         </h3>
 
                         <ItemCount
-                          productId={item.id || item.product.productId}
+                          productId={user ? item.id : item.id}
                           quantity={item.quantity}
-                          stock={item.stock}
+                          stock={user ? item.product.stock : item.stock}
                           cartId={item.id}
                         />
 
@@ -171,7 +181,7 @@ export default function Page() {
                               RemoveCartProduct(item.product.productId);
                               setCartListData((prev) =>
                                 prev.filter(
-                                  (p) =>
+                                  (p: any) =>
                                     p.product.productId !==
                                     item.product.productId
                                 )
