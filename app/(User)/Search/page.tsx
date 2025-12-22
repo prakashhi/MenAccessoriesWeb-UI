@@ -3,14 +3,23 @@
 import Nav from "../Component/NavBar/Nav";
 import Link from "next/link";
 import CardModel from "../Component/ProductList/CardModel";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useApi } from "@/app/useApi";
 import { notify } from "../Component/ToastComponent";
 import SearchDataInfo from "./Componets/SearchDataInfo";
 import { motion } from "framer-motion";
-import { Variants} from "framer-motion";
+import { Variants } from "framer-motion";
 
-const pageFade:Variants = {
+import {
+  Data,
+  ProductInfoType,
+  CartItem,
+  LikeProductType,
+} from "@/app/(User)/Type/Types";
+import { getUserFromStorage } from "@/context/utils";
+import { UsePanel } from "@/context/Context";
+
+const pageFade: Variants = {
   hidden: { opacity: 0, y: 30 },
   show: {
     opacity: 1,
@@ -19,7 +28,7 @@ const pageFade:Variants = {
   },
 };
 
-const sectionFade:Variants = {
+const sectionFade: Variants = {
   hidden: { opacity: 0, scale: 0.98 },
   show: {
     opacity: 1,
@@ -38,7 +47,7 @@ const staggerContainer = {
   },
 };
 
-const staggerItem:Variants = {
+const staggerItem: Variants = {
   hidden: { opacity: 0, y: 12 },
   show: {
     opacity: 1,
@@ -48,10 +57,18 @@ const staggerItem:Variants = {
 };
 
 export default function Page() {
+  const userData = useMemo(() => getUserFromStorage(), []);
   const [categoryNameList, setCategoryNameList] = useState<any[]>([]);
   const [suggestProduct, setSuggestProduct] = useState<any[]>([]);
   const [searchData, setSearchData] = useState<any[]>([]);
   const [searchWord, setSearchWord] = useState("");
+
+  const { onOpen, CartProductList, LikeProductList } = UsePanel();
+
+  const [state, setState] = useState<Data>({
+    LikeData: {},
+    CartData: {},
+  });
 
   const { callApi } = useApi();
 
@@ -64,7 +81,6 @@ export default function Page() {
     setCategoryNameList(response?.data || []);
   };
 
-
   const GetSuggestProduct = async () => {
     const response = await callApi(
       "get",
@@ -72,7 +88,7 @@ export default function Page() {
     );
 
     setSuggestProduct(response?.data?.[0]?.products || []);
-  }
+  };
 
   const SearchProduct = async (words: string) => {
     if (!words) return;
@@ -98,6 +114,34 @@ export default function Page() {
   useEffect(() => {
     GetCategoryName();
     GetSuggestProduct();
+  }, []);
+
+  useEffect(() => {
+    const MetaData = async () => {
+      if (userData) {
+        const [category, like] = await Promise.all([
+          CartProductList(userData.id),
+          LikeProductList(userData.id),
+        ]);
+
+        const cartMap: Record<string, CartItem> = {};
+        category.data.forEach((item: CartItem) => {
+          cartMap[item.product.productId] = item;
+        });
+
+        const likeMap: Record<string, LikeProductType> = {};
+        like.data.forEach((item: LikeProductType) => {
+          likeMap[item.product.id] = item;
+        });
+
+        setState((prev) => ({
+          ...prev,
+          LikeData: likeMap,
+          CartData: cartMap,
+        }));
+      }
+    };
+    MetaData();
   }, []);
 
   /* ------------------ UI ------------------ */
@@ -138,7 +182,6 @@ export default function Page() {
             animate="show"
             className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4"
           >
-            
             {categoryNameList.map((val, index) => (
               <motion.div key={index} variants={staggerItem}>
                 <Link
@@ -175,6 +218,9 @@ export default function Page() {
             >
               <CardModel
                 DataObj={suggestProduct}
+                Data={state}
+                setState={setState}
+                isUser={userData ? true :false}
                 CustomWH="w-56 sm:w-64 md:w-72 h-[400px] rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
               />
             </motion.div>

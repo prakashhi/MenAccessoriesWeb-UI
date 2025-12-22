@@ -24,7 +24,7 @@ interface ItemCountProps {
   quantity: number;
   stock: number;
   cartId: string;
-  setState?: Dispatch<SetStateAction<ProductState>> | null;
+  setState?: React.Dispatch<React.SetStateAction<ProductState[]>>;
 }
 
 export default function ItemCount({
@@ -53,18 +53,30 @@ export default function ItemCount({
     setCartProductQty(productId, isNaN(num) ? 1 : num);
   };
 
+  const stockCheck = (Qty: number) => {
+    if (Qty > stock) {
+      return false;
+    }
+    return true;
+  };
+
   const handleInCrement = async () => {
     if (user) {
       const Qty = Number(inputValue) + 1;
       setInputValue(String(Qty));
 
-      setState?.((prev) => ({
-        ...prev,
-        CartData: {
-          ...prev.CartData,
-          quantity: Number(Qty),
-        },
-      }));
+      // setState?.((prev) => ({
+      //   ...prev,
+      //   CartData: {
+      //     ...prev.CartData,
+      //     quantity: Number(Qty),
+      //   },
+      // }));
+      setState?.((prev) =>
+        prev.map((item: any) =>
+          item.id === cartId ? { ...item, quantity: Number(Qty) } : item
+        )
+      );
 
       await incrementCartProduct(productId, cartId, Number(inputValue));
     } else {
@@ -77,17 +89,45 @@ export default function ItemCount({
       const Qty = Number(inputValue) - 1;
       setInputValue(String(Qty));
 
-      setState?.((prev) => ({
-        ...prev,
-        CartData: {
-          ...prev.CartData,
-          quantity: Number(Qty),
-        },
-      }));
+      // setState?.((prev) => ({
+      //   ...prev,
+      //   CartData: {
+      //     ...prev.CartData,
+      //     quantity: Number(Qty),
+      //   },
+      // }));
+
+      setState?.((prev) =>
+        prev.map((item: any) =>
+          item.id === cartId ? { ...item, quantity: Number(Qty) } : item
+        )
+      );
 
       await decrementCartProduct(productId, cartId, Number(inputValue));
     } else {
       decrementCartProduct(productId, cartId, Number(quantity));
+    }
+  };
+
+  const handleEnterNumberChange = async (value: number) => {
+    if (user) {
+      // setState?.((prev) => ({
+      //   ...prev,
+      //   CartData: {
+      //     ...prev.CartData,
+      //     quantity: Number(value),
+      //   },
+      // }));
+
+      setState?.((prev) =>
+        prev.map((item: any) =>
+          item.id === cartId ? { ...item, quantity: Number(value) } : item
+        )
+      );
+
+      await incrementCartProduct(productId, cartId, Number(value));
+    } else {
+      incrementCartProduct(productId, cartId, value);
     }
   };
 
@@ -111,7 +151,15 @@ export default function ItemCount({
         <input
           value={inputValue}
           onChange={(e) => {
-            if (/^\d*$/.test(e.target.value)) setInputValue(e.target.value);
+            if (/^\d*$/.test(e.target.value)) {
+              let value = e.target.value;
+
+              // ❌ block update if stock exceeded
+              if (!stockCheck(Number(value))) return;
+              setInputValue(value);
+
+              handleEnterNumberChange(Number(value));
+            }
           }}
           onBlur={onBlur}
           className="w-16 h-12 text-center border-x border-black outline-none"

@@ -4,13 +4,30 @@ import Link from "next/link";
 import CardModel from "./CardModel";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useApi } from "@/app/useApi";
-import { ProductInfoType, CategoryInfo } from "@/app/(User)/Type/Types";
+import { UsePanel } from "@/context/Context";
+import { getUserFromStorage } from "@/context/utils";
+import {
+  CartItem,
+  VariantSize,
+  LikeProductType,
+  ProductInfoType,
+  CategoryInfo,
+  Data,
+} from "@/app/(User)/Type/Types";
 
 export default function Product() {
+  const userData = useMemo(() => getUserFromStorage(), []);
   const { callApi } = useApi();
+
+  const { LikeProductList, CartProductList } = UsePanel();
 
   const [product, setProduct] = useState<ProductInfoType[]>([]);
   const [category, setCategory] = useState<CategoryInfo[]>([]);
+
+  const [state, setState] = useState<Data>({
+    LikeData: {},
+    CartData: {},
+  });
 
   const getData = useCallback(async () => {
     const [category, product] = await Promise.all([
@@ -23,13 +40,33 @@ export default function Product() {
         `/product-list?page=1&limit=100&sortOrder=desc&showInStockProducts=false`
       ),
     ]);
+
+    if (userData) {
+      const [category, like] = await Promise.all([
+        CartProductList(userData.id),
+        LikeProductList(userData.id),
+      ]);
+
+      const cartMap: Record<string, CartItem> = {};
+      category.data.forEach((item: CartItem) => {
+        cartMap[item.product.productId] = item;
+      });
+
+      const likeMap: Record<string, LikeProductType> = {};
+      like.data.forEach((item: LikeProductType) => {
+        likeMap[item.product.id] = item;
+      });
+
+      setState((prev) => ({
+        ...prev,
+        LikeData: likeMap,
+        CartData: cartMap,
+      }));
+    }
+
     setCategory(category.data);
     setProduct(product.data);
   }, []);
-
-  
-
-
 
   const groupedData = useMemo(() => {
     if (!category.length || !product.length) return [];
@@ -39,8 +76,6 @@ export default function Product() {
       products: product.filter((product) => product.categoryId === category.id),
     }));
   }, [category, product]);
-
-
 
   useEffect(() => {
     getData();
@@ -102,11 +137,14 @@ export default function Product() {
                 <CardModel
                   DataObj={categoryItem.products}
                   CustomWH="
-                  min-w-[220px]
+                  min-w-[300px]
                   sm:min-w-[260px]
                   md:min-w-[300px]
                   lg:min-w-[320px]
                 "
+                  Data={state}
+                  setState={setState}
+                  isUser={userData ? true : false}
                 />
               </div>
             </div>

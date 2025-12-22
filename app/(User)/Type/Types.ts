@@ -144,3 +144,8 @@ export type RegisterType = {
   state: string | null;
   confirmPassword:string |  null
 };
+
+ export type Data = {
+    CartData: Record<string, CartItem>;
+    LikeData: Record<string, LikeProductType>;
+  };

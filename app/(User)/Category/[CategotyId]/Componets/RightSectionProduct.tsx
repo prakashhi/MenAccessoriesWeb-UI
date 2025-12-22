@@ -3,7 +3,7 @@
 import CardModel from "@/app/(User)/Component/ProductList/CardModel";
 import { motion } from "framer-motion";
 import { UsePanel } from "@/context/Context";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import EmptyTableComponent from "./EmptyTableComponet";
 import {
   FiFilter,
@@ -15,13 +15,27 @@ import {
 } from "react-icons/fi";
 import { TbAlphabetLatin } from "react-icons/tb";
 
+import {
+  Data,
+  ProductInfoType,
+  CartItem,
+  LikeProductType,
+} from "@/app/(User)/Type/Types";
+import { getUserFromStorage } from "@/context/utils";
+
 interface RightSectionProps {
   ProductData: any[];
 }
 
 export default function RightSection({ ProductData = [] }: RightSectionProps) {
-  const { onOpen } = UsePanel();
+  const userData = useMemo(() => getUserFromStorage(), []);
+  const { onOpen, CartProductList, LikeProductList } = UsePanel();
   const [sort, setSort] = useState("Featured");
+
+  const [state, setState] = useState<Data>({
+    LikeData: {},
+    CartData: {},
+  });
 
   const filterDataOption = [
     { label: "Featured", icon: FiStar },
@@ -33,9 +47,6 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     { label: "Newest First", icon: FiClock },
     { label: "Oldest First", icon: FiClock },
   ];
-
-  const CurrentSortIcon =
-    filterDataOption.find((opt) => opt.label === sort)?.icon || FiStar;
 
   const sortedProducts = useMemo(() => {
     if (!ProductData || ProductData.length === 0) return [];
@@ -71,6 +82,35 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     }
   }, [ProductData, sort]);
 
+  useEffect(() => {
+    const MetaData = async () => {
+      if (userData) {
+        const [category, like] = await Promise.all([
+          CartProductList(userData.id),
+          LikeProductList(userData.id),
+        ]);
+
+        const cartMap: Record<string, CartItem> = {};
+        category.data.forEach((item: CartItem) => {
+          cartMap[item.product.productId] = item;
+        });
+
+        const likeMap: Record<string, LikeProductType> = {};
+        like.data.forEach((item: LikeProductType) => {
+          likeMap[item.product.id] = item;
+        });
+
+        setState((prev) => ({
+          ...prev,
+          LikeData: likeMap,
+          CartData: cartMap,
+        }));
+      }
+    };
+    MetaData();
+  }, []);
+
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -79,18 +119,6 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
       transition: {
         staggerChildren: 0.03,
         delayChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.4,
-        ease: [0.22, 1, 0.36, 1],
       },
     },
   };
@@ -176,7 +204,13 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
         mx-auto
       "
           >
-            <CardModel DataObj={sortedProducts} CustomWH="w-full" />
+            <CardModel
+              DataObj={sortedProducts}
+              setState={setState}
+              Data={state}
+              isUser={userData ? true : false}
+              CustomWH="w-full"
+            />
           </motion.div>
         ) : (
           <div className="flex items-center justify-center min-h-[70vh]">

@@ -48,19 +48,33 @@ export default function Page() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const cartListData = async () => {
-      if (user) {
-        let res = await CartProductList(user.id);
-        setCartListData(res.data);
-      } else {
-        let value = Object.values(guestCart.items);
-        setCartListData(value);
-      }
-    };
+  // useEffect(() => {
+  //   const cartListData = async () => {
+  //     if (user) {
+  //       let res = await CartProductList(user.id);
+  //       setCartListData(res.data);
+  //     } else {
+  //       let value = Object.values(guestCart.items);
+  //       setCartListData(value);
+  //     }
+  //   };
 
-    cartListData();
-  }, [user, guestCart]);
+  //   cartListData();
+  // }, [user, guestCart]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    CartProductList(user.id).then((res) => {
+      setCartListData(res.data);
+    });
+  }, [user]);
+
+  useEffect(() => {
+    if (user) return;
+
+    setCartListData(Object.values(guestCart.items));
+  }, [guestCart]);
 
   const total: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
@@ -94,7 +108,8 @@ export default function Page() {
     }, 500);
   };
 
-  console.log("cartListData", cartListData);
+  // console.log("cartListData", cartListData);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
       <Nav />
@@ -173,6 +188,7 @@ export default function Page() {
                           quantity={item.quantity}
                           stock={user ? item.product.stock : item.stock}
                           cartId={item.id}
+                          setState={user && setCartListData}
                         />
 
                         <button

@@ -369,10 +369,10 @@ export function SearchPanelContextProvider({
     if (user !== null || !user) {
       let response = await callApi("get", `/cart/${userid}`);
       return response;
-    } else {
-      return Object.values(guestCart.items);
     }
   };
+
+  
 
   return (
     <SearchPanelContext.Provider

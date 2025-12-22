@@ -7,67 +7,34 @@ import Star from "./Star";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/app/useApi";
 import { formatIndianPrice } from "@/app/utils/FormatCurrency";
-import ItemCount from "../../Cart/component/ItemCount";
 import { motion, AnimatePresence } from "framer-motion";
 import { CircleCheck } from "lucide-react";
 import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
 
 import { Heart } from "lucide-react";
-import { ProductInfoType, CategoryInfo } from "@/app/(User)/Type/Types";
+import {
+  CartItem,
+  VariantSize,
+  LikeProductType,
+  ProductInfoType,
+  CategoryInfo,
+  Data,
+} from "@/app/(User)/Type/Types";
 
 export default function CardModel({
   DataObj,
   CustomWH,
+  Data,
+  isUser,
+  setState,
 }: {
   DataObj: ProductInfoType[];
   CustomWH?: string;
+  Data: Data;
+  isUser?: boolean;
+  setState: React.Dispatch<React.SetStateAction<Data>>;
 }) {
-  interface SizeVariant {
-    size: string;
-    stock: number;
-  }
-
-  interface Product {
-    id: string;
-    seqId: number;
-    name: string;
-    numberOfPieces: number;
-    color: string;
-    workDays: number;
-    sellingPrice: number;
-    difference: number;
-    isSpecial: boolean;
-    serialNumber: string;
-    stock: number;
-    doublePremium: boolean;
-    code: string;
-    QRCode: string;
-    customPrice: number;
-    systemPrice: number;
-    size: string;
-    weight: string;
-    description: string;
-    image: string;
-    nineRockImage: string | null;
-    video: string | null;
-    materialUsed: string;
-    materialUsedName: string;
-    canBeMade: number;
-    addedByName: string | null;
-    updatedByName: string | null;
-    deletedByName: string | null;
-    isActive: boolean;
-    addedBy: string | null;
-    categoryId: string | null;
-    categoryName: string | null;
-    updatedBy: string | null;
-    deletedBy: string | null;
-    createdAt: string; // ISO date string
-    updatedAt: string; // ISO date string
-    variantId: string | null;
-    isHaveSizeVariants: boolean;
-    sizeVariants: SizeVariant[];
-  }
+  type Product = ProductInfoType;
 
   const { AddCartProduct, AddLikeProduct, guestCart } = UsePanel();
   const router = useRouter();
@@ -80,12 +47,63 @@ export default function CardModel({
     );
   }
 
+  const handleAddToCart = async (product: Product) => {
+    await AddCartProduct(product);
+
+    if (isUser == true) {
+      setState((prev:any) => {
+        const prevItem = prev.CartData[product.id];
+        return {
+          ...prev,
+          CartData: {
+            ...prev.CartData,
+            [product.id]: {
+              // Preserve previous item if exists
+              id: product.id,
+              product: product,
+              variantSize: prevItem?.variantSize ?? product.size, // optional
+              quantity: (prevItem?.quantity ?? 0) + 1,
+            },
+          },
+        };
+      });
+    }
+  };
+
+  const handleAddToLike = async (product: Product) => {
+    await AddLikeProduct(product);
+    if (isUser) {
+      setState((prev:any) => {
+        const prevItem = prev.CartData[product.id];
+        return {
+          ...prev,
+          CartData: {
+            ...prev.CartData,
+            [product.id]: {
+              // Preserve previous item if exists
+              id: product.id,
+              product: product,
+              variantSize: prevItem?.variantSize ?? product.size, // optional
+              quantity: (prevItem?.quantity ?? 0) + 1,
+            },
+          },
+        };
+      });
+    }
+  };
+
+  console.log("data", Data);
+
   return (
     <>
       {DataObj.length > 1 &&
         DataObj.map((product: Product) => {
-          let iscart = !!guestCart?.items?.[product.id];
-          let isLike = !!guestCart?.likeProduct?.[product.id];
+          let iscart = isUser
+            ? !!Data.CartData?.[product.id]
+            : !!guestCart?.items?.[product.id];
+          let isLike = isUser
+            ? !!Data.LikeData?.[product.id]
+            : !!guestCart?.likeProduct?.[product.id];
 
           return (
             <div
@@ -129,7 +147,7 @@ export default function CardModel({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      AddLikeProduct(product);
+                      handleAddToLike(product);
                     }}
                     className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
                   >
@@ -138,22 +156,37 @@ export default function CardModel({
                 )}
 
                 {/* Hover Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-all duration-500">
+                <div
+                  className="
+    absolute bottom-0 left-0 right-0 p-4
+    translate-y-0
+    md:translate-y-full md:group-hover:translate-y-0
+    transition-all duration-500
+  "
+                >
                   <p className="text-xs text-white line-clamp-3 mb-3">
                     {product.description}
                   </p>
 
                   <motion.button
                     whileTap={{ scale: 0.96 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    transition={{ duration: 0.3 }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      AddCartProduct(product);
+                      if (!iscart) {
+                        handleAddToCart(product);
+                      } else {
+                        router.push("/Cart");
+                      }
                     }}
-                    className="w-full py-2.5 rounded-lg bg-white text-neutral-900 text-sm font-medium
-             flex items-center justify-center gap-2
-             hover:bg-neutral-900 hover:text-white
-             transition-colors duration-500"
+                    className="
+    w-full py-3 rounded-xl
+    bg-neutral-900 text-white text-sm font-semibold
+    flex items-center justify-center gap-2
+    md:bg-white md:text-neutral-900
+    md:hover:bg-neutral-900 md:hover:text-white
+    transition-colors duration-300
+  "
                   >
                     <AnimatePresence mode="wait">
                       {!iscart ? (
@@ -175,7 +208,7 @@ export default function CardModel({
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.6, ease: "easeInOut" }}
-                          className="flex items-center cursor-pointer gap-2 text-emerald-600"
+                          className="flex items-center cursor-pointer gap-2 text-emerald-600 hover:text-white"
                         >
                           <motion.span
                             initial={{ scale: 0.85 }}

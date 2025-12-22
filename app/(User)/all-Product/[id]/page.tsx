@@ -249,7 +249,7 @@ export default function ProductPage() {
                     user ? state.CartData?.quantity ?? 1 : iscart?.quantity ?? 1
                   }
                   stock={product.stock}
-                  setState={user && setState || null}
+                  setState={(user && setState) || null}
                 />
               </div>
             )}

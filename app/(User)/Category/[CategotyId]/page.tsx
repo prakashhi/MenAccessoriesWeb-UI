@@ -10,16 +10,19 @@ import { useApi } from "@/app/useApi";
 import { notify } from "../../Component/ToastComponent";
 import { useCallback, useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Data, ProductInfoType } from "@/app/(User)/Type/Types";
 
 export default function Page() {
   const params = useParams();
   const { callApi } = useApi();
 
-  const [data, setData] = useState<any[]>([]);
-
+  const [data, setData] = useState<ProductInfoType[]>([]);
 
   const getData = useCallback(async () => {
-    const res = await callApi("get", `/product-category-list?id=${params.CategotyId}&limit=100&offset=0`);
+    const res = await callApi(
+      "get",
+      `/product-category-list?id=${params.CategotyId}&limit=100&offset=0`
+    );
 
     // const res = await callApi(
     //   "get",
@@ -27,10 +30,9 @@ export default function Page() {
     // );
 
     // setData(res.data);
+
     setData(res.data);
   }, []);
-
-  
 
   useEffect(() => {
     getData();
@@ -39,7 +41,6 @@ export default function Page() {
   return (
     <>
       {/* Mobile Drawer */}
-     
 
       {/* Top Navigation */}
       <Nav />
@@ -66,10 +67,9 @@ export default function Page() {
                 fontWeight: 800,
               }}
             >
-              {data?.[0]?.category?.category_name}
+              {data?.[0]?.categoryName}
             </h2>
           </motion.div>
-           
 
           {/* CONTENT GRID */}
           <motion.div
@@ -85,7 +85,6 @@ export default function Page() {
             }}
             className=""
           >
-            
             {/* LEFT BAR */}
             {/* <motion.div
               variants={{
@@ -100,7 +99,6 @@ export default function Page() {
 
             {/* RIGHT SECTION */}
 
-            
             <motion.div
               variants={{
                 hidden: { opacity: 0, y: 20 },
@@ -109,7 +107,6 @@ export default function Page() {
               transition={{ duration: 0.5, ease: "easeOut" }}
               className=" sm:p-5 p-2"
             >
-              
               <RightSection ProductData={data} />
             </motion.div>
           </motion.div>
