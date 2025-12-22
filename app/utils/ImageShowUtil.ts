@@ -1,15 +1,18 @@
 
-  export const ImageShowUtil = (imgData?: string | null): string => {
-    if (!imgData || typeof imgData !== "string") {
-      return "/images/placeholder.webp"; // fallback image
-    }
+export const ImageShowUtil = (imgData?: string | null): string => {
 
-    const parts = imgData.split("/");
+   const fallback = "/Images/placeholder2.png";
+  if (!imgData || typeof imgData !== "string") {
+    return fallback; // fallback image
+  }
 
-    if (parts.length < 2) {
-      return "/images/placeholder.webp";
-    }
+  const parts = imgData.split("/");
 
-    return `${process.env.NEXT_PUBLIC_IMG_URL}${parts[1]}`;
-  };
+  if (parts.length < 2) {
+    return fallback;
+  }
 
+   console.log("img",imgData)
+
+  return `${process.env.NEXT_PUBLIC_IMG_URL}${parts[1]}`;
+};

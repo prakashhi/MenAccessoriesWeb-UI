@@ -20,6 +20,8 @@ import {
   CategoryInfo,
   Data,
 } from "@/app/(User)/Type/Types";
+import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+
 
 export default function CardModel({
   DataObj,
@@ -47,11 +49,13 @@ export default function CardModel({
     );
   }
 
+  console.log();
+
   const handleAddToCart = async (product: Product) => {
     await AddCartProduct(product);
 
     if (isUser == true) {
-      setState((prev:any) => {
+      setState((prev: any) => {
         const prevItem = prev.CartData[product.id];
         return {
           ...prev,
@@ -72,27 +76,35 @@ export default function CardModel({
 
   const handleAddToLike = async (product: Product) => {
     await AddLikeProduct(product);
+
     if (isUser) {
-      setState((prev:any) => {
-        const prevItem = prev.CartData[product.id];
+      setState((prev: Data) => {
+        const isLiked = !!prev.LikeData[product.id];
+
+        // 🔁 remove like
+        if (isLiked) {
+          const { [product.id]: _, ...rest } = prev.LikeData;
+          return {
+            ...prev,
+            LikeData: rest,
+          };
+        }
+
+        // ❤️ add like
         return {
           ...prev,
-          CartData: {
-            ...prev.CartData,
+          LikeData: {
+            ...prev.LikeData,
             [product.id]: {
-              // Preserve previous item if exists
               id: product.id,
               product: product,
-              variantSize: prevItem?.variantSize ?? product.size, // optional
-              quantity: (prevItem?.quantity ?? 0) + 1,
+              createdAt: new Date().toISOString(),
             },
           },
         };
       });
     }
   };
-
-  console.log("data", Data);
 
   return (
     <>
@@ -123,9 +135,7 @@ export default function CardModel({
                 className="relative w-full h-82 cursor-pointer overflow-hidden"
               >
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_IMG_URL}${
-                    product?.image.split("/")[1]
-                  }`}
+                  src={ImageShowUtil(product?.image)}
                   alt={product.name}
                   fill
                   priority
@@ -149,7 +159,7 @@ export default function CardModel({
                       e.stopPropagation();
                       handleAddToLike(product);
                     }}
-                    className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
+                    className="absolute cursor-pointer top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
                   >
                     <FcLikePlaceholder className="text-xl" />
                   </button>
@@ -180,11 +190,11 @@ export default function CardModel({
                       }
                     }}
                     className="
-    w-full py-3 rounded-xl
-    bg-neutral-900 text-white text-sm font-semibold
+    w-full py-3 rounded-xl bg-white border border-gray-100
+     text-white text-sm font-semibold
     flex items-center justify-center gap-2
     md:bg-white md:text-neutral-900
-    md:hover:bg-neutral-900 md:hover:text-white
+    md:hover:bg-gray-100 cursor-pointer md:hover:text-white
     transition-colors duration-300
   "
                   >
@@ -196,7 +206,7 @@ export default function CardModel({
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -6 }}
                           transition={{ duration: 0.4, ease: "easeOut" }}
-                          className="flex items-center gap-2 cursor-pointer"
+                          className="flex  text-gray-400 items-center gap-2 cursor-pointer"
                         >
                           <RiShoppingCart2Line size={16} />
                           ADD TO CART

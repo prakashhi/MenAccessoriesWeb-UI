@@ -82,10 +82,10 @@ export default function Page() {
                            transition-all duration-500 overflow-hidden rounded-lg sm:rounded-none sm:border-b sm:border-x-0"
                 >
                   {/* HOVER BACKGROUND EFFECT - MOBILE OPTIMIZED */}
-                  <div
+                  {/* <div
                     className="absolute inset-0 bg-linear-to-r from-transparent via-neutral-50 to-transparent 
                                 translate-x-full group-hover:translate-x-full transition-transform duration-1000 hidden sm:block"
-                  />
+                  /> */}
 
                   <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8">
                     {/* IMAGE - RESPONSIVE */}

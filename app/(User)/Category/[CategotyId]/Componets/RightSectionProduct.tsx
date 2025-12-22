@@ -110,7 +110,6 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     MetaData();
   }, []);
 
-
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -185,7 +184,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
       </div>
 
       {/* ===== PRODUCT GRID ===== */}
-      <div className="p-4 sm:p-6 flex justify-items-center">
+      <div className="p-4 sm:p-6 flex justify-center">
         {sortedProducts.length > 0 ? (
           <motion.div
             variants={containerVariants}
@@ -200,16 +199,21 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
         gap-4
         sm:gap-5
         lg:gap-6
-        max-w-7xl
-        mx-auto
+       
+        
       "
           >
             <CardModel
+              CustomWH="
+                  min-w-[300px]
+                  sm:min-w-[260px]
+                  md:min-w-[300px]
+                  lg:min-w-[320px]
+                "
               DataObj={sortedProducts}
               setState={setState}
               Data={state}
               isUser={userData ? true : false}
-              CustomWH="w-full"
             />
           </motion.div>
         ) : (

@@ -9,6 +9,8 @@ import Loader from "@/public/svg/tube-spinner.svg";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 
 import Image from "next/image";
+import { param } from "framer-motion/client";
+import { useSearchParams } from "next/navigation";
 
 export default function page() {
   const [showConfirm, setShowConfirm] = useState(false);
@@ -32,11 +34,15 @@ export default function page() {
   const router = useRouter();
   const { callApi, error, loading } = useApi();
 
+  const searchParams = useSearchParams();
+   console.log(searchParams)
+ 
+
   const onSubmit: SubmitHandler<ResetPass> = async (info) => {
     const res = await callApi("post", "/user/validate-reset-password-token", {
       data: {
         token: params.token,
-        email: "string",
+        email: params.email,
         newPassword: info.newPassword,
       },
     });

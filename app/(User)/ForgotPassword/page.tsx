@@ -21,6 +21,8 @@ export default function page() {
   const router = useRouter();
   const { callApi, error, loading } = useApi();
 
+  const [message, setMessage] = useState(false);
+
   const onSubmit: SubmitHandler<Data> = async (info) => {
     const res = await callApi(
       "post",
@@ -29,6 +31,8 @@ export default function page() {
         data: { email: info.email },
       }
     );
+
+    setMessage(true);
 
     notify({
       message: res.message || "Sended Link successful!",
@@ -72,6 +76,41 @@ export default function page() {
               </p>
             )}
           </div>
+
+          {message && (
+            <div
+              className="
+  mt-3
+  flex items-start gap-3
+  rounded-xl
+  border border-green-100
+  bg-green-50/60
+  px-4 py-3
+  text-sm
+  text-green-800
+  shadow-sm
+"
+            >
+              <span
+                className="
+    mt-0.5
+    flex h-5 w-5 shrink-0
+    items-center justify-center
+    rounded-full
+    bg-green-600
+    text-[11px]
+    font-medium
+    text-white
+  "
+              >
+                ✓
+              </span>
+
+              <p className="leading-relaxed">
+                Your reset password link has been sent to your email.
+              </p>
+            </div>
+          )}
 
           {/* Login Button */}
           <button

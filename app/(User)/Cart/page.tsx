@@ -108,8 +108,6 @@ export default function Page() {
     }, 500);
   };
 
-  // console.log("cartListData", cartListData);
-
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
       <Nav />
@@ -250,7 +248,7 @@ export default function Page() {
                 </div>
 
                 {/* DISCOUNT */}
-                <div className="flex">
+                {/* <div className="flex">
                   <input
                     placeholder="Discount code"
                     className="flex-1 border border-gray-300 px-4 py-3 text-sm outline-none"
@@ -258,7 +256,7 @@ export default function Page() {
                   <button className="px-5 border border-black text-xs tracking-widest hover:bg-black hover:text-white transition">
                     APPLY
                   </button>
-                </div>
+                </div> */}
 
                 {/* CHECKOUT */}
                 <Button

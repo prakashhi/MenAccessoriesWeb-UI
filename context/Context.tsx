@@ -104,8 +104,6 @@ export function SearchPanelContextProvider({
 
     const cart = getGuestCart();
 
-    console.log("Cart", cart);
-
     setGuestCart((prev) => ({ ...prev, items: cart.items }));
   }, [mounted]);
 
@@ -158,16 +156,20 @@ export function SearchPanelContextProvider({
         toastActions.addToCart(`${Product.name}`);
       }
     } else {
-      let response = await callApi("post", "/cart", {
-        data: {
-          productId: Product.id,
-          userId: id,
-          variantSizeId: Product.variantId ?? null,
-        },
-      });
+      try {
+        let response = await callApi("post", "/cart", {
+          data: {
+            productId: Product.id,
+            userId: id,
+            variantSizeId: Product.variantId ?? null,
+          },
+        });
 
-      if (response.success == true) {
-        toastActions.addToCart(`${Product.name}`);
+        if (response.success == true) {
+          toastActions.addToCart(`${Product.name}`);
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
   };
@@ -371,8 +373,6 @@ export function SearchPanelContextProvider({
       return response;
     }
   };
-
-  
 
   return (
     <SearchPanelContext.Provider

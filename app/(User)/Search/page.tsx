@@ -81,14 +81,14 @@ export default function Page() {
     setCategoryNameList(response?.data || []);
   };
 
-  const GetSuggestProduct = async () => {
-    const response = await callApi(
-      "get",
-      "https://backend.9rock.in/9rock/cat-with-products"
-    );
+  // const GetSuggestProduct = async () => {
+  //   const response = await callApi(
+  //     "get",
+  //     "https://backend.9rock.in/9rock/cat-with-products"
+  //   );
 
-    setSuggestProduct(response?.data?.[0]?.products || []);
-  };
+  //   setSuggestProduct(response?.data?.[0]?.products || []);
+  // };
 
   const SearchProduct = async (words: string) => {
     if (!words) return;
@@ -113,7 +113,7 @@ export default function Page() {
 
   useEffect(() => {
     GetCategoryName();
-    GetSuggestProduct();
+    // GetSuggestProduct();
   }, []);
 
   useEffect(() => {

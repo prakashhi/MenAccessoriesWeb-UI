@@ -64,10 +64,16 @@ export default function ProductPage() {
 
     const loadProduct = async () => {
       try {
+        // const [product, variants] = await Promise.all([
+        //   callApi("get", `/product/${params.id}`),
+        //   callApi("get", `/variants/size/product/${params.id}`),
+        // ]);
+
         const [product, variants] = await Promise.all([
-          callApi("get", `/product/${params.id}`),
+          callApi("get", `https://backend.9rock.in/product/${params.id}`),
           callApi("get", `/variants/size/product/${params.id}`),
         ]);
+
         if (active) {
           setProduct(product.data);
           setVariants(variants.data);
@@ -143,7 +149,7 @@ export default function ProductPage() {
   if (!product)
     return (
       <div className="flex justify-center items-center min-h-screen text-gray-400">
-        Loading luxury product…
+        Loading product…
       </div>
     );
 
@@ -164,18 +170,37 @@ export default function ProductPage() {
   };
   const iscart = guestCart?.items?.[product.id];
 
+  const addToCartHandle = async () => {
+    setAdding(true);
+    try {
+      let res = await AddCartProduct(product);
+
+      if (res) {
+        setState((prev) => ({
+          ...prev,
+          Cart: true,
+        }));
+
+        setTimeout(() => setAdding(false), 600);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <>
       <Nav />
 
       {/* MAIN WRAPPER */}
       <section className="max-w-7xl mx-auto px-4 lg:px-12 py-12">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+        <div className="grid relative lg:grid-cols-2 gap-12 items-start">
           {/* LEFT – GALLERY */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
+            className="sticky top-0"
           >
             <PictureGallery
               images={[
@@ -201,10 +226,12 @@ export default function ProductPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
             >
-              <p className="uppercase tracking-[0.3em] text-xs text-gray-400">
-                Luxury Collection
-              </p>
-
+              <div>
+                <span className="bg-gray-50 px-3 py-1 rounded-full border border-gray-100 font-light text-sm">
+                  {" "}
+                  {product.categoryName?.toLocaleUpperCase()}
+                </span>
+              </div>
               <h1
                 className="mt-3 text-3xl sm:text-4xl font-semibold text-black"
                 style={{ fontFamily: "ui-serif, serif" }}
@@ -232,11 +259,64 @@ export default function ProductPage() {
 
             {/* DESCRIPTION */}
 
-            <ProductDescription
+            {/* <ProductDescription
               extraInfo={extraInfo}
               description={parsedDescription.description}
               specifications={parsedDescription.specifications}
-            />
+            /> */}
+
+            <div className="space-y-4 pb-6">
+              <h3 className="text-xs tracking-widest uppercase text-gray-400 font-semibold">
+                Description
+              </h3>
+              <div className=" underline  border border-b-1 border-gray-100"></div>
+
+              <p className="text-gray-600 leading-relaxed text-sm">
+                {parsedDescription.description}
+              </p>
+            </div>
+
+            <h3 className="text-xs tracking-widest uppercase text-gray-400 font-semibold mb-4">
+              Details
+            </h3>
+
+            {/* SPECIFICATIONS */}
+            <dl className="grid grid-cols-1 gap-y-4 text-sm">
+              {parsedDescription.specifications &&
+                Object.entries(parsedDescription.specifications).map(
+                  ([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex justify-between gap-6 border-b border-gray-100 pb-2"
+                    >
+                      <dt className="text-gray-500 capitalize font-medium tracking-wide">
+                        {key.replace(/([A-Z])/g, " $1")}
+                      </dt>
+                      <dd className="text-gray-800 text-right font-medium">
+                        {value}
+                      </dd>
+                    </div>
+                  )
+                )}
+
+              {extraInfo &&
+                Object.entries(extraInfo).map(
+                  ([key, value]) =>
+                    value && (
+                      <div
+                        key={key}
+                        className="flex justify-between gap-6 border-b border-gray-100 pb-2"
+                      >
+                        <dt className="text-gray-500 capitalize font-medium tracking-wide">
+                          {key.replace(/([A-Z])/g, " $1")}
+                        </dt>
+                        <dd className="text-gray-800 text-right font-medium">
+                          {value}
+                        </dd>
+                      </div>
+                    )
+                )}
+            </dl>
 
             {/* QUANTITY */}
 
@@ -260,15 +340,7 @@ export default function ProductPage() {
                 {state.Cart == false ? (
                   <motion.button
                     key="add"
-                    onClick={async () => {
-                      setAdding(true);
-                      await AddCartProduct(product);
-                      setState((prev) => ({
-                        ...prev,
-                        Cart: true,
-                      }));
-                      setTimeout(() => setAdding(false), 600);
-                    }}
+                    onClick={() => addToCartHandle()}
                     initial={{ opacity: 0.9 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
@@ -391,12 +463,12 @@ export default function ProductPage() {
             </div>
 
             {/* DETAILS */}
-            <div className="pt-6 border-t text-sm text-gray-600 space-y-2">
+            {/* <div className="pt-6 border-t text-sm text-gray-600 space-y-2">
               <p>
                 <span className="font-medium">Category:</span>{" "}
                 {product.categoryName}
               </p>
-            </div>
+            </div> */}
           </motion.div>
         </div>
       </section>

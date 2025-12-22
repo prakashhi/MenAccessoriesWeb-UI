@@ -23,7 +23,7 @@ import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 import Image from "next/image";
 import { Button } from "@heroui/react";
 
-type IconType = "📭" | "💔";
+type IconType = "📭";
 
 export default function AccountSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
@@ -51,7 +51,7 @@ export default function AccountSection() {
   const menu = [
     { key: "info", label: "Personal Information", icon: <FiUser size={18} /> },
     { key: "orders", label: "My Orders", icon: <FiClipboard size={18} /> },
-    { key: "wishlist", label: "Wishlist", icon: <FiHeart size={18} /> },
+    // { key: "wishlist", label: "Wishlist", icon: <FiHeart size={18} /> },
     {
       key: "logout",
       label: "Logout",
@@ -104,7 +104,6 @@ export default function AccountSection() {
       mounted = false;
     };
   }, []);
-
 
   return (
     <>
@@ -367,50 +366,50 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
   }
 
   /* ---------------- WISHLIST ---------------- */
-  if (keyname === "wishlist") {
-    return (
-      <section>
-        <h3 className="text-xl text-center font-semibold mb-3">Wishlist</h3>
+  // if (keyname === "wishlist") {
+  //   return (
+  //     <section>
+  //       <h3 className="text-xl text-center font-semibold mb-3">Wishlist</h3>
 
-        <div className="flex flex-col gap-3 justify-center max-h-[350px] overflow-y-auto">
-          {user.wishlist?.length > 0 ? (
-            user.wishlist.map((w: any) => (
-              <div
-                key={w.likeId}
-                className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg"
-              >
-                <div className="w-12 h-12 bg-gray-100 rounded-md relative overflow-hidden">
-                  <Image
-                    fill
-                    alt={w.product.name}
-                    src={ImageShowUtil(w.product.image)}
-                    className="object-contain"
-                   
-                  />
-                </div>
+  //       <div className="flex flex-col gap-3 justify-center max-h-[350px] overflow-y-auto">
+  //         {user.wishlist?.length > 0 ? (
+  //           user.wishlist.map((w: any) => (
+  //             <div
+  //               key={w.likeId}
+  //               className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg"
+  //             >
+  //               <div className="w-12 h-12 bg-gray-100 rounded-md relative overflow-hidden">
+  //                 <Image
+  //                   fill
+  //                   alt={w.product.name}
+  //                   src={ImageShowUtil(w.product.image)}
+  //                   className="object-contain"
 
-                <div className="flex-1">
-                  <div className="font-medium">{w.product.name}</div>
-                  <div className="text-sm text-gray-500">
-                    ₹{w.product.price}
-                  </div>
-                </div>
+  //                 />
+  //               </div>
 
-                <Button
-                  onPress={() => router.push("/Wishlist")}
-                  className="text-sm rounded-xl px-8 cursor-pointer hover:bg-gray-50 py-0 border border-gray-50 text-gray-600 hover:text-black"
-                >
-                  View
-                </Button>
-              </div>
-            ))
-          ) : (
-            <NoData label="Wishlist" icon="💔" />
-          )}
-        </div>
-      </section>
-    );
-  }
+  //               <div className="flex-1">
+  //                 <div className="font-medium">{w.product.name}</div>
+  //                 <div className="text-sm text-gray-500">
+  //                   ₹{w.product.price}
+  //                 </div>
+  //               </div>
+
+  //               <Button
+  //                 onPress={() => router.push("/Wishlist")}
+  //                 className="text-sm rounded-xl px-8 cursor-pointer hover:bg-gray-50 py-0 border border-gray-50 text-gray-600 hover:text-black"
+  //               >
+  //                 View
+  //               </Button>
+  //             </div>
+  //           ))
+  //         ) : (
+  //           <NoData label="Wishlist" icon="💔" />
+  //         )}
+  //       </div>
+  //     </section>
+  //   );
+  // }
 
   /* ---------------- LOGOUT ---------------- */
   if (keyname === "logout") {
