@@ -11,6 +11,7 @@ import Loader from "@/public/svg/tube-spinner.svg";
 import CountryFiled from "./Component/CountryFiledComponet";
 
 import { RegisterType } from "@/app/(User)/Type/Types";
+import API from "@/app/api";
 
 export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false);
@@ -27,47 +28,30 @@ export default function RegisterPage() {
   const router = useRouter();
   const { callApi, error, loading } = useApi();
 
-  const onSubmit: SubmitHandler<RegisterType> = async (info) => {
+  const onSubmit: SubmitHandler<RegisterType> = async (info: RegisterType) => {
+    const formData = new FormData();
+
+    Object.entries(info).forEach(([key, value]) => {
+      if (!value) return;
+      if (key === "profileImage") {
+        formData.append(key, value[0]);
+      } else {
+        formData.append(key, value as string);
+      }
+    });
+
     try {
-      const res = await callApi("post", "/signup", {
-        data: {
-          userName: info.userName,
+      const res = await API.post("/signup", formData);
 
-          email: info.email,
-
-          password: info.password,
-
-          address: info.address,
-
-          pinCode: info.pinCode,
-
-          contactNumber: info.contactNumber,
-
-          countryCode: info.countryCode,
-
-          countryCodeLabel: info.countryCodeLabel,
-
-          isSupplier: info.isSupplier,
-
-          country: info.country,
-
-          state: info.state,
-        },
-      });
-
-      // Show success toast
       notify({
         message: res.msg || "Registration is successful!",
         type: "success",
       });
-
-      // Redirect to admin dashboard
-      router.push("/Login");
+      router.push("/login");
     } catch (err: any) {
       // Show error toast
-      console.log(error);
       notify({
-        message: err?.response?.data?.message || "Something is Wrong!",
+        message: err?.response?.data?.msg || "Something is Wrong!",
         type: "error",
       });
     }
@@ -197,6 +181,12 @@ export default function RegisterPage() {
               watch={watch}
               setValue={setValue}
               errors={errors}
+              grid={{
+                country: "col-span-12",
+                state: "col-span-12",
+                code: "col-span-6",
+                label: "col-span-6",
+              }}
             />
           </div>
 
@@ -313,7 +303,7 @@ export default function RegisterPage() {
         {/* FOOTER */}
         <p className="text-center text-gray-500 text-sm">
           Already have an account?{" "}
-          <a href="/Login" className="text-black font-medium hover:underline">
+          <a href="/login" className="text-black font-medium hover:underline">
             Sign In
           </a>
         </p>

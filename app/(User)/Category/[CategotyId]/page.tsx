@@ -29,7 +29,6 @@ export default function Page() {
       "https://backend.9rock.in/9rock/cat-with-products"
     );
 
-    console.log("REs", res.data[0].products);
 
     setData(res.data[1].products);
 

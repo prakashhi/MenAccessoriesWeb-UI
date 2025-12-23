@@ -1,7 +1,5 @@
-
 export const ImageShowUtil = (imgData?: string | null): string => {
-
-   const fallback = "/Images/placeholder2.png";
+  const fallback = "/Images/placeholder2.png";
   if (!imgData || typeof imgData !== "string") {
     return fallback; // fallback image
   }
@@ -11,8 +9,6 @@ export const ImageShowUtil = (imgData?: string | null): string => {
   if (parts.length < 2) {
     return fallback;
   }
-
-   console.log("img",imgData)
 
   return `${process.env.NEXT_PUBLIC_IMG_URL}${parts[1]}`;
 };

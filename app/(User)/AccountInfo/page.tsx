@@ -22,6 +22,9 @@ import { User, LikeProductType, OrderType } from "@/app/(User)/Type/Types";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 import Image from "next/image";
 import { Button } from "@heroui/react";
+import UserEditForm from "./Component/UserEditForm";
+import { Pencil } from "lucide-react";
+import ChangePassword from "./Component/ChangePassword";
 
 type IconType = "📭";
 
@@ -45,13 +48,12 @@ export default function AccountSection() {
     });
     // Redirect to admin dashboard
 
-    router.replace("/Login");
+    router.replace("/login");
   };
 
   const menu = [
     { key: "info", label: "Personal Information", icon: <FiUser size={18} /> },
     { key: "orders", label: "My Orders", icon: <FiClipboard size={18} /> },
-    // { key: "wishlist", label: "Wishlist", icon: <FiHeart size={18} /> },
     {
       key: "logout",
       label: "Logout",
@@ -81,7 +83,7 @@ export default function AccountSection() {
 
     const GetProfileData = async () => {
       if (!userData?.id) {
-        router.replace("/Login");
+        router.replace("/login");
         return;
       } else {
         let [profileData, likeProductDat] = await Promise.all([
@@ -105,10 +107,11 @@ export default function AccountSection() {
     };
   }, []);
 
+
   return (
     <>
       <Nav />
-      <div className="w-full max-w-5xl mx-auto px-4 py-8">
+      <div className="w-full max-w-7xl mx-auto px-4 py-8">
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -137,7 +140,7 @@ export default function AccountSection() {
                   <button
                     key={m.key}
                     onClick={() => setActive(m.key)}
-                    className={`w-full flex items-center justify-between px-3 py-3 rounded-lg transition
+                    className={`w-full cursor-pointer flex items-center justify-between px-3 py-3 rounded-lg transition
                     ${
                       active === m.key
                         ? "bg-black text-white"
@@ -167,7 +170,7 @@ export default function AccountSection() {
             </nav>
 
             {/* Right / Content */}
-            <div className="flex-1 p-6">
+            <div className="flex-1 lg:p-6 p-3">
               {/* Mobile accordion menu at top */}
               <div className="lg:hidden space-y-3 mb-4">
                 {menu.map((m) => (
@@ -239,69 +242,103 @@ export function NoData({ label, icon }: { label: string; icon: IconType }) {
   );
 }
 
+
+
 /* ---------- Content Renderer ---------- */
 /* Renders the panel content for each menu key. */
 
 function ContentRenderer({ keyname, user, onLogout }: any) {
+  const [editOpen, setEditOpen] = useState(false);
+
   const router = useRouter();
   /* ---------------- INFO ---------------- */
   if (keyname === "info") {
     return (
       <section>
-        <h3 className="text-xl font-semibold mb-4">Personal Information</h3>
+        <div className="flex flex-col gap-3 lg:mb-5 mb-6 lg:items-center  sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="text-xl font-semibold ">
+            {editOpen == true
+              ? "Edit Personal Information"
+              : "Personal Information"}
+          </h3>
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          {/* NAME */}
-          <div>
-            <label className="text-sm text-gray-500">Full name</label>
-            <div className="mt-1 text-gray-900 flex items-center gap-2">
-              <FiUser className="text-gray-400" />
-              {user.info?.userName}
-            </div>
-          </div>
-
-          {/* EMAIL */}
-          <div>
-            <label className="text-sm text-gray-500">Email</label>
-            <div className="mt-1 text-gray-900 flex items-center gap-2">
-              <FiMail className="text-gray-400" />
-              {user.info.email}
-            </div>
-          </div>
-
-          {/* PHONE */}
-          <div>
-            <label className="text-sm text-gray-500">Phone</label>
-            <div className="mt-1 text-gray-900 flex items-center gap-2">
-              <FiPhone className="text-gray-400" />
-              {user.countryCode} {user.info.contactNumber ?? "N/A"}
-            </div>
-          </div>
-
-          {/* ROLE */}
-          <div>
-            <label className="text-sm text-gray-500">Role</label>
-            <div className="mt-1 text-gray-900">{user.info.role}</div>
-          </div>
-
-          {/* ADDRESS */}
-          <div className="sm:col-span-2">
-            <label className="text-sm text-gray-500">Address</label>
-            <div className="mt-1 text-gray-900 flex items-center gap-2">
-              <FiMapPin className="text-gray-400" />
-              {user.info.address ?? "N/A"}, {user.info.state},{" "}
-              {user.info.country} - {user.info.pinCode}
-            </div>
-          </div>
-
-          {/* CREATED AT */}
-          <div>
-            <label className="text-sm text-gray-500">Joined On</label>
-            <div className="mt-1 text-gray-900">
-              {new Date(user.info.createdAt).toLocaleDateString()}
-            </div>
-          </div>
+          {editOpen == false && (
+            <Button
+              className="flex border  border-gray-50 rounded-xl hover:bg-cyan-50  items-center gap-3 w-full sm:w-auto"
+              size="sm"
+              onPress={() => setEditOpen(true)}
+            >
+              <Pencil className="w-3 h-3" />
+              <span className="text-sm">Edit</span>
+            </Button>
+          )}
         </div>
+
+        {editOpen == true ? (
+          <UserEditForm user={user} onClose={() => setEditOpen(false)} />
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* NAME */}
+            <div>
+              <label className="text-sm text-gray-500">Full name</label>
+              <div className="mt-1 text-gray-900 flex items-center gap-2">
+                <FiUser className="text-gray-400" />
+                {user.info?.userName}
+              </div>
+            </div>
+
+            {/* EMAIL */}
+            <div>
+              <label className="text-sm text-gray-500">Email</label>
+              <div className="mt-1 text-gray-900 flex items-center gap-2">
+                <FiMail className="text-gray-400" />
+                {user.info.email}
+              </div>
+            </div>
+
+            {/* PHONE */}
+            <div>
+              <label className="text-sm text-gray-500">Phone</label>
+              <div className="mt-1 text-gray-900 flex items-center gap-2">
+                <FiPhone className="text-gray-400" />
+                {user.info.contactNumber
+                  ? `${user.info.countryCode} ${user.info.contactNumber}`
+                  : "N/A"}
+              </div>
+            </div>
+
+            {/* ROLE */}
+            <div>
+              <label className="text-sm text-gray-500">Role</label>
+              <div className="mt-1 text-gray-900">
+                {user.info?.role?.toUpperCase()}
+              </div>
+            </div>
+
+            {/* ADDRESS */}
+            <div className="sm:col-span-2">
+              <label className="text-sm text-gray-500">Address</label>
+
+              <div className="mt-1 flex items-start gap-2 text-gray-900 bg-gray-50 rounded-md p-3">
+                <FiMapPin className="text-gray-400 mt-1 shrink-0" />
+                <p className="text-sm leading-relaxed">
+                  {user.info.address == "" ? "N/A" : user.info.address}
+                  {user.info.state && `, ${user.info.state}`}
+                  {user.info.country && `, ${user.info.country}`}
+                  {user.info.pinCode && ` - ${user.info.pinCode}`}
+                </p>
+              </div>
+            </div>
+
+            {/* CREATED AT */}
+            <div>
+              <label className="text-sm text-gray-500">Joined On</label>
+              <div className="mt-1 text-gray-900">
+                {new Date(user.info.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ---------------- BUSINESS INFO ---------------- */}
         {user.isSupplier && (
@@ -422,7 +459,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
 
         <button
           onClick={onLogout}
-          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+          className="px-4 py-2 cursor-pointer bg-red-600 text-white rounded-md hover:bg-red-700"
         >
           Sign Out
         </button>

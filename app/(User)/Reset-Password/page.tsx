@@ -9,13 +9,11 @@ import Loader from "@/public/svg/tube-spinner.svg";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 
 import Image from "next/image";
-import { param } from "framer-motion/client";
+
 import { useSearchParams } from "next/navigation";
 
 export default function page() {
   const [showConfirm, setShowConfirm] = useState(false);
-
-  const params = useParams();
 
   type ResetPass = {
     token: "string";
@@ -35,13 +33,15 @@ export default function page() {
   const { callApi, error, loading } = useApi();
 
   const searchParams = useSearchParams();
- 
+
+  const token = searchParams.get("token")?.split("?")[0];
+  const email = searchParams.get("token")?.split("?")[1].split("email=")[1];
 
   const onSubmit: SubmitHandler<ResetPass> = async (info) => {
     const res = await callApi("post", "/user/validate-reset-password-token", {
       data: {
-        token: params.token,
-        email: params.email,
+        token: token,
+        email: email,
         newPassword: info.newPassword,
       },
     });
@@ -50,7 +50,7 @@ export default function page() {
       message: res.message || "Password reset successful!",
       type: "success",
     });
-    router.push("/Login");
+    router.push("/login");
   };
 
   const passwordValue = watch("newPassword");

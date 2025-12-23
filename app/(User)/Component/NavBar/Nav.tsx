@@ -30,7 +30,6 @@ export default function Nav() {
         LikeProductList(user.id),
       ]);
 
-
       setState((prev) => ({
         ...prev,
         likeProductLength: LikeData.data.length ?? 0,
@@ -40,8 +39,6 @@ export default function Nav() {
 
     LengthData();
   }, [GuestUserDataLength]);
-
- 
 
   return (
     <nav className="w-full sticky top-0 z-50 bg-white shadow-md">
@@ -58,7 +55,7 @@ export default function Nav() {
 
         {/* Icons */}
         <div className="flex items-center gap-4">
-          <Link href="/Search">
+          <Link href="/search">
             <Search
               size={20}
               className="text-gray-700 hover:text-black transition-colors"

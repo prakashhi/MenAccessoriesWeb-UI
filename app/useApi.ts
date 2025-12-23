@@ -50,10 +50,11 @@ export function useApi<T = any>() {
       return response.data;
     } catch (err: any) {
       let errorMsg;
-      errorMsg = err.response?.data?.message || err.message;
+      errorMsg = err.response?.data?.message || err.response?.data?.error;
+
+       console.log("err",err)
 
       setError(errorMsg);
-      
 
       notify({
         message: errorMsg,

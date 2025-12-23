@@ -142,10 +142,10 @@ export type RegisterType = {
   country: string | null;
 
   state: string | null;
-  confirmPassword:string |  null
+  confirmPassword: string | null;
 };
 
- export type Data = {
-    CartData: Record<string, CartItem>;
-    LikeData: Record<string, LikeProductType>;
-  };
+export type Data = {
+  CartData: Record<string, CartItem>;
+  LikeData: Record<string, LikeProductType>;
+};

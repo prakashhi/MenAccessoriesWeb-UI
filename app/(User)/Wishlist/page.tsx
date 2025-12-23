@@ -19,6 +19,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
 
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
@@ -26,16 +27,22 @@ export default function Page() {
     UsePanel();
 
   const [likeProductList, setLikeProductList] = useState<any[]>([]);
-  const [hoveredItem, setHoveredItem] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     const LikeData = async () => {
+      setLoading(true);
       if (user) {
         let response = await LikeProductList(user.id);
         setLikeProductList(response.data);
       } else {
-        setLikeProductList(Object.values(guestCart?.likeProduct || {}));
+        //  console.log(Object.values(guestCart.likeProduct || {}))
+        setLikeProductList(Object.values(guestCart.likeProduct || {}));
       }
+      setLoading(false);
     };
 
     LikeData();
@@ -61,194 +68,171 @@ export default function Page() {
         </div>
 
         <AnimatePresence mode="wait">
-          {likeProductList?.length > 0 ? (
+          {loading ? (
+            <motion.div
+              className="grid lg:grid-cols-3 grid-cols-1 gap-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {[...Array(6)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="h-72 bg-gray-200 rounded-lg animate-pulse"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                />
+              ))}
+            </motion.div>
+          ) : likeProductList?.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ staggerChildren: 0.1 }}
-              className="space-y-4 sm:space-y-6"
+              className="grid lg:grid-cols-3 grid-cols-1 gap-3"
             >
               {likeProductList.map((item: any) => (
                 <motion.div
                   key={item.likeId || item.product?.id || item.id}
                   layout
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  whileHover={{ x: 2 }}
-                  onHoverStart={() => setHoveredItem(item.id)}
-                  onHoverEnd={() => setHoveredItem(null)}
-                  className="group relative bg-white border border-neutral-200 hover:border-neutral-300 
-                           transition-all duration-500 overflow-hidden rounded-lg sm:rounded-none sm:border-b sm:border-x-0"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  whileHover={{ y: -4 }}
+                  className="group relative bg-white border border-gray-100 hover:border-gray-200
+             transition-all duration-300 overflow-hidden"
                 >
-                  {/* HOVER BACKGROUND EFFECT - MOBILE OPTIMIZED */}
-                  {/* <div
-                    className="absolute inset-0 bg-linear-to-r from-transparent via-neutral-50 to-transparent 
-                                translate-x-full group-hover:translate-x-full transition-transform duration-1000 hidden sm:block"
-                  /> */}
+                  {/* IMAGE */}
+                  <div className="relative w-full h-64 md:h-72 bg-gray-50 overflow-hidden">
+                    <Image
+                      onClick={() =>
+                        router.push(
+                          `/all-Product/${user ? item.product?.id : item.id}`
+                        )
+                      }
+                      alt={user ? item.product.name : item.name}
+                      src={
+                        user
+                          ? ImageShowUtil(item.product.image)
+                          : ImageShowUtil(item.image) ||
+                            "/images/placeholder.webp"
+                      }
+                      fill
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      className="object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105"
+                    />
 
-                  <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8">
-                    {/* IMAGE - RESPONSIVE */}
-                    <div
-                      className="relative w-full sm:w-24 md:w-32 lg:w-36 h-48 sm:h-24 md:h-32 lg:h-36 overflow-hidden bg-neutral-100 
-                                  border border-neutral-200 rounded-md group-hover:border-neutral-300 transition-all duration-500 shrink-0"
-                    >
-                      <Image
-                        alt={item.name}
-                        src={
-                          user
-                            ? ImageShowUtil(item.product.image)
-                            : ImageShowUtil(item.image) ||
-                              "/images/placeholder.webp"
+                    {/* REMOVE */}
+                    <button
+                      onClick={() => {
+                        if (user) {
+                          RemoveLikeProduct(item.product.id);
+                          setLikeProductList((prev) =>
+                            prev.filter((p) => p.product.id !== item.product.id)
+                          );
+                        } else {
+                          RemoveLikeProduct(item.id);
                         }
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 96px, (max-width: 1024px) 128px, 144px"
-                        className="object-cover object-center transition-transform duration-700 
-                                 group-hover:scale-105 group-hover:opacity-90"
-                        priority={false}
-                      />
+                      }}
+                      className="absolute cursor-pointer top-3 right-3 w-8 h-8 rounded-full bg-white/90
+                 backdrop-blur-sm flex items-center justify-center
+                 opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <FiX className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
 
-                      {/* MOBILE REMOVE BUTTON */}
-                      <button
-                        onClick={() => {
-                          if (user) {
-                            RemoveLikeProduct(item.product.id);
-
-                            setLikeProductList((prev) =>
-                              prev.filter(
-                                (p) => p.product.id !== item.product.id
-                              )
-                            );
-                          } else {
-                            RemoveLikeProduct(item.id);
-                          }
-                        }}
-                        className="absolute top-2 right-2 sm:top-3 sm:right-3 w-8 h-8 sm:w-7 sm:h-7 cursor-pointer rounded-full bg-white/90 backdrop-blur-sm 
-                                 flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 
-                                 transition-all duration-300 hover:bg-white border border-neutral-200 shadow-sm sm:shadow-none"
-                        aria-label="Remove item"
+                  {/* CONTENT */}
+                  <div className="p-4 flex flex-col gap-4">
+                    {/* TITLE */}
+                    <div>
+                      <h3
+                        className="text-lg font-light tracking-wide text-gray-900 line-clamp-2"
+                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
                       >
-                        <FiX className="w-3.5 h-3.5 sm:w-3 sm:h-3 text-neutral-500" />
-                      </button>
+                        {user ? item.product.name : item.name}
+                      </h3>
+
+                      <p className="text-xs text-gray-500 uppercase tracking-[0.12em] mt-1">
+                        {user ? item.product.category : item.category}
+                      </p>
                     </div>
 
-                    {/* PRODUCT INFO - RESPONSIVE */}
-                    <div className="flex-1 w-full space-y-3 sm:space-y-4">
-                      <div>
-                        <h3
-                          className="text-base sm:text-lg md:text-xl font-light tracking-wide text-neutral-800 
-                                     mb-1 sm:mb-2 line-clamp-2 sm:line-clamp-1"
-                          style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                        >
-                          {user ? item.product.name : item.name}
-                        </h3>
+                    {/* PRICE */}
+                    <div>
+                      <p className="text-xl font-light text-gray-900">
+                        ₹
+                        {user
+                          ? formatIndianPrice(item.product.sellingPrice)
+                          : formatIndianPrice(item.sellingPrice)}
+                      </p>
+                    </div>
 
-                        {/* PRICE - MOBILE FIRST */}
-                        <div className="flex items-center justify-between sm:justify-start sm:block">
-                          <p className="text-lg sm:text-xl md:text-2xl font-light text-neutral-900 tracking-tight">
-                            ₹
-                            {user
-                              ? formatIndianPrice(item.product.sellingPrice)
-                              : formatIndianPrice(item.sellingPrice)}
-                          </p>
-
-                          {/* MOBILE ACTIONS */}
-                          <div className="flex items-center gap-3 sm:hidden">
-                            <button
-                              onClick={() => {
-                                AddCartProduct(item);
-                                RemoveLikeProduct(item.id);
-                              }}
-                              className="px-4 cursor-pointer py-2 text-xs tracking-[0.2em] uppercase border border-neutral-900 text-neutral-900 
-                                       hover:bg-neutral-900 hover:text-white transition-colors duration-300 rounded-sm"
-                            >
-                              <span className="relative z-10 flex items-center gap-2">
-                                ADD
-                                <FiShoppingBag
-                                  className="w-3.5 h-3.5 md:w-4 md:h-4 transition-transform duration-500 
-                                                   group-hover/btn:translate-x-1"
+                    {/* VARIANTS */}
+                    {(item.product?.variants || item.variants) && (
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <span>Color</span>
+                          <div className="flex gap-1">
+                            {(user
+                              ? item.product.variants?.colors
+                              : item.variants?.colors
+                            )
+                              ?.slice(0, 3)
+                              .map((color: string, i: number) => (
+                                <span
+                                  key={i}
+                                  className="w-3.5 h-3.5 rounded-full border border-gray-200"
+                                  style={{ backgroundColor: color }}
                                 />
-                              </span>
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (user) {
-                                  RemoveLikeProduct(item.product.id);
-
-                                  setLikeProductList((prev) =>
-                                    prev.filter(
-                                      (p) => p.product.id !== item.product.id
-                                    )
-                                  );
-                                } else {
-                                  RemoveLikeProduct(item.id);
-                                }
-                              }}
-                              className="p-2 cursor-pointer text-neutral-400 hover:text-neutral-900 transition-colors"
-                              aria-label="Remove"
-                            >
-                              <FiTrash2 className="w-4 h-4" />
-                            </button>
+                              ))}
                           </div>
                         </div>
+
+                        <div className="flex items-center gap-1">
+                          {(user
+                            ? item.product.variants?.sizes
+                            : item.variants?.sizes
+                          )
+                            ?.slice(0, 2)
+                            .map((size: string, i: number) => (
+                              <span
+                                key={i}
+                                className="px-2 py-0.5 border border-gray-200 text-xs"
+                              >
+                                {size}
+                              </span>
+                            ))}
+                        </div>
                       </div>
+                    )}
 
-                      {/* DESKTOP PRICE LABEL */}
-                      {/* <div className="hidden sm:block">
-                        <p className="text-sm tracking-[0.1em] text-neutral-500 font-light mb-1">
-                          PRICE
-                        </p>
-                        <p className="text-xl md:text-2xl font-light text-neutral-900 tracking-widest">
-                          ₹{formatIndianPrice(item.sellingPrice)}
-                        </p>
-                      </div> */}
-                    </div>
-
-                    {/* DESKTOP ACTION BUTTONS */}
-                    <div className="hidden sm:flex flex-col gap-3 md:gap-4 items-end shrink-0 w-full sm:w-auto">
+                    {/* ACTIONS */}
+                    <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
                       <button
                         onClick={() => {
                           AddCartProduct(item);
                           RemoveLikeProduct(item.id);
                         }}
-                        className="relative cursor-pointer flex items-center gap-2 px-6 md:px-8 py-2.5 md:py-3 text-xs tracking-[0.2em] md:tracking-[0.3em]
-                                 uppercase border border-neutral-900 text-neutral-900 
-                                 hover:bg-neutral-900 hover:text-white transition-all duration-500 
-                                 overflow-hidden group/btn w-full sm:w-auto justify-center"
+                        className="w-full py-2.5 border cursor-pointer border-gray-900 rounded-sm text-gray-900
+                   text-xs tracking-[0.15em] uppercase
+                   hover:bg-gray-900 hover:text-white transition"
                       >
-                        <span className="relative z-10 flex items-center gap-2">
-                          ADD TO CART
-                          <FiShoppingBag
-                            className="w-3.5 h-3.5 md:w-4 md:h-4 transition-transform duration-500 
-                                                   group-hover/btn:translate-x-1"
-                          />
-                        </span>
-                        <div
-                          className="absolute inset-0 bg-neutral-900 translate-x-full 
-                                      group-hover/btn:translate-x-0 transition-transform duration-500"
-                        />
+                        Add to Cart
                       </button>
 
-                      <button
-                        onClick={() => {
-                          if (user) {
-                            RemoveLikeProduct(item.product.id);
-
-                            setLikeProductList((prev) =>
-                              prev.filter(
-                                (p) => p.product.id !== item.product.id
-                              )
-                            );
-                          } else {
-                            RemoveLikeProduct(item.id);
-                          }
-                        }}
-                        className="text-xs tracking-[0.2em] md:tracking-[0.3em] text-neutral-400 hover:text-neutral-900 
-                                 transition-colors duration-300 flex items-center gap-1"
+                      <span
+                        className={`text-xs text-center py-1 ${
+                          (user ? item.product.stock : item.stock) > 0
+                            ? "text-green-700"
+                            : "text-red-700"
+                        }`}
                       >
-                        REMOVE
-                        <FiChevronRight className="w-3 h-3" />
-                      </button>
+                        {(user ? item.product.stock : item.stock) > 0
+                          ? "In Stock"
+                          : "Out of Stock"}
+                      </span>
                     </div>
                   </div>
                 </motion.div>

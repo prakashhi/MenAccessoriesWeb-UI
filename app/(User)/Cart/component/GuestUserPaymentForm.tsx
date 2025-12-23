@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
-import CountryFiled from "@/app/(User)/Register/Component/CountryFiledComponet";
+import CountryFiled from "@/app/(User)/register/Component/CountryFiledComponet";
 import PaymentSuccessModal from "./PaymentSucessModel";
 
 export default function GuestUserPaymentForm() {
@@ -39,7 +39,7 @@ export default function GuestUserPaymentForm() {
         },
       });
 
-      router.push("/Login");
+      router.push("/login");
     } catch (err: any) {
       notify({
         message: err?.response?.data?.message || "Something went wrong!",

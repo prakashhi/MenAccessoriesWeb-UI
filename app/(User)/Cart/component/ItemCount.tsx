@@ -119,11 +119,18 @@ export default function ItemCount({
       //   },
       // }));
 
-      setState?.((prev) =>
-        prev.map((item: any) =>
+      // setState?.((prev) =>
+      //   prev.map((item: any) =>
+      //     item.id === cartId ? { ...item, quantity: Number(value) } : item
+      //   )
+      // );
+
+      setState?.((prev) => {
+        if (!prev || !Array.isArray(prev)) return []; // fallback to empty array
+        return prev.map((item: any) =>
           item.id === cartId ? { ...item, quantity: Number(value) } : item
-        )
-      );
+        );
+      });
 
       await incrementCartProduct(productId, cartId, Number(value));
     } else {
@@ -151,13 +158,32 @@ export default function ItemCount({
         <input
           value={inputValue}
           onChange={(e) => {
-            if (/^\d*$/.test(e.target.value)) {
-              let value = e.target.value;
+            // if (/^\d*$/.test(e.target.value)) {
+            //   let value = e.target.value;
 
-              // ❌ block update if stock exceeded
-              if (!stockCheck(Number(value))) return;
+            //   // ❌ block update if stock exceeded
+            //   if (!stockCheck(Number(value))) return;
+            //   setInputValue(value);
+
+            //   handleEnterNumberChange(Number(value));
+            // }
+
+            let value = e.target.value;
+
+            // Only allow digits
+            if (/^\d*$/.test(value)) {
+              // If user deletes all, reset to "1"
+              if (value === "") {
+                value = "1";
+              }
+
+              // Ensure value does not exceed stock
+              const num = Number(value);
+              if (num > stock) {
+                value = String(stock);
+              }
+
               setInputValue(value);
-
               handleEnterNumberChange(Number(value));
             }
           }}

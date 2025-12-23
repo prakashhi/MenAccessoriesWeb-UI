@@ -22,7 +22,6 @@ import {
 } from "@/app/(User)/Type/Types";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 
-
 export default function CardModel({
   DataObj,
   CustomWH,
@@ -49,60 +48,67 @@ export default function CardModel({
     );
   }
 
-  console.log();
-
   const handleAddToCart = async (product: Product) => {
-    await AddCartProduct(product);
+    let res = await AddCartProduct(product);
+
+    console.log("res", res);
 
     if (isUser == true) {
-      setState((prev: any) => {
-        const prevItem = prev.CartData[product.id];
-        return {
-          ...prev,
-          CartData: {
-            ...prev.CartData,
-            [product.id]: {
-              // Preserve previous item if exists
-              id: product.id,
-              product: product,
-              variantSize: prevItem?.variantSize ?? product.size, // optional
-              quantity: (prevItem?.quantity ?? 0) + 1,
+      if (res !== undefined) {
+        setState((prev: any) => {
+          const prevItem = prev.CartData[product.id];
+          return {
+            ...prev,
+            CartData: {
+              ...prev.CartData,
+              [product.id]: {
+                // Preserve previous item if exists
+                id: product.id,
+                product: product,
+                variantSize: prevItem?.variantSize ?? product.size, // optional
+                quantity: (prevItem?.quantity ?? 0) + 1,
+              },
             },
-          },
-        };
-      });
+          };
+        });
+      }
     }
   };
 
   const handleAddToLike = async (product: Product) => {
-    await AddLikeProduct(product);
-
     if (isUser) {
-      setState((prev: Data) => {
-        const isLiked = !!prev.LikeData[product.id];
+      let res = await AddLikeProduct(product);
 
-        // 🔁 remove like
-        if (isLiked) {
-          const { [product.id]: _, ...rest } = prev.LikeData;
+      if (res !== undefined) {
+        setState((prev: Data) => {
+          const isLiked = !!prev.LikeData[product.id];
+
+          // 🔁 remove like
+          if (isLiked) {
+            const { [product.id]: _, ...rest } = prev.LikeData;
+            return {
+              ...prev,
+              LikeData: rest,
+            };
+          }
+
+          // ❤️ add like
           return {
             ...prev,
-            LikeData: rest,
-          };
-        }
-
-        // ❤️ add like
-        return {
-          ...prev,
-          LikeData: {
-            ...prev.LikeData,
-            [product.id]: {
-              id: product.id,
-              product: product,
-              createdAt: new Date().toISOString(),
+            LikeData: {
+              ...prev.LikeData,
+              [product.id]: {
+                id: product.id,
+                product: product,
+                createdAt: new Date().toISOString(),
+              },
             },
-          },
-        };
-      });
+          };
+        });
+      }
+    } else {
+      console.log("Product", product);
+      await AddLikeProduct(product);
     }
   };
 

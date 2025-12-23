@@ -14,6 +14,7 @@ type CartItem = {
 
 type GuestCart = {
   items: Record<string, CartItem>;
+  likeProduct: Record<string, CartItem>;
 };
 
 export function getUserFromStorage() {
@@ -29,21 +30,25 @@ export function getUserFromStorage() {
 
 export function getGuestCart(): GuestCart {
   if (typeof window === "undefined") {
-    return { items: {} };
+    return { items: {}, likeProduct: {} };
   }
 
   const raw = localStorage.getItem("GuestUserData");
 
   if (!raw) {
-    return { items: {} };
+    return { items: {}, likeProduct: {} };
   }
 
   try {
     const parsed = JSON.parse(raw);
-    return parsed?.items ? parsed : { items: {} };
+
+    return {
+      items: parsed?.items ?? {},
+      likeProduct: parsed?.likeProduct ?? {},
+    };
   } catch (error) {
     console.error("Invalid GuestUserData in localStorage", error);
-    return { items: {} };
+    return { items: {}, likeProduct: {} };
   }
 }
 

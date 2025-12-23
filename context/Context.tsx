@@ -7,7 +7,7 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import { product } from "./Types/type";
+import { product, Like } from "./Types/type";
 import { useDisclosure } from "@heroui/react";
 import { useApi } from "@/app/useApi";
 import { notify, toastActions } from "@/app/(User)/Component/ToastComponent";
@@ -29,7 +29,7 @@ type GuestCartItem = product & { quantity: number };
 
 type GuestCart = {
   items: Record<string, GuestCartItem>;
-  likeProduct: Record<string, product>;
+  likeProduct: Record<string, GuestCartItem>;
 };
 
 type AddToCart = product | ProductInfoType;
@@ -104,7 +104,17 @@ export function SearchPanelContextProvider({
 
     const cart = getGuestCart();
 
-    setGuestCart((prev) => ({ ...prev, items: cart.items }));
+    // console.log(cart);
+
+    // if (cart) {
+    //   setGuestCart(cart); // ✅ restore FULL cart
+    // }
+
+    setGuestCart((prev) => ({
+      ...prev,
+      items: cart.items,
+      likeProduct: cart.likeProduct,
+    }));
   }, [mounted]);
 
   const id = user?.id;
@@ -118,8 +128,8 @@ export function SearchPanelContextProvider({
 
   const GuestUserDataLength = useMemo(() => {
     return {
-      Cart: Object.keys(guestCart.items || {}).length,
-      Like: Object.keys(guestCart.likeProduct || {}).length,
+      Cart: Object.keys(guestCart?.items || {}).length,
+      Like: Object.keys(guestCart?.likeProduct || {}).length,
     };
   }, [guestCart]);
 
@@ -165,9 +175,7 @@ export function SearchPanelContextProvider({
           },
         });
 
-        if (response.success == true) {
-          toastActions.addToCart(`${Product.name}`);
-        }
+        return response;
       } catch (err) {
         console.log(err);
       }
@@ -204,12 +212,12 @@ export function SearchPanelContextProvider({
     if (user == null || !user) {
       let shouldNotify = false;
       setGuestCart((prev) => {
-        if (!prev) return prev;
+        if (prev.likeProduct[Product.id]) return prev;
 
-        const likeProduct = prev.likeProduct || {};
+        // const likeProduct = prev.likeProduct || {};
 
         // prevent duplicate
-        if (likeProduct[Product.id]) return prev;
+        // if (likeProduct[Product.id]) return prev;
 
         shouldNotify = true;
         return {
@@ -241,9 +249,11 @@ export function SearchPanelContextProvider({
           userId: id,
         },
       });
-      if (response.success == true) {
-        toastActions.addToWishlist(`${Product.name}`);
-      }
+
+      return response;
+      // if (response.success == true) {
+      //   toastActions.addToWishlist(`${Product.name}`);
+      // }
     }
   };
 
@@ -263,13 +273,13 @@ export function SearchPanelContextProvider({
         };
       });
 
-      toastActions.removeFromWishlist();
+      //toastActions.removeFromWishlist();
     } else {
       let response = await callApi(
         "delete",
         `/like-product/${id}/${ProductId}`
       );
-      if (response?.success == true) {
+      if (response) {
         toastActions.removeFromWishlist();
       }
     }

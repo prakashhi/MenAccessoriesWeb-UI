@@ -7,10 +7,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import Loader from "@/public/svg/tube-spinner.svg";
 import { notify } from "@/app/(User)/Component/ToastComponent";
-
 import Image from "next/image";
-
-import { toast } from "react-toastify";
 import Link from "next/link";
 import { setAuthData } from "@/app/utils/localStorageUtil";
 
@@ -34,14 +31,16 @@ export default function page() {
       data: { email: info.email, password: info.password },
     });
 
-    notify({
-      message: res.msg || "Login successful!",
-      type: "success",
-    });
+    if (res) {
+      notify({
+        message: "Login successful!",
+        type: "success",
+      });
 
-    setAuthData("UserData", JSON.stringify(res.data), 24 * 60 * 60 * 1000);
-    setAuthData("Token", JSON.stringify(res.jwtToken), 24 * 60 * 60 * 1000);
-    router.push("/");
+      setAuthData("UserData", JSON.stringify(res.data), 24 * 60 * 60 * 1000);
+      setAuthData("Token", JSON.stringify(res.jwtToken), 24 * 60 * 60 * 1000);
+      router.push("/");
+    }
   };
 
   return (
@@ -133,7 +132,7 @@ export default function page() {
         <div className="relative">
           <Link
             className="absolute bottom-3 left-2   text-gray-400 text-[10px] underline"
-            href={"/ForgotPassword"}
+            href={"/forgot-password"}
           >
             Forgot Password
           </Link>
@@ -143,7 +142,7 @@ export default function page() {
         <p className="text-center text-gray-500 text-sm">
           Don’t have an account?{" "}
           <a
-            href="/Register"
+            href="/register"
             className="text-black font-medium hover:underline"
           >
             Sign up

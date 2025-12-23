@@ -1,137 +1,116 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { CountryCode } from "@/app/utils/CountryCode";
 import { CountryListWithState } from "@/app/utils/CountryListWithState";
 
-const countryCodeByISO2 = new Map(
-  CountryCode.map((c) => [c.code, c])
-);
+type GridConfig = {
+  country?: string;
+  state?: string;
+  code?: string;
+  label?: string;
+};
 
-interface Props {
+type Props = {
   register: any;
   watch: any;
   setValue: any;
   errors?: any;
-}
 
-export default function CountryField({
+  /** Tailwind grid control */
+  grid?: GridConfig;
+};
+
+const countryCodeMap = new Map(CountryCode.map((c) => [c.code, c]));
+
+export default function CountryStateField({
   register,
   watch,
   setValue,
   errors,
+  grid = {},
 }: Props) {
-  const selectedCountry = watch("country");
+  const countryName = watch("country");
 
-  // 🔹 Auto set dial code & country code label
+  const countryObj = useMemo(() => {
+    return CountryListWithState.find((c) => c.name === countryName);
+  }, [countryName]);
+
   useEffect(() => {
-    if (!selectedCountry) return;
+    if (!countryObj) return;
 
-    const country = CountryListWithState.find(
-      (c) => c.name === selectedCountry
-    );
+    const extra = countryCodeMap.get(countryObj.iso2);
 
-    if (!country) return;
+    setValue("countryCode", extra?.dial_code || "", {
+      shouldDirty: true,
+    });
+    setValue("countryCodeLabel", extra?.code || "", {
+      shouldDirty: true,
+    });
+  }, [countryObj, setValue]);
 
-    const extra = countryCodeByISO2.get(country.iso2);
-
-    if (extra) {
-      setValue("countryCode", extra.dial_code); // +971
-      setValue("countryCodeLabel", extra.code); // AE
-    } else {
-      setValue("countryCode", "");
-      setValue("countryCodeLabel", "");
-    }
-  }, [selectedCountry, setValue]);
-
-  // 🔹 States
-  const states =
-    CountryListWithState.find((c) => c.name === selectedCountry)?.states || [];
+  const states = countryObj?.states || [];
 
   return (
-    <>
+    <div className="grid grid-cols-12 gap-4">
       {/* COUNTRY */}
-      <div>
-        <label className="text-sm font-medium text-gray-700">Country</label>
-
-        <select
-          className="w-full mt-1 px-4 py-3 bg-white border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70"
-          {...register("country")}
-        >
+      <div className={grid.country || "col-span-12 sm:col-span-6"}>
+        <label className="text-sm font-medium">Country</label>
+        <select {...register("country")} className="profile-input">
           <option value="">Select Country</option>
-
-          {CountryListWithState.map((country) => {
-            const extra = countryCodeByISO2.get(country.iso2);
-
+          {CountryListWithState.map((c) => {
+            const extra = countryCodeMap.get(c.iso2);
             return (
-              <option key={country.iso2} value={country.name}>
-                {extra?.emoji ? `${extra.emoji} ` : ""}
-                {country.name}
+              <option key={c.iso2} value={c.name}>
+                {extra?.emoji && `${extra.emoji} `}
+                {c.name}
               </option>
             );
           })}
         </select>
-
         {errors?.country && (
-          <p className="text-red-500 text-sm mt-1">
-            {errors.country.message}
-          </p>
+          <p className="text-red-500 text-sm">{errors.country.message}</p>
         )}
-      </div>
-
-      {/* COUNTRY CODE + LABEL */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Country Code
-          </label>
-          <input
-            readOnly
-            className="w-full mt-1 px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl"
-            {...register("countryCode")}
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Country Code Label
-          </label>
-          <input
-            readOnly
-            className="w-full mt-1 px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl"
-            {...register("countryCodeLabel")}
-          />
-        </div>
       </div>
 
       {/* STATE */}
-      <div>
-        <label className="text-sm font-medium text-gray-700">State</label>
-
+      <div className={grid.state || "col-span-12 sm:col-span-6"}>
+        <label className="text-sm font-medium">State</label>
         <select
-          className="w-full mt-1 px-4 py-3 bg-white border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black/70"
-          {...register("state", {
-            // required: states.length ? "State is required" : false,
-          })}
+          {...register("state")}
           disabled={!states.length}
+          className="profile-input"
         >
           <option value="">
-            {states.length ? "Select State" : "No states available"}
+            {states.length ? "Select State" : "No states"}
           </option>
-
-          {states.map((state) => (
-            <option key={state.state_code} value={state.name}>
-              {state.name}
+          {states.map((s) => (
+            <option key={s.state_code} value={s.name}>
+              {s.name}
             </option>
           ))}
         </select>
-
-        {errors?.state && (
-          <p className="text-red-500 text-sm mt-1">
-            {errors.state.message}
-          </p>
-        )}
       </div>
-    </>
+
+      {/* COUNTRY CODE */}
+      <div className={grid.code || "col-span-12 sm:col-span-6"}>
+        <label className="text-sm font-medium">Country Code</label>
+        <input
+          readOnly
+          {...register("countryCode")}
+          className="profile-input"
+        />
+      </div>
+
+      {/* COUNTRY LABEL */}
+      <div className={grid.label || "col-span-12 sm:col-span-6"}>
+        <label className="text-sm font-medium">Country Label</label>
+        <input
+          readOnly
+          {...register("countryCodeLabel")}
+          className="profile-input "
+        />
+      </div>
+    </div>
   );
 }

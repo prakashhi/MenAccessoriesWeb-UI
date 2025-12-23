@@ -73,11 +73,13 @@ export default function ProductPage() {
           callApi("get", `https://backend.9rock.in/product/${params.id}`),
           callApi("get", `/variants/size/product/${params.id}`),
         ]);
+        if (!active) return;
 
-        if (active) {
-          setProduct(product.data);
-          setVariants(variants.data);
-        }
+        const productData = product?.data ?? product ?? {};
+        const variantsData = variants?.data ?? variants ?? {};
+
+        setProduct(productData);
+        setVariants(variantsData);
       } catch (err) {
         console.error("Product fetch failed", err);
       } finally {
@@ -156,11 +158,16 @@ export default function ProductPage() {
   const isJsonString = (value: string) =>
     value.trim().startsWith("{") || value.trim().startsWith("[");
 
-  const parsedDescription =
-    typeof product?.description === "string" &&
-    isJsonString(product.description)
-      ? JSON.parse(product.description)
-      : product?.description;
+  // const parsedDescription =
+  //   typeof product?.description === "string"
+  //     ? (() => {
+  //         try {
+  //           return JSON.parse(product.description);
+  //         } catch {
+  //           return product.description;
+  //         }
+  //       })()
+  //     : product?.description;
 
   const extraInfo = {
     Color: product.color,
@@ -175,7 +182,7 @@ export default function ProductPage() {
     try {
       let res = await AddCartProduct(product);
 
-      if (res) {
+      if (res !== undefined) {
         setState((prev) => ({
           ...prev,
           Cart: true,
@@ -185,6 +192,16 @@ export default function ProductPage() {
       }
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const addToLikeHandle = async () => {
+    let res = await AddLikeProduct(product);
+    if (res !== undefined) {
+      setState((prev) => ({
+        ...prev,
+        Like: true,
+      }));
     }
   };
 
@@ -282,7 +299,10 @@ export default function ProductPage() {
 
             {/* SPECIFICATIONS */}
             <dl className="grid grid-cols-1 gap-y-4 text-sm">
-              {parsedDescription.specifications &&
+              {typeof parsedDescription === "object" &&
+                parsedDescription !== null &&
+                "specifications" in parsedDescription &&
+                parsedDescription.specifications &&
                 Object.entries(parsedDescription.specifications).map(
                   ([key, value]) => (
                     <div
@@ -293,7 +313,7 @@ export default function ProductPage() {
                         {key.replace(/([A-Z])/g, " $1")}
                       </dt>
                       <dd className="text-gray-800 text-right font-medium">
-                        {value}
+                        {String(value)}
                       </dd>
                     </div>
                   )
@@ -431,11 +451,7 @@ export default function ProductPage() {
                 <Button
                   startContent={<Heart size={16} />}
                   onPress={() => {
-                    AddLikeProduct(product);
-                    setState((prev) => ({
-                      ...prev,
-                      Like: true,
-                    }));
+                    addToLikeHandle();
                   }}
                   className="
                   border border-black py-4 rounded-none
