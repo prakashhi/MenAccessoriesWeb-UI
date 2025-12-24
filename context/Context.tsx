@@ -25,22 +25,46 @@ import {
   LikeProductType,
 } from "@/app/(User)/Type/Types";
 
-type GuestCartItem = product & { quantity: number };
+// type GuestCartItem = ProductInfoType & {
+//   quantity: number;
+//   variantSizeId: string | null;
+// };
+
+// type GuestCart = {
+//   items: Record<string, GuestCartItem>;
+//   likeProduct: Record<string, GuestCartItem>;
+// };
+type GuestCartItem = ProductInfoType & {
+  quantity: number;
+  variantSizeId: string | null;
+  size?: string | null;
+};
+
+type GuestLikeItem = ProductInfoType & {
+  variantSizeId: string | null;
+};
 
 type GuestCart = {
   items: Record<string, GuestCartItem>;
-  likeProduct: Record<string, GuestCartItem>;
+  likeProduct: Record<string, GuestLikeItem>;
 };
 
-type AddToCart = product | ProductInfoType;
+type AddToCart = GuestCartItem | LikeProductType;
 
 type PanelContextType = {
   cartProduct: product[];
   setCartProduct: React.Dispatch<React.SetStateAction<product[]>>;
-  AddCartProduct: (Product: AddToCart) => Promise<void>;
+  AddCartProduct: (
+    Product: AddToCart,
+    variantSizeId?: string | null,
+    size?: string | null
+  ) => Promise<void>;
   RemoveCartProduct: (id: string) => Promise<void>;
   guestCart: GuestCart;
-  AddLikeProduct: (Product: product) => Promise<void>;
+  AddLikeProduct: (
+    Product: product,
+    variantSizeId?: string | null
+  ) => Promise<void>;
   RemoveLikeProduct: (ProductId: string) => Promise<void>;
   LikeProductList: (userid: string) => Promise<any>;
   CartProductList: (userid: string) => Promise<any>;
@@ -67,8 +91,19 @@ const SearchPanelContext = createContext<PanelContextType | null>(null);
 export const UsePanel = () => {
   const context = useContext(SearchPanelContext);
 
+  // if (!context) {
+  //   throw new Error("UsePanel must be used inside SearchPanelContextProvider");
+  // }
+
   if (!context) {
-    throw new Error("UsePanel must be used inside SearchPanelContextProvider");
+    console.warn("UsePanel used outside provider");
+    return {
+      LikeProductList: async () => ({ data: [] }),
+      CartProductList: async () => ({ data: [] }),
+      AddCartProduct: async () => undefined,
+      AddLikeProduct: async () => undefined,
+      guestCart: null,
+    };
   }
 
   return context;
@@ -134,7 +169,11 @@ export function SearchPanelContextProvider({
   }, [guestCart]);
 
   // All functions
-  const AddCartProduct = async (Product: AddToCart) => {
+  const AddCartProduct = async (
+    Product: AddToCart,
+    variantSizeId: string | null,
+    size: string | null
+  ) => {
     if (user == null || !user) {
       let added = false;
       setGuestCart((prev) => {
@@ -149,14 +188,10 @@ export function SearchPanelContextProvider({
           items: {
             ...prev.items,
             [Product.id]: {
-              code: Product.code,
-              id: Product.id,
-              image: Product.image,
-              name: Product.name,
-              sellingPrice: Product.sellingPrice,
-              seqId: Product.seqId,
-              stock: Product.stock || 10,
+              ...Product,
               quantity: 1,
+              variantSizeId,
+              size,
             },
           },
         };
@@ -169,11 +204,12 @@ export function SearchPanelContextProvider({
       try {
         let response = await callApi("post", "/cart", {
           data: {
-            productId: Product.id,
+            productId: Product?.product?.id,
             userId: id,
-            variantSizeId: Product.variantId ?? null,
+            variantSizeId: variantSizeId ?? null,
           },
         });
+        console.log("response", response);
 
         return response;
       } catch (err) {
@@ -208,16 +244,14 @@ export function SearchPanelContextProvider({
     }
   };
 
-  const AddLikeProduct = async (Product: product): Promise<void> => {
+  const AddLikeProduct = async (
+    Product: product,
+    variantSizeId: string | null
+  ): Promise<void> => {
     if (user == null || !user) {
       let shouldNotify = false;
       setGuestCart((prev) => {
         if (prev.likeProduct[Product.id]) return prev;
-
-        // const likeProduct = prev.likeProduct || {};
-
-        // prevent duplicate
-        // if (likeProduct[Product.id]) return prev;
 
         shouldNotify = true;
         return {
@@ -225,13 +259,8 @@ export function SearchPanelContextProvider({
           likeProduct: {
             ...prev.likeProduct,
             [Product.id]: {
-              code: Product.code,
-              id: Product.id,
-              image: Product.image,
-              name: Product.name,
-              sellingPrice: Product.sellingPrice,
-              seqId: Product.seqId,
-              stock: Product.stock ?? 2,
+              ...Product,
+              variantSizeId,
             },
           },
         };
@@ -251,9 +280,6 @@ export function SearchPanelContextProvider({
       });
 
       return response;
-      // if (response.success == true) {
-      //   toastActions.addToWishlist(`${Product.name}`);
-      // }
     }
   };
 
@@ -273,7 +299,7 @@ export function SearchPanelContextProvider({
         };
       });
 
-      //toastActions.removeFromWishlist();
+      toastActions.removeFromWishlist();
     } else {
       let response = await callApi(
         "delete",
@@ -372,14 +398,20 @@ export function SearchPanelContextProvider({
 
   const LikeProductList = async (userid: string) => {
     if (user !== null || !user) {
-      let response = await callApi("get", `/like-products/${userid}`);
+      let response = await callApi(
+        "get",
+        `http://localhost:3005/like-products/${userid}`
+      );
       return response;
     }
   };
 
   const CartProductList = async (userid: string) => {
     if (user !== null || !user) {
-      let response = await callApi("get", `/cart/${userid}`);
+      let response = await callApi(
+        "get",
+        `http://localhost:3005/cart/${userid}`
+      );
       return response;
     }
   };

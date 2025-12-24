@@ -37,6 +37,8 @@ export default function CardModel({
 }) {
   type Product = ProductInfoType;
 
+  const { callApi } = useApi();
+
   const { AddCartProduct, AddLikeProduct, guestCart } = UsePanel();
   const router = useRouter();
 
@@ -48,67 +50,81 @@ export default function CardModel({
     );
   }
 
-  const handleAddToCart = async (product: Product) => {
-    let res = await AddCartProduct(product);
+  const handleAddToCart = async (productId: string) => {
+    try {
+      let product = await callApi(
+        "get",
+        `https://backend.9rock.in/product/${productId}`
+      );
 
-    console.log("res", res);
-
-    if (isUser == true) {
-      if (res !== undefined) {
-        setState((prev: any) => {
-          const prevItem = prev.CartData[product.id];
-          return {
-            ...prev,
-            CartData: {
-              ...prev.CartData,
-              [product.id]: {
-                // Preserve previous item if exists
-                id: product.id,
-                product: product,
-                variantSize: prevItem?.variantSize ?? product.size, // optional
-                quantity: (prevItem?.quantity ?? 0) + 1,
+      let res = await AddCartProduct(product.data);
+      if (isUser == true) {
+        if (res !== undefined) {
+          setState((prev: any) => {
+            const prevItem = prev.CartData[product.id];
+            return {
+              ...prev,
+              CartData: {
+                ...prev.CartData,
+                [product.id]: {
+                  // Preserve previous item if exists
+                  id: product.id,
+                  product: product,
+                  variantSize: prevItem?.variantSize ?? product.size, // optional
+                  quantity: (prevItem?.quantity ?? 0) + 1,
+                },
               },
-            },
-          };
-        });
+            };
+          });
+        }
       }
+    } catch (err) {
+      console.log(err);
     }
   };
 
-  const handleAddToLike = async (product: Product) => {
-    if (isUser) {
-      let res = await AddLikeProduct(product);
+  const handleAddToLike = async (productId: string) => {
+    try {
+      let product = await callApi(
+        "get",
+        `https://backend.9rock.in/product/${productId}`
+      );
 
-      if (res !== undefined) {
-        setState((prev: Data) => {
-          const isLiked = !!prev.LikeData[product.id];
+      if (isUser) {
+        let res = await AddLikeProduct(product.data);
 
-          // 🔁 remove like
-          if (isLiked) {
-            const { [product.id]: _, ...rest } = prev.LikeData;
+        if (res !== undefined) {
+          setState((prev: Data) => {
+            const isLiked = !!prev.LikeData[product.id];
+
+            // 🔁 remove like
+            if (isLiked) {
+              const { [product.id]: _, ...rest } = prev.LikeData;
+              return {
+                ...prev,
+                LikeData: rest,
+              };
+            }
+
+            // ❤️ add like
             return {
               ...prev,
-              LikeData: rest,
-            };
-          }
-
-          // ❤️ add like
-          return {
-            ...prev,
-            LikeData: {
-              ...prev.LikeData,
-              [product.id]: {
-                id: product.id,
-                product: product,
-                createdAt: new Date().toISOString(),
+              LikeData: {
+                ...prev.LikeData,
+                [product.id]: {
+                  id: product.id,
+                  product: product,
+                  createdAt: new Date().toISOString(),
+                },
               },
-            },
-          };
-        });
+            };
+          });
+        }
+      } else {
+        await AddLikeProduct(product.data);
       }
-    } else {
-      console.log("Product", product);
-      await AddLikeProduct(product);
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -163,7 +179,7 @@ export default function CardModel({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleAddToLike(product);
+                      handleAddToLike(product.id);
                     }}
                     className="absolute cursor-pointer top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
                   >
@@ -172,31 +188,52 @@ export default function CardModel({
                 )}
 
                 {/* Hover Content */}
+              </div>
+
+              {/* INFO */}
+              <div className="px-4 py-3 text-center space-y-1">
+                {/* <p className="text-[11px] uppercase tracking-widest text-gray-400">
+              {product.category_name}
+            </p> */}
+
+                <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
+                  {product.name}
+                </h3>
+
+                {/* <Star starNum={4} /> */}
+
+                <div className="flex justify-center gap-2 items-center">
+                  <span className="text-base font-bold text-gray-900">
+                    ₹{formatIndianPrice(product.sellingPrice)}
+                  </span>
+                  {/* {product.discount_price && (
+                    <span className="text-xs text-gray-400 line-through">
+                      ₹{formatIndianPrice(product.discount_price)}
+                    </span>
+                  )} */}
+                </div>
+
                 <div
                   className="
-    absolute bottom-0 left-0 right-0 p-4
+    right-0 p-4
     translate-y-0
-    md:translate-y-full md:group-hover:translate-y-0
+    
     transition-all duration-500
   "
                 >
-                  <p className="text-xs text-white line-clamp-3 mb-3">
-                    {product.description}
-                  </p>
-
                   <motion.button
                     whileTap={{ scale: 0.96 }}
                     transition={{ duration: 0.3 }}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (!iscart) {
-                        handleAddToCart(product);
+                        handleAddToCart(product.id);
                       } else {
                         router.push("/Cart");
                       }
                     }}
                     className="
-    w-full py-3 rounded-xl bg-white border border-gray-100
+    w-full py-3 rounded-md bg-white border border-gray-100
      text-white text-sm font-semibold
     flex items-center justify-center gap-2
     md:bg-white md:text-neutral-900
@@ -224,7 +261,7 @@ export default function CardModel({
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.6, ease: "easeInOut" }}
-                          className="flex items-center cursor-pointer gap-2 text-emerald-600 hover:text-white"
+                          className="flex items-center cursor-pointer gap-2 text-emerald-600 "
                         >
                           <motion.span
                             initial={{ scale: 0.85 }}
@@ -238,30 +275,6 @@ export default function CardModel({
                       )}
                     </AnimatePresence>
                   </motion.button>
-                </div>
-              </div>
-
-              {/* INFO */}
-              <div className="p-4 text-center space-y-1">
-                {/* <p className="text-[11px] uppercase tracking-widest text-gray-400">
-              {product.category_name}
-            </p> */}
-
-                <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
-                  {product.name}
-                </h3>
-
-                {/* <Star starNum={4} /> */}
-
-                <div className="flex justify-center gap-2 items-center">
-                  <span className="text-base font-bold text-gray-900">
-                    ₹{formatIndianPrice(product.sellingPrice)}
-                  </span>
-                  {/* {product.discount_price && (
-                    <span className="text-xs text-gray-400 line-through">
-                      ₹{formatIndianPrice(product.discount_price)}
-                    </span>
-                  )} */}
                 </div>
               </div>
             </div>

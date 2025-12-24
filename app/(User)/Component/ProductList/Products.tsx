@@ -10,12 +10,16 @@ import {
   CartItem,
   VariantSize,
   LikeProductType,
+  productCategoryList,
   ProductInfoType,
   CategoryInfo,
   Data,
 } from "@/app/(User)/Type/Types";
 import Image from "next/image";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+import { motion } from "framer-motion";
+
+import { useRouter } from "next/navigation";
 
 export default function Product() {
   const userData = useMemo(() => getUserFromStorage(), []);
@@ -23,11 +27,13 @@ export default function Product() {
 
   const { LikeProductList, CartProductList } = UsePanel();
 
+  const router = useRouter();
+
   const [visibleSections, setVisibleSections] = useState<Set<number>>(
     new Set()
   );
 
-  const [product, setProduct] = useState<ProductInfoType[]>([]);
+  const [product, setProduct] = useState<productCategoryList[]>([]);
   const [category, setCategory] = useState<CategoryInfo[]>([]);
 
   const [state, setState] = useState<Data>({
@@ -116,11 +122,27 @@ export default function Product() {
   }, []);
 
   return (
-    <section className="pt-12 lg:pt-79 px-4 sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
+    <section className="pt-12 lg:pt-49 px-4 lg:overflow-x-hidden sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
       <div className="flex justify-center">
-        <p className="text-xs tracking-[0.35em] text-gray-500 uppercase mb-3">
-          Explore Collection
-        </p>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex flex-col items-center text-center mb-6 sm:mb-10"
+        >
+          <h2
+            className="text-3xl flex  items-center flex-col    mb-30"
+            style={{ fontFamily: "ui-serif, serif", fontWeight: 800 }}
+          >
+            Explore Collection
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "4rem" }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="h-0.5 bg-black mt-2 opacity-60"
+            />
+          </h2>
+        </motion.div>
       </div>
       {product?.length > 1 &&
         product.map((categoryItem, index) => (
@@ -165,75 +187,32 @@ export default function Product() {
               </Link>
             </div>
 
-            {/* PRODUCTS SCROLL */}
-            {/* <div className="relative">
-            
-              <div className="flex flex-row pointer-events-none absolute right-0 top-0 h-full w-12 bg-linear-to-l from-[#FAFAFA] to-transparent z-10" />
-              <div className="w-full h-1/4">
-                <div className="">
-                  <Image
-                    width={500}
-                    height={500}
-                    alt={categoryItem.name}
-                    src={`${process.env.NEXT_PUBLIC_IMG_URL}${categoryItem.image}`}
-                  />
-                </div>
-
-                <span>{categoryItem.noOfProducts}</span>
-              </div>
-              <div
-                className="
-                flex gap-5
-                overflow-x-auto scrollbar-hide
-                pb-6
-                scroll-smooth
-                snap-x snap-mandatory
-                overscroll-x-contain
-                *:snap-start
-              "
-              >
-                <CardModel
-                  DataObj={categoryItem.products}
-                  CustomWH="
-                  min-w-[300px]
-                  sm:min-w-[260px]
-                  md:min-w-[300px]
-                  lg:min-w-[320px]
-                "
-                  Data={state}
-                  setState={setState}
-                  isUser={userData ? true : false}
-                />
-              </div>
-            </div> */}
-
             <div className="relative">
               {/* RIGHT FADE */}
-              {/* <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-linear-to-l from-[#FAFAFA] to-transparent z-10" /> */}
 
-              <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex flex-col lg:flex-row gap-6 items-center">
                 {/* CATEGORY IMAGE */}
                 <div
-                  className="
-        group relative
-        w-full lg:w-[300px] xl:w-[340px]
-        h-[200px] sm:h-[220px] lg:h-[420px]
-        shrink-0
-        rounded-2xl
-        overflow-hidden
-        bg-gray-100
-      "
+                  onClick={() => {
+                    console.log("clicked");
+                    router.replace(`/Category/${categoryItem.id}`);
+                  }}
+                  className="group relative items-center
+                    w-full lg:w-[300px] xl:w-[340px]
+                    h-[200px] sm:h-[220px] lg:h-[420px]
+                    shrink-0
+                    rounded-2xl cursor-pointer
+                    overflow-hidden
+                    bg-gray-100"
                 >
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_IMG_URL}${categoryItem.image}`}
+                    src={ImageShowUtil(categoryItem.image)}
                     alt={categoryItem.name}
                     fill
                     sizes="(max-width: 1024px) 100vw, 340px"
-                    className="
-          object-cover
+                    className="object-cover
           transition-transform duration-500 ease-out
-          lg:group-hover:scale-110
-        "
+          lg:group-hover:scale-110"
                   />
 
                   {/* OVERLAY */}
@@ -257,32 +236,30 @@ export default function Product() {
                 </div>
 
                 {/* PRODUCTS SCROLL */}
-                <div className="relative flex-1 justify-center justify-items-center">
+                <div className="relative w-full max-w-full overflow-hidden">
                   <div
-                    className=" 
-          flex gap-4 sm:gap-5
-          overflow-x-auto lg:w-[60%]
-          scrollbar-hide 
-        pb-4
-          scroll-smooth
-          snap-x snap-proximity
-          overscroll-x-contain
-          px-1
-
-          touch-pan-x
-          [-webkit-overflow-scrolling:touch]
-        "
+                    className="flex gap-4 sm:gap-5 w-full
+                        max-w-full
+                        overflow-x-auto
+                        scrollbar-hide    
+                        py-3
+                        scroll-smooth
+                        snap-x snap-mandatory
+                        overscroll-x-contain
+                        px-1
+                     "
                   >
                     {visibleSections.has(index) && (
                       <CardModel
                         DataObj={categoryItem.products}
                         CustomWH="
             snap-start
-            min-w-[300px]
-            sm:min-w-[260px]
-            md:min-w-[280px]
-            lg:min-w-[320px]
-            xl:min-w-[340px]
+          w-[320px]
+sm:w-[280px]
+lg:w-[300px]
+xl:w-[320px]
+shrink-0
+
           "
                         Data={state}
                         setState={setState}

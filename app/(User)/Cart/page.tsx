@@ -64,7 +64,6 @@ export default function Page() {
 
   useEffect(() => {
     if (!user) return;
-
     CartProductList(user.id).then((res) => {
       setCartListData(res.data);
     });
@@ -108,6 +107,19 @@ export default function Page() {
     }, 500);
   };
 
+  const handleRemove = (item: any) => {
+    if (user) {
+      RemoveCartProduct(item.product.productId);
+      setCartListData((prev) =>
+        prev.filter((p: any) => p.product.productId !== item.product.productId)
+      );
+    } else {
+      RemoveCartProduct(item.id);
+    }
+  };
+
+  console.log(cartListData);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
       <Nav />
@@ -136,82 +148,124 @@ export default function Page() {
 
         <div className="flex flex-col lg:flex-row gap-10 mt-24">
           {/* CART LIST */}
-          <div className="flex-1  rounded-2xl ">
+          <div className="flex-1">
             <AnimatePresence>
               {cartListData.length > 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="divide-y"
+                  className="space-y-4"
                 >
                   {cartListData.map((item: any) => (
                     <motion.div
                       key={item.id}
                       layout
-                      initial={{ opacity: 0, y: 15 }}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
-                      className="flex flex-col sm:flex-row gap-6 p-6 items-start sm:items-center"
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="
+              flex flex-col sm:flex-row
+              gap-5
+              p-5 sm:p-6
+              rounded-2xl
+              bg-white
+              shadow-[0_10px_30px_rgba(0,0,0,0.04)]
+              hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)]
+              transition-shadow
+            "
                     >
                       {/* IMAGE */}
-                      <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F2F2F2] shrink-0">
+                      <div
+                        className="
+                relative
+                w-24 h-24 sm:w-28 sm:h-28
+                rounded-xl
+                overflow-hidden
+                bg-[#F2F2F2]
+                shrink-0
+                cursor-pointer
+                group
+              "
+                        onClick={() =>
+                          router.push(
+                            `/all-Product/${
+                              user ? item.product.productId : item.id
+                            }`
+                          )
+                        }
+                      >
                         <Image
                           alt={item.name ?? "Product image"}
-                          onClick={() =>
-                            router.push(
-                              `/all-Product/${
-                                user ? item.product.productId : item.id
-                              }`
-                            )
-                          }
                           src={
                             ImageShowUtil(
                               user ? item.product?.productImage : item?.image
                             ) || "/images/placeholder.webp"
                           }
                           fill
-                          sizes="96px"
-                          className="object-cover transition-transform duration-500 hover:scale-105"
+                          sizes="112px"
+                          className="
+                  object-cover
+                  transition-transform duration-500
+                  group-hover:scale-110
+                "
                         />
                       </div>
 
                       {/* INFO */}
-                      <div className="flex-1 space-y-3">
-                        <h3 className="text-sm sm:text-base font-medium tracking-wide">
-                          {user ? item.product.productName : item.name}
-                        </h3>
+                      <div className="flex-1 flex flex-col justify-between gap-3">
+                        <div>
+                          <h3 className="text-sm sm:text-base font-medium tracking-wide text-neutral-900">
+                            {user ? item.product.productName : item.name}
+                          </h3>
+                          <h6 className="text-gray-400 text-[10px]">
+                            {user ? item.product.categoryName : item.cate}
+                          </h6>
 
-                        <ItemCount
-                          productId={user ? item.id : item.id}
-                          quantity={item.quantity}
-                          stock={user ? item.product.stock : item.stock}
-                          cartId={item.id}
-                          setState={user && setCartListData}
-                        />
+                          {/* OPTIONAL: variant / size */}
+                          {item.size && (
+                            <p className="text-xs text-neutral-500 mt-1">
+                              Size: {item.size}
+                            </p>
+                          )}
+                        </div>
 
-                        <button
-                          onClick={() => {
-                            if (user) {
-                              RemoveCartProduct(item.product.productId);
-                              setCartListData((prev) =>
-                                prev.filter(
-                                  (p: any) =>
-                                    p.product.productId !==
-                                    item.product.productId
-                                )
-                              );
-                            } else {
-                              RemoveCartProduct(item.id);
-                            }
-                          }}
-                          className="text-xs cursor-pointer tracking-widest text-gray-400 hover:text-black transition"
-                        >
-                          REMOVE
-                        </button>
+                        <div className="flex  items-center gap-4">
+                          <ItemCount
+                            productId={user ? item.id : item.id}
+                            quantity={item.quantity}
+                            stock={user ? item.product.stock : item.stock}
+                            cartId={item.id}
+                            setState={user && setCartListData}
+                          />
+                          <div>
+                            <button
+                              onClick={() => handleRemove(item)}
+                              className="
+                    text-[11px] cursor-pointer
+                    tracking-widest
+                    uppercase
+                    text-neutral-400
+                    hover:text-neutral-900
+                    
+                  "
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
                       </div>
 
                       {/* PRICE */}
-                      <div className="text-sm sm:text-base font-semibold">
+                      <div
+                        className="
+                text-sm sm:text-base
+                font-semibold
+                text-neutral-900
+                sm:self-center
+                sm:text-right
+              "
+                      >
                         ₹{" "}
                         {user
                           ? formatIndianPrice(item.product.productPrice)
@@ -225,7 +279,7 @@ export default function Page() {
                 <EmptyDataModel
                   message="Your Cart is Empty"
                   Icon={
-                    <FiShoppingBag className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-neutral-400" />
+                    <FiShoppingBag className="w-12 h-12 md:w-16 md:h-16 text-neutral-300" />
                   }
                 />
               )}

@@ -2,12 +2,9 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import headerimg from '@/public/Images/il_680x540.7199741956_g139.jpg'
-
+import headerImg from "@/public/Images/il_680x540.7199741956_g139.jpg";
 
 export default function Header() {
-
-
   return (
     <header className="relative pt-6 sm:pt-10 overflow-hidden">
       {/* Title */}
@@ -27,7 +24,7 @@ export default function Header() {
           initial={{ width: 0 }}
           animate={{ width: "4rem" }}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="h-[2px] bg-black mt-2 opacity-60"
+          className="h-0.5 bg-black mt-2 opacity-60"
         />
       </motion.div>
 
@@ -49,7 +46,7 @@ export default function Header() {
         >
           <Image
             className="w-full h-auto object-cover"
-            src={headerimg}
+            src={headerImg}
             alt="Header"
             priority
           />
@@ -81,9 +78,7 @@ export default function Header() {
         transition={{ delay: 0.8, duration: 0.6 }}
         className="lg:hidden flex flex-col items-center mt-4 px-3 text-center"
       >
-        <h2 className="text-xl font-semibold tracking-wide">
-          Let’s Feel It
-        </h2>
+        <h2 className="text-xl font-semibold tracking-wide">Let’s Feel It</h2>
         <p className="text-sm text-gray-600 mt-1">
           Explore the New Collection of Timeless Fashion.
         </p>

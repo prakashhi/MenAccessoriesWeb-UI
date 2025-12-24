@@ -1,7 +1,9 @@
 export interface SizeVariant {
+   id: string;
   size: string;
   stock: number;
 }
+
 export interface ProductInfoType {
   id: string;
   seqId: number;
@@ -43,6 +45,16 @@ export interface ProductInfoType {
   isHaveSizeVariants: boolean;
   sizeVariants: SizeVariant[];
 }
+
+export type productCategoryList = {
+  createdAt: string;
+  id: string;
+  image: string;
+  name: string;
+  noOfProducts: number;
+
+  products: ProductInfoType[];
+};
 
 export interface CategoryInfo {
   id: string;
@@ -148,4 +160,21 @@ export type RegisterType = {
 export type Data = {
   CartData: Record<string, CartItem>;
   LikeData: Record<string, LikeProductType>;
+};
+
+export type variantDataProduct = {
+  canBeMade: number;
+  code: string;
+  id: string;
+  image: string;
+  isActive: boolean;
+  name: string;
+  seqId: string;
+  stock: number;
+};
+
+export type productSize = {
+  id: string;
+  size: string;
+  stock: number;
 };

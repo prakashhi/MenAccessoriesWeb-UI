@@ -55,7 +55,7 @@ export default function UserEditForm({
       firmAddress: user.info.firmAddress,
     },
   });
-  const [isOpen, setIsOpen] = useState(false);
+
 
   const onSubmit = async (data: FormValues) => {
     if (!isDirty) {
@@ -99,146 +99,122 @@ export default function UserEditForm({
 
   return (
     <>
-      {isOpen == false ? (
-        <>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="grid gap-4 sm:grid-cols-2"
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid gap-4 sm:grid-cols-2"
+      >
+        {" "}
+        <div>
+          <label className="text-sm text-gray-500">Full name</label>
+          <input
+            type="text"
+            className="profile-input"
+            placeholder="John Doe"
+            {...register("userName", { required: "Name is required" })}
+          />
+          {errors.userName && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.userName.message}
+            </p>
+          )}
+        </div>
+        {/* EMAIL */}
+        <div>
+          <label className="text-sm text-gray-500">Email</label>
+          <input
+            {...register("email", {
+              required: "Email required",
+              pattern: { value: /^\S+@\S+$/, message: "Invalid email" },
+            })}
+            className="profile-input"
+          />
+
+          {errors.email && (
+            <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+          )}
+        </div>
+        {/* PHONE */}
+        <div>
+          <label className="text-sm text-gray-500">Phone</label>
+          <input
+            {...register("contactNumber", {
+              pattern: {
+                value: /^[6-9][0-9]{9}$/,
+                message: "Enter valid Mobile No",
+              },
+            })}
+            className="profile-input"
+          />
+          {errors.contactNumber && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.contactNumber.message}
+            </p>
+          )}
+        </div>
+        {/* PIN CODE */}
+        <div>
+          <label className="text-sm text-gray-500">Pin Code</label>
+          <input
+            {...register("pinCode", {
+              pattern: {
+                value: /^[A-Za-z0-9\s-]{3,10}$/,
+                message: "Enter valid postal / zip code",
+              },
+            })}
+            className="profile-input"
+          />
+          {errors.pinCode && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.pinCode.message}
+            </p>
+          )}
+        </div>
+        {/* ADDRESS */}
+        <div className="sm:col-span-2">
+          <label className="text-sm text-gray-500">Address</label>
+          <textarea
+            rows={3}
+            {...register("address")}
+            className="profile-input"
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <CountryField
+            register={register}
+            watch={watch}
+            setValue={setValue}
+            grid={{
+              country: "col-span-6",
+              state: "col-span-6",
+              code: "col-span-6",
+              label: "col-span-6",
+            }}
+          />
+        </div>
+        {/* ACTION BUTTONS */}
+        <div className="sm:col-span-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full cursor-pointer sm:w-auto px-4 py-2 border rounded-md text-sm"
           >
-            {" "}
-            <div>
-              <label className="text-sm text-gray-500">Full name</label>
-              <input
-                type="text"
-                className="profile-input"
-                placeholder="John Doe"
-                {...register("userName", { required: "Name is required" })}
-              />
-              {errors.userName && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.userName.message}
-                </p>
-              )}
-            </div>
-            {/* EMAIL */}
-            <div>
-              <label className="text-sm text-gray-500">Email</label>
-              <input
-                {...register("email", {
-                  required: "Email required",
-                  pattern: { value: /^\S+@\S+$/, message: "Invalid email" },
-                })}
-                className="profile-input"
-              />
+            Cancel
+          </button>
 
-              {errors.email && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-            {/* PHONE */}
-            <div>
-              <label className="text-sm text-gray-500">Phone</label>
-              <input
-                {...register("contactNumber", {
-                  pattern: {
-                    value: /^[6-9][0-9]{9}$/,
-                    message: "Enter valid Mobile No",
-                  },
-                })}
-                className="profile-input"
-              />
-              {errors.contactNumber && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.contactNumber.message}
-                </p>
-              )}
-            </div>
-            {/* PIN CODE */}
-            <div>
-              <label className="text-sm text-gray-500">Pin Code</label>
-              <input
-                {...register("pinCode", {
-                  pattern: {
-                    value: /^[A-Za-z0-9\s-]{3,10}$/,
-                    message: "Enter valid postal / zip code",
-                  },
-                })}
-                className="profile-input"
-              />
-              {errors.pinCode && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.pinCode.message}
-                </p>
-              )}
-            </div>
-            {/* ADDRESS */}
-            <div className="sm:col-span-2">
-              <label className="text-sm text-gray-500">Address</label>
-              <textarea
-                rows={3}
-                {...register("address")}
-                className="profile-input"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <CountryField
-                register={register}
-                watch={watch}
-                setValue={setValue}
-                grid={{
-                  country: "col-span-6",
-                  state: "col-span-6",
-                  code: "col-span-6",
-                  label: "col-span-6",
-                }}
-              />
-            </div>
-            {isOpen == false && (
-              <>
-                <div>
-                  <span
-                    className="underline text-sm text-blue-700 cursor-pointer"
-                    onClick={() => setIsOpen((prev) => !prev)}
-                  >
-                    Change Password
-                  </span>
-                </div>
-                {/* ACTION BUTTONS */}
-                <div className="sm:col-span-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="w-full cursor-pointer sm:w-auto px-4 py-2 border rounded-md text-sm"
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full sm:w-auto px-4 py-2 cursor-pointer bg-black text-white rounded-md text-sm"
-                  >
-                    {isSubmitting ? (
-                      <Image
-                        width={20}
-                        height={20}
-                        alt="Loading"
-                        src={Loader}
-                      />
-                    ) : (
-                      "Save Changes"
-                    )}
-                  </button>
-                </div>
-              </>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full sm:w-auto px-4 py-2 cursor-pointer bg-black text-white rounded-md text-sm"
+          >
+            {isSubmitting ? (
+              <Image width={20} height={20} alt="Loading" src={Loader} />
+            ) : (
+              "Save Changes"
             )}
-          </form>
-        </>
-      ) : (
-        <ChangePassword onClose={() => setIsOpen(false)} />
-      )}
+          </button>
+        </div>
+      </form>
+
       {/* FULL NAME */}
 
       {/* BUSINESS INFO */}

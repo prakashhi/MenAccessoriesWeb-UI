@@ -87,16 +87,16 @@ export default function AccountSection() {
         return;
       } else {
         let [profileData, likeProductDat] = await Promise.all([
-          callApi("get", `/user/${userData.id}`),
-          callApi("get", `/like-products/${userData.id}`),
+          callApi("get", `http://localhost:3005/user/${userData.id}`),
+          callApi("get", `http://localhost:3005/like-products/${userData.id}`),
         ]);
 
         if (!mounted) return;
 
         setUserData((prev) => ({
           ...prev,
-          info: profileData.data,
-          wishlist: likeProductDat.data,
+          info: profileData?.data,
+          wishlist: likeProductDat?.data,
         }));
       }
     };
@@ -106,7 +106,6 @@ export default function AccountSection() {
       mounted = false;
     };
   }, []);
-
 
   return (
     <>
@@ -128,10 +127,10 @@ export default function AccountSection() {
             <nav className="hidden lg:block lg:w-72 border-r border-gray-100 p-6">
               <div className="mb-6">
                 <div className="text-lg font-semibold">
-                  {user.info.userName ?? null}
+                  {user?.info?.userName ?? null}
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
-                  {user.info.email}
+                  {user?.info?.email ?? null}
                 </div>
               </div>
 
@@ -242,13 +241,12 @@ export function NoData({ label, icon }: { label: string; icon: IconType }) {
   );
 }
 
-
-
 /* ---------- Content Renderer ---------- */
 /* Renders the panel content for each menu key. */
 
 function ContentRenderer({ keyname, user, onLogout }: any) {
   const [editOpen, setEditOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
   /* ---------------- INFO ---------------- */
@@ -276,7 +274,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
 
         {editOpen == true ? (
           <UserEditForm user={user} onClose={() => setEditOpen(false)} />
-        ) : (
+        ) : isOpen == false ? (
           <div className="grid sm:grid-cols-2 gap-4">
             {/* NAME */}
             <div>
@@ -292,7 +290,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
               <label className="text-sm text-gray-500">Email</label>
               <div className="mt-1 text-gray-900 flex items-center gap-2">
                 <FiMail className="text-gray-400" />
-                {user.info.email}
+                {user.info?.email}
               </div>
             </div>
 
@@ -301,17 +299,9 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
               <label className="text-sm text-gray-500">Phone</label>
               <div className="mt-1 text-gray-900 flex items-center gap-2">
                 <FiPhone className="text-gray-400" />
-                {user.info.contactNumber
+                {user.info?.contactNumber
                   ? `${user.info.countryCode} ${user.info.contactNumber}`
                   : "N/A"}
-              </div>
-            </div>
-
-            {/* ROLE */}
-            <div>
-              <label className="text-sm text-gray-500">Role</label>
-              <div className="mt-1 text-gray-900">
-                {user.info?.role?.toUpperCase()}
               </div>
             </div>
 
@@ -322,22 +312,36 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
               <div className="mt-1 flex items-start gap-2 text-gray-900 bg-gray-50 rounded-md p-3">
                 <FiMapPin className="text-gray-400 mt-1 shrink-0" />
                 <p className="text-sm leading-relaxed">
-                  {user.info.address == "" ? "N/A" : user.info.address}
-                  {user.info.state && `, ${user.info.state}`}
-                  {user.info.country && `, ${user.info.country}`}
-                  {user.info.pinCode && ` - ${user.info.pinCode}`}
+                  {user?.info?.address?.trim() ? user.info.address : "N/A"}
+                  {user?.info?.state && `, ${user.info.state}`}
+                  {user?.info?.country && `, ${user.info.country}`}
+                  {user?.info?.pinCode && ` - ${user.info.pinCode}`}
                 </p>
               </div>
             </div>
 
             {/* CREATED AT */}
-            <div>
+            <div className="w-full">
               <label className="text-sm text-gray-500">Joined On</label>
-              <div className="mt-1 text-gray-900">
-                {new Date(user.info.createdAt).toLocaleDateString()}
+
+              <div className="flex justify-between">
+                <div className="mt-1 text-gray-900">
+                  {new Date(user.info.createdAt).toLocaleDateString()}
+                </div>
+
+                <div>
+                  <span
+                    className="underline text-sm text-blue-700 cursor-pointer"
+                    onClick={() => setIsOpen((prev) => !prev)}
+                  >
+                    Change Password
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+        ) : (
+          <ChangePassword onClose={() => setIsOpen(false)} />
         )}
 
         {/* ---------------- BUSINESS INFO ---------------- */}

@@ -29,9 +29,9 @@ const API = axios.create({
 // 🔐 Request Interceptor
 API.interceptors.request.use(
   (config) => {
-    // const authToken = token ? JSON.parse(token) : process.env.NEXT_PUBLIC_TOKEN;
+    const authToken = token ? JSON.parse(token) : process.env.NEXT_PUBLIC_TOKEN;
 
-    const authToken = token && JSON.parse(token);
+    //const authToken = token && JSON.parse(token);
 
     if (authToken) {
       config.headers.Authorization = `Bearer ${authToken}`;

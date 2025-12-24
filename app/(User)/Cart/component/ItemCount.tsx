@@ -5,6 +5,8 @@ import { getGuestCart, getUserFromStorage } from "@/context/utils";
 import { useEffect, useMemo, useState } from "react";
 import { Dispatch, SetStateAction } from "react";
 
+import { useRef, useCallback } from "react";
+
 import {
   CartItem,
   VariantSize,
@@ -35,10 +37,14 @@ export default function ItemCount({
   setState,
 }: ItemCountProps) {
   const user = useMemo(() => getUserFromStorage(), []);
+
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const { incrementCartProduct, decrementCartProduct, setCartProductQty } =
     UsePanel();
 
   const [inputValue, setInputValue] = useState(String(quantity));
+
+   console.log(quantity)
 
   // 🔥 Sync input with actual cart qty
   useEffect(() => {
@@ -132,7 +138,20 @@ export default function ItemCount({
         );
       });
 
-      await incrementCartProduct(productId, cartId, Number(value));
+      // 2️⃣ Clear previous API call
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      debounceRef.current = setTimeout(async () => {
+        try {
+          await incrementCartProduct(productId, cartId, value);
+        } catch (err) {
+          console.error("Failed to update cart", err);
+        }
+      }, 600);
+
+      // await incrementCartProduct(productId, cartId, Number(value));
     } else {
       incrementCartProduct(productId, cartId, value);
     }

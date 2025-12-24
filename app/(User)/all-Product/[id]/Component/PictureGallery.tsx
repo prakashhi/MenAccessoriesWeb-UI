@@ -104,7 +104,7 @@ export default function ProductGallery({
           <button
             key={idx}
             onClick={() => setActiveIndex(idx)}
-            className={`relative shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition
+            className={`relative cursor-pointer shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition
               ${idx === activeIndex ? "border-black" : "border-gray-300"}`}
           >
             {item.type === "video" ? (

@@ -130,7 +130,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
       className="w-full"
     >
       {/* ===== CONTROL BAR ===== */}
-      <div className="sticky top-0 z-30 bg-white border-b border-gray-100 py-3 px-4 sm:px-6 backdrop-blur-sm">
+      <div className="sticky top-30 z-20 bg-white border-b border-gray-100 py-3 px-4 sm:px-6 backdrop-blur-sm">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 max-w-7xl mx-auto">
           {/* Results Count */}
           <div className="text-sm text-gray-600 font-light">
@@ -144,7 +144,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={onOpen}
-              className="flex sm:hidden items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white text-xs font-medium rounded-lg flex-1"
+              className="flex cursor-pointer sm:hidden items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white text-xs font-medium rounded-lg flex-1"
             >
               <FiFilter size={14} />
               FILTER
@@ -155,7 +155,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={onOpen}
-              className="hidden sm:flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 text-sm font-medium rounded-lg hover:border-gray-800 transition-colors"
+              className="hidden cursor-pointer sm:flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 text-sm font-medium rounded-lg hover:border-gray-800 transition-colors"
             >
               <FiFilter size={14} />
               FILTERS
@@ -166,7 +166,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-gray-200 text-sm font-medium rounded-lg appearance-none focus:outline-none focus:border-gray-800 transition-colors pr-10"
+                className="w-full px-4 cursor-pointer py-2.5 bg-white border border-gray-200 text-sm font-medium rounded-lg appearance-none focus:outline-none focus:border-gray-800 transition-colors pr-10"
               >
                 {filterDataOption.map((option) => (
                   <option key={option.label} value={option.label}>

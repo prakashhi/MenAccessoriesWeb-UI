@@ -19,12 +19,17 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
 
+import { LikeProductType } from "@/app/(User)/Type/Types";
+
 import { useRouter } from "next/navigation";
+import { useApi } from "@/app/useApi";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
   const { AddCartProduct, RemoveLikeProduct, LikeProductList, guestCart } =
     UsePanel();
+
+  const { callApi } = useApi();
 
   const [likeProductList, setLikeProductList] = useState<any[]>([]);
 
@@ -47,6 +52,29 @@ export default function Page() {
 
     LikeData();
   }, [user, guestCart]);
+
+  type handleCart = LikeProductType;
+
+  const addToCartHandle = async (item: handleCart) => {
+    if (user) {
+      try {
+        AddCartProduct(item);
+        let response = await callApi(
+          "delete",
+          `/like-product/${user.id}/${item.product.id}`
+        );
+
+        console.log(response);
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      AddCartProduct(item);
+      RemoveLikeProduct(item.id);
+    }
+  };
+
+  console.log(guestCart);
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">
@@ -148,14 +176,14 @@ export default function Page() {
                     {/* TITLE */}
                     <div>
                       <h3
-                        className="text-lg font-light tracking-wide text-gray-900 line-clamp-2"
+                        className="text-md font-light tracking-wide text-gray-900 line-clamp-2"
                         style={{ fontFamily: "'Cormorant Garamond', serif" }}
                       >
                         {user ? item.product.name : item.name}
                       </h3>
 
                       <p className="text-xs text-gray-500 uppercase tracking-[0.12em] mt-1">
-                        {user ? item.product.category : item.category}
+                        {user ? item.product.category : item.categoryName}
                       </p>
                     </div>
 
@@ -212,8 +240,7 @@ export default function Page() {
                     <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
                       <button
                         onClick={() => {
-                          AddCartProduct(item);
-                          RemoveLikeProduct(item.id);
+                          addToCartHandle(item);
                         }}
                         className="w-full py-2.5 border cursor-pointer border-gray-900 rounded-sm text-gray-900
                    text-xs tracking-[0.15em] uppercase

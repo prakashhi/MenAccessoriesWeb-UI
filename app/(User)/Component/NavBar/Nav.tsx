@@ -32,8 +32,8 @@ export default function Nav() {
 
       setState((prev) => ({
         ...prev,
-        likeProductLength: LikeData.data.length ?? 0,
-        CartProductLength: CartData.data.length ?? 0,
+        likeProductLength: LikeData?.data?.length ?? 0,
+        CartProductLength: CartData?.data?.length ?? 0,
       }));
     };
 

@@ -28,7 +28,12 @@ import {
   VariantSize,
   LikeProductType,
   ProductInfoType,
+  variantDataProduct,
+  productSize,
+  SizeVariant,
 } from "@/app/(User)/Type/Types";
+import VariantSelector from "./Component/VariantsCompont";
+import SizeSelector from "./Component/SizeComponet";
 
 interface ProductState {
   Like: boolean;
@@ -41,16 +46,26 @@ export default function ProductPage() {
   const user = useMemo(() => getUserFromStorage(), []);
   const params = useParams();
   const { callApi } = useApi();
-  const { LikeProductList, CartProductList } = UsePanel();
-
+  const {
+    AddCartProduct,
+    AddLikeProduct,
+    guestCart,
+    LikeProductList,
+    CartProductList,
+  } = UsePanel();
   const router = useRouter();
-  const { AddCartProduct, AddLikeProduct, guestCart } = UsePanel();
 
   const [product, setProduct] = useState<ProductInfoType | null>(null);
-  const [variants, setVariants] = useState<VariantSize | null>(null);
+  const [variants, setVariants] = useState<variantDataProduct[]>([]);
+  const [size, setSizeData] = useState<productSize[] | null>(null);
+
   const [mounted, setMounted] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const [adding, setAdding] = useState(false);
+
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [selectedSize, setSelectedSize] = useState<any | null>(null);
+  const [ProductId, SetProductId] = useState(String(params.id));
 
   const [state, setState] = useState<ProductState>({
     Like: false,
@@ -69,17 +84,38 @@ export default function ProductPage() {
         //   callApi("get", `/variants/size/product/${params.id}`),
         // ]);
 
-        const [product, variants] = await Promise.all([
-          callApi("get", `https://backend.9rock.in/product/${params.id}`),
-          callApi("get", `/variants/size/product/${params.id}`),
-        ]);
-        if (!active) return;
+        const product = await callApi(
+          "get",
+          `https://backend.9rock.in/product/${params.id}`
+        );
 
         const productData = product?.data ?? product ?? {};
-        const variantsData = variants?.data ?? variants ?? {};
+
+        if (product?.data?.isHaveSizeVariants === true) {
+          const [variants, size] = await Promise.all([
+            callApi(
+              "get",
+              `https://backend.9rock.in/variants/products/${product.data.variantId}`
+            ),
+            callApi(
+              "get",
+              `https://backend.9rock.in/variants/size/product/${
+                selectedVariant ? selectedVariant : params.id
+              }`
+            ),
+          ]);
+          const variantsData = variants?.data ?? variants ?? {};
+          const sizeData = size?.data ?? size ?? {};
+
+          console.log("variants", variants, size);
+
+          setVariants(variantsData);
+          setSizeData(sizeData);
+        }
+
+        if (!active) return;
 
         setProduct(productData);
-        setVariants(variantsData);
       } catch (err) {
         console.error("Product fetch failed", err);
       } finally {
@@ -110,12 +146,16 @@ export default function ProductPage() {
 
           if (!active) return;
 
-          const like = LikeData.data.find(
-            (i: any) => i.product.id == product.id
+          const like = LikeData?.data?.find(
+            (i: any) =>
+              i.product.id == product.id ||
+              i.product.variantId == product.variantId
           );
 
-          const cart = CartData.data.find(
-            (i: any) => i.product.productId == product.id
+          const cart = CartData?.data.find(
+            (i: any) =>
+              i.product.productId == product.id ||
+              i.product.variantId == product.variantId
           );
 
           setState((prev) => ({
@@ -130,8 +170,14 @@ export default function ProductPage() {
         else {
           setState((prev) => ({
             ...prev,
-            Cart: Boolean(guestCart?.items?.[product.id]),
-            Like: Boolean(guestCart?.likeProduct?.[product.id]),
+            Cart: Boolean(
+              guestCart?.items?.[product.id] ||
+                guestCart?.items?.[product.id]?.variantSizeId
+            ),
+            Like: Boolean(
+              guestCart?.likeProduct?.[product.id] ||
+                guestCart?.likeProduct?.[product.id]?.variantSizeId
+            ),
           }));
         }
       } catch (err) {
@@ -146,6 +192,19 @@ export default function ProductPage() {
     };
   }, [product, user, guestCart]);
 
+  console.log("cart", guestCart);
+
+  const parsedDescription =
+    typeof product?.description === "string"
+      ? (() => {
+          try {
+            return JSON.parse(product.description);
+          } catch {
+            return product.description;
+          }
+        })()
+      : product?.description;
+
   if (!mounted) return null;
 
   if (!product)
@@ -155,32 +214,19 @@ export default function ProductPage() {
       </div>
     );
 
-  const isJsonString = (value: string) =>
-    value.trim().startsWith("{") || value.trim().startsWith("[");
-
-  // const parsedDescription =
-  //   typeof product?.description === "string"
-  //     ? (() => {
-  //         try {
-  //           return JSON.parse(product.description);
-  //         } catch {
-  //           return product.description;
-  //         }
-  //       })()
-  //     : product?.description;
-
   const extraInfo = {
     Color: product.color,
-    Size: product.size,
-    weight: product.weight,
     // Material: product.materialUsedName,
   };
   const iscart = guestCart?.items?.[product.id];
 
-  const addToCartHandle = async () => {
+  const addToCartHandle = async (
+    variantSizeId: string | null,
+    Size: string | null
+  ) => {
     setAdding(true);
     try {
-      let res = await AddCartProduct(product);
+      let res = await AddCartProduct(product, variantSizeId, Size);
 
       if (res !== undefined) {
         setState((prev) => ({
@@ -195,8 +241,8 @@ export default function ProductPage() {
     }
   };
 
-  const addToLikeHandle = async () => {
-    let res = await AddLikeProduct(product);
+  const addToLikeHandle = async (variantSizeId: string | null) => {
+    let res = await AddLikeProduct(product, variantSizeId);
     if (res !== undefined) {
       setState((prev) => ({
         ...prev,
@@ -217,7 +263,7 @@ export default function ProductPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="sticky top-0"
+            className="lg:sticky lg:top-0"
           >
             <PictureGallery
               images={[
@@ -260,7 +306,6 @@ export default function ProductPage() {
                 SKU: {product?.serialNumber}
               </h2>
             </motion.div>
-
             {/* PRICE */}
             <div className="flex items-center gap-4">
               <span className="text-3xl font-semibold text-black">
@@ -273,15 +318,28 @@ export default function ProductPage() {
                 </span>
               )}
             </div>
-
+            <SizeSelector
+              sizes={size}
+              selectedId={selectedSize?.id}
+              onSelect={setSelectedSize}
+              sizeCart={
+                user
+                  ? state.CartData?.variantSize.variantSizeName
+                  : guestCart?.items[product.id]?.size
+              }
+            />
+            <VariantSelector
+              variants={variants}
+              selectedId={selectedVariant?.id}
+              ProductId={ProductId}
+              onSelect={(variant) => setSelectedVariant(variant)}
+            />
             {/* DESCRIPTION */}
-
             {/* <ProductDescription
               extraInfo={extraInfo}
               description={parsedDescription.description}
               specifications={parsedDescription.specifications}
             /> */}
-
             <div className="space-y-4 pb-6">
               <h3 className="text-xs tracking-widest uppercase text-gray-400 font-semibold">
                 Description
@@ -289,20 +347,16 @@ export default function ProductPage() {
               <div className=" underline  border border-b-1 border-gray-100"></div>
 
               <p className="text-gray-600 leading-relaxed text-sm">
-                {parsedDescription.description}
+                {parsedDescription?.description || "No description available."}
               </p>
             </div>
-
             <h3 className="text-xs tracking-widest uppercase text-gray-400 font-semibold mb-4">
               Details
             </h3>
 
             {/* SPECIFICATIONS */}
             <dl className="grid grid-cols-1 gap-y-4 text-sm">
-              {typeof parsedDescription === "object" &&
-                parsedDescription !== null &&
-                "specifications" in parsedDescription &&
-                parsedDescription.specifications &&
+              {parsedDescription?.specifications &&
                 Object.entries(parsedDescription.specifications).map(
                   ([key, value]) => (
                     <div
@@ -339,7 +393,6 @@ export default function ProductPage() {
             </dl>
 
             {/* QUANTITY */}
-
             {state.Cart == true && (
               <div className="w-40">
                 <ItemCount
@@ -353,14 +406,18 @@ export default function ProductPage() {
                 />
               </div>
             )}
-
             {/* ACTIONS */}
             <div className="flex flex-col gap-4 max-w-sm">
               <AnimatePresence mode="wait">
                 {state.Cart == false ? (
                   <motion.button
                     key="add"
-                    onClick={() => addToCartHandle()}
+                    onClick={() =>
+                      addToCartHandle(
+                        selectedSize?.id ?? null,
+                        selectedSize?.size ?? null
+                      )
+                    }
                     initial={{ opacity: 0.9 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
@@ -451,7 +508,7 @@ export default function ProductPage() {
                 <Button
                   startContent={<Heart size={16} />}
                   onPress={() => {
-                    addToLikeHandle();
+                    addToLikeHandle(selectedSize?.id ?? null);
                   }}
                   className="
                   border border-black py-4 rounded-none
@@ -477,7 +534,6 @@ export default function ProductPage() {
                 </Button>
               )}
             </div>
-
             {/* DETAILS */}
             {/* <div className="pt-6 border-t text-sm text-gray-600 space-y-2">
               <p>
