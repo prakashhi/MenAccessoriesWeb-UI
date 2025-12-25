@@ -27,7 +27,7 @@ export default function SizeSelector({
             onClick={() => !isOutOfStock && onSelect(item)}
             disabled={isOutOfStock}
             className={`
-              px-4 py-2 flex flex-col cursor-pointer rounded-md border text-sm font-medium
+              px-4 py-2 flex flex-col gap-1 cursor-pointer rounded-md border text-sm font-medium
               transition-all
               ${
                 isOutOfStock

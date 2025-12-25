@@ -3,14 +3,69 @@
 import { Drawer, DrawerContent, DrawerBody } from "@heroui/drawer";
 import { Button } from "@heroui/react";
 import { X } from "lucide-react";
-import Optioncomponet from "./OptionComponent";
+import OptionComponent from "./OptionComponent";
 import { UsePanel } from "@/context/Context";
 
-export default function MobileFilterDrawer() {
+import { ProductInfoType } from "@/app/(User)/Type/Types";
+import { useApi } from "@/app/useApi";
+import { useState } from "react";
+import { useParams } from "next/navigation";
+import { notify } from "@/app/(User)/Component/ToastComponent";
+
+export type StateMobileDrawer = {
+  malarialId: string | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  PriceLabel: string | null;
+};
+
+export default function MobileFilterDrawer({
+  setData,
+}: {
+  setData: React.Dispatch<React.SetStateAction<ProductInfoType[]>>;
+}) {
   const { isOpen, onOpenChange } = UsePanel();
+
+  const params = useParams();
+
+  const [state, setState] = useState<StateMobileDrawer>({
+    malarialId: null,
+    minPrice: null,
+    maxPrice: null,
+    PriceLabel: null,
+  });
+
+  const { callApi } = useApi();
+
+  const handleClick = async () => {
+    console.log(state);
+
+    let url = `http://localhost:3005/product-list-for-idk-jwellery?limit=100&offset=0&${
+      state.malarialId !== null && `materialIds=${state.malarialId}`
+    }&categoryIds=${params.CategotyId}&${
+      state.minPrice && `minPrice=${state.minPrice}`
+    }&${
+      state.maxPrice && `maxPrice=${state.maxPrice}`
+    }&sortOrder=desc&sortBy=createdAt`;
+
+    try {
+      let res = await callApi("get", url);
+      setData(res.data);
+      console.log(res);
+     onOpenChange(false);
+    } catch (err) {
+      let message = err?.response?.data?.message || "Something is wrong!";
+      notify({
+        message: message,
+        type: "error",
+      });
+      console.log(err);
+    }
+  };
 
   return (
     <Drawer
+      hideCloseButton
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       placement="left"
@@ -46,15 +101,16 @@ export default function MobileFilterDrawer() {
         {(onClose) => (
           <div className="flex flex-col min-h-dvh">
             {/* ================= HEADER ================= */}
-            <header className="px-5 py-4 border-b flex items-center justify-between">
-              <h2 className="text-[11px] tracking-[0.35em] uppercase text-gray-500">
-                Refine Results
+            <header className="px-5 py-4 border-b-1 border-gray-200 flex items-center justify-between">
+              <h2 className="text-[11px] tracking-[0.25em] uppercase text-gray-500">
+                Filter Results
               </h2>
 
               <button
                 onClick={onClose}
                 className="
                   flex items-center gap-2
+                  cursor-pointer
                   text-gray-500
                   hover:text-black
                   transition
@@ -72,16 +128,16 @@ export default function MobileFilterDrawer() {
 
             {/* ================= BODY ================= */}
             <DrawerBody className="flex-1 px-5 py-6 overflow-y-auto">
-              <Optioncomponet />
+              <OptionComponent setState={setState} state={state} />
             </DrawerBody>
 
             {/* ================= FOOTER ================= */}
-            <footer className="px-5 py-4 border-t bg-white">
+            <footer className="px-5 py-4 border-t-1 border-gray-200 bg-white">
               <Button
                 fullWidth
-                onPress={onClose}
+                onPress={handleClick}
                 className="
-                  bg-black text-white
+                  bg-black text-white 
                   h-12
                   rounded-lg
                   text-[11px]

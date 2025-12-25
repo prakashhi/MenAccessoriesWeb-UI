@@ -1,5 +1,5 @@
 export interface SizeVariant {
-   id: string;
+  id: string;
   size: string;
   stock: number;
 }
@@ -178,3 +178,14 @@ export type productSize = {
   size: string;
   stock: number;
 };
+
+export type GuestLikeItem = ProductInfoType & {
+  type: "guest";
+  variantSizeId: string | null;
+};
+
+export type UserLikeItem = LikeProductType & {
+  type: "user";
+};
+
+

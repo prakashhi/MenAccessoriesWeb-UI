@@ -21,6 +21,9 @@ import {
   Data,
 } from "@/app/(User)/Type/Types";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+import { useMemo } from "react";
+import { getUserFromStorage } from "@/context/utils";
+import { notify } from "../ToastComponent";
 
 export default function CardModel({
   DataObj,
@@ -38,6 +41,8 @@ export default function CardModel({
   type Product = ProductInfoType;
 
   const { callApi } = useApi();
+
+  const user = useMemo(() => getUserFromStorage(), []);
 
   const { AddCartProduct, AddLikeProduct, guestCart } = UsePanel();
   const router = useRouter();
@@ -57,26 +62,46 @@ export default function CardModel({
         `https://backend.9rock.in/product/${productId}`
       );
 
-      let res = await AddCartProduct(product.data);
       if (isUser == true) {
-        if (res !== undefined) {
-          setState((prev: any) => {
-            const prevItem = prev.CartData[product.id];
-            return {
-              ...prev,
-              CartData: {
-                ...prev.CartData,
-                [product.id]: {
-                  // Preserve previous item if exists
-                  id: product.id,
-                  product: product,
-                  variantSize: prevItem?.variantSize ?? product.size, // optional
-                  quantity: (prevItem?.quantity ?? 0) + 1,
-                },
-              },
-            };
+        try {
+          let response = await callApi("post", "/cart", {
+            data: {
+              productId: productId,
+              userId: user.id,
+              variantSizeId: product.variantSizeId ?? null,
+            },
           });
+          console.log("response", response);
+          if (response !== undefined) {
+            setState((prev: any) => {
+              const prevItem = prev.CartData[product.id];
+              return {
+                ...prev,
+                CartData: {
+                  ...prev.CartData,
+                  [product.id]: {
+                    // Preserve previous item if exists
+                    id: product.id,
+                    product: product,
+                    variantSize: prevItem?.variantSize ?? product.size, // optional
+                    quantity: (prevItem?.quantity ?? 0) + 1,
+                  },
+                },
+              };
+            });
+          }
+
+          return response;
+        } catch (err) {
+          let message = err?.response?.data.message || "Something is Wrong!";
+          notify({
+            message: message,
+            type: "error",
+          });
+          console.log(err);
         }
+      } else {
+        let res = await AddCartProduct(product.data);
       }
     } catch (err) {
       console.log(err);
@@ -215,7 +240,7 @@ export default function CardModel({
 
                 <div
                   className="
-    right-0 p-4
+    right-0 p-2
     translate-y-0
     
     transition-all duration-500

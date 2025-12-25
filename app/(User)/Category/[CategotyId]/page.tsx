@@ -14,7 +14,7 @@ import { Data, ProductInfoType } from "@/app/(User)/Type/Types";
 
 export default function Page() {
   const params = useParams();
-  const { callApi } = useApi();
+  const { callApi, loading } = useApi();
 
   const [data, setData] = useState<ProductInfoType[]>([]);
 
@@ -29,7 +29,6 @@ export default function Page() {
       "https://backend.9rock.in/9rock/cat-with-products"
     );
 
-    console.log(res);
 
     setData(res.data[1]?.products);
 
@@ -107,7 +106,7 @@ export default function Page() {
                 show: { opacity: 1, y: 0 },
               }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className=" sm:p-5 p-2"
+              className=" p-2"
             >
               <RightSection ProductData={data} />
             </motion.div>
@@ -115,7 +114,7 @@ export default function Page() {
         </div>
       </motion.main>
 
-      <MobileFilterDrawer />
+      <MobileFilterDrawer setData={setData} />
 
       {/* FOOTER */}
       <Footer />

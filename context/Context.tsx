@@ -25,15 +25,6 @@ import {
   LikeProductType,
 } from "@/app/(User)/Type/Types";
 
-// type GuestCartItem = ProductInfoType & {
-//   quantity: number;
-//   variantSizeId: string | null;
-// };
-
-// type GuestCart = {
-//   items: Record<string, GuestCartItem>;
-//   likeProduct: Record<string, GuestCartItem>;
-// };
 type GuestCartItem = ProductInfoType & {
   quantity: number;
   variantSizeId: string | null;
@@ -49,16 +40,26 @@ type GuestCart = {
   likeProduct: Record<string, GuestLikeItem>;
 };
 
-type AddToCart = GuestCartItem | LikeProductType;
+export type AddToCart =
+  | { type: "guest"; data: GuestCartItem }
+  | { type: "user"; data: LikeProductType | ProductInfoType };
 
 type PanelContextType = {
   cartProduct: product[];
   setCartProduct: React.Dispatch<React.SetStateAction<product[]>>;
+
   AddCartProduct: (
-    Product: AddToCart,
+    Product: ProductInfoType,
     variantSizeId?: string | null,
     size?: string | null
   ) => Promise<void>;
+
+  AddCartProductGuest: (
+    Product: GuestCartItem,
+    variantSizeId?: string | null | undefined,
+    size?: string | null
+  ) => Promise<void>;
+
   RemoveCartProduct: (id: string) => Promise<void>;
   guestCart: GuestCart;
   AddLikeProduct: (
@@ -90,11 +91,6 @@ const SearchPanelContext = createContext<PanelContextType | null>(null);
 
 export const UsePanel = () => {
   const context = useContext(SearchPanelContext);
-
-  // if (!context) {
-  //   throw new Error("UsePanel must be used inside SearchPanelContextProvider");
-  // }
-
   if (!context) {
     console.warn("UsePanel used outside provider");
     return {
@@ -169,52 +165,63 @@ export function SearchPanelContextProvider({
   }, [guestCart]);
 
   // All functions
+
+  //Cart Functions
   const AddCartProduct = async (
-    Product: AddToCart,
-    variantSizeId: string | null,
-    size: string | null
+    Product: ProductInfoType,
+    variantSizeId: string | null | undefined,
+    size?: string | null
   ) => {
-    if (user == null || !user) {
-      let added = false;
-      setGuestCart((prev) => {
-        if (!prev) return prev;
-
-        // prevent duplicate
-        if (prev.items[Product.id]) return prev;
-
-        added = true;
-        return {
-          ...prev,
-          items: {
-            ...prev.items,
-            [Product.id]: {
-              ...Product,
-              quantity: 1,
-              variantSizeId,
-              size,
-            },
-          },
-        };
+    try {
+      let response = await callApi("post", "/cart", {
+        data: {
+          productId: Product?.id,
+          userId: id,
+          variantSizeId: variantSizeId ?? null,
+        },
       });
+      console.log("response", response);
 
-      if (added) {
-        toastActions.addToCart(`${Product.name}`);
-      }
-    } else {
-      try {
-        let response = await callApi("post", "/cart", {
-          data: {
-            productId: Product?.product?.id,
-            userId: id,
-            variantSizeId: variantSizeId ?? null,
+      return response;
+    } catch (err) {
+      let message = err?.response.data.message;
+      notify({
+        message: message,
+        type: "error",
+      });
+      console.log(err);
+    }
+  };
+
+  const AddCartProductGuest = async (
+    Product: GuestCartItem,
+    variantSizeId?: string | null | undefined,
+    size?: string | null
+  ) => {
+    let added = false;
+    setGuestCart((prev) => {
+      if (!prev) return prev;
+
+      // prevent duplicate
+      if (prev.items[Product.id]) return prev;
+
+      added = true;
+      return {
+        ...prev,
+        items: {
+          ...prev.items,
+          [Product.id]: {
+            ...Product,
+            quantity: 1,
+            variantSizeId: variantSizeId,
+            size: size,
           },
-        });
-        console.log("response", response);
+        },
+      };
+    });
 
-        return response;
-      } catch (err) {
-        console.log(err);
-      }
+    if (added) {
+      toastActions.addToCart(`${Product.name}`);
     }
   };
 
@@ -244,9 +251,12 @@ export function SearchPanelContextProvider({
     }
   };
 
+
+
+  //Like Functions
   const AddLikeProduct = async (
     Product: product,
-    variantSizeId: string | null
+    variantSizeId?: string | null
   ): Promise<void> => {
     if (user == null || !user) {
       let shouldNotify = false;
@@ -432,6 +442,7 @@ export function SearchPanelContextProvider({
         incrementCartProduct,
         decrementCartProduct,
         setCartProductQty,
+        AddCartProductGuest,
         isOpen,
         loading,
         onOpen,

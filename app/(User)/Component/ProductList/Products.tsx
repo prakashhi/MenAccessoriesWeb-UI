@@ -46,6 +46,7 @@ export default function Product() {
       "get",
       "https://backend.9rock.in/9rock/cat-with-products"
     );
+    setProduct(res.data);
 
     // const [category, product] = await Promise.all([
     //   callApi(
@@ -57,34 +58,27 @@ export default function Product() {
     //     `/product-list?page=1&limit=100&sortOrder=desc&showInStockProducts=false`
     //   ),
     // ]);
-
     // if (userData) {
     //   const [category, like] = await Promise.all([
     //     CartProductList(userData.id),
     //     LikeProductList(userData.id),
     //   ]);
-
     //   const cartMap: Record<string, CartItem> = {};
     //   category.data.forEach((item: CartItem) => {
     //     cartMap[item.product.productId] = item;
     //   });
-
     //   const likeMap: Record<string, LikeProductType> = {};
     //   like.data.forEach((item: LikeProductType) => {
     //     likeMap[item.product.id] = item;
     //   });
-
     //   setState((prev) => ({
     //     ...prev,
     //     LikeData: likeMap,
     //     CartData: cartMap,
     //   }));
     // }
-
     // setCategory(category.data);
     // setProduct(product.data);
-
-    setProduct(res.data);
   }, []);
 
   const observeSection = useCallback(
@@ -131,7 +125,7 @@ export default function Product() {
           className="flex flex-col items-center text-center mb-6 sm:mb-10"
         >
           <h2
-            className="text-3xl flex  items-center flex-col    mb-30"
+            className="lg:text-3xl text-xl flex  items-center flex-col mb-20   lg:mb-10"
             style={{ fontFamily: "ui-serif, serif", fontWeight: 800 }}
           >
             Explore Collection
@@ -163,7 +157,7 @@ export default function Product() {
             <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-end mb-8">
               <div>
                 <h2
-                  className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900 tracking-tight"
+                  className="text-md sm:text-3xl lg:text-4xl font-semibold text-gray-900 tracking-tight"
                   style={{ fontFamily: "ui-serif, serif" }}
                 >
                   {categoryItem.name}

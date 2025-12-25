@@ -12,7 +12,7 @@ export default function Header() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col items-center text-center mb-6 sm:mb-10"
+        className="flex flex-col items-center text-center mb-10 "
       >
         <h1
           className="text-[22px] sm:text-3xl md:text-4xl tracking-tight font-bold"
@@ -58,9 +58,9 @@ export default function Header() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
           className="hidden lg:flex w-full bg-[#F6F6F6]
-            items-center justify-center text-center px-10"
+            items-center justify-center text-center  px-10"
         >
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 ">
             <span className="font-semibold text-3xl tracking-wide">
               Let’s Feel It
             </span>
@@ -76,7 +76,7 @@ export default function Header() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.6 }}
-        className="lg:hidden flex flex-col items-center mt-4 px-3 text-center"
+        className="lg:hidden flex flex-col items-center mt-4 px-3 py-5 text-center"
       >
         <h2 className="text-xl font-semibold tracking-wide">Let’s Feel It</h2>
         <p className="text-sm text-gray-600 mt-1">

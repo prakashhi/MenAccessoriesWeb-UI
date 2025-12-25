@@ -20,7 +20,7 @@ type Props = {
   variants: variantDataProduct[];
   selectedId?: string | null;
   onSelect: (variant: Variant) => void;
-  ProductId: string ;
+  ProductId: string;
 };
 
 export default function VariantSelector({
@@ -35,20 +35,21 @@ export default function VariantSelector({
 
   return (
     <div className="flex flex-wrap justify-center py-5 gap-4">
-      {variants.map((variant) => {
-        const outOfStock = variant.stock === 0;
-        const disabled = !variant.isActive || outOfStock;
-        const isSelected = selectedId === variant.id;
+      {Array.isArray(variants) &&
+        variants.map((variant) => {
+          const outOfStock = variant.stock === 0;
+          const disabled = !variant.isActive || outOfStock;
+          const isSelected = selectedId === variant.id;
 
-        return (
-          <button
-            key={variant.id}
-            disabled={disabled}
-            onClick={() => {
-              onSelect(variant);
-              router.push(`/all-Product/${variant.id}`);
-            }}
-            className={`
+          return (
+            <button
+              key={variant.id}
+              disabled={disabled}
+              onClick={() => {
+                onSelect(variant);
+                router.push(`/all-Product/${variant.id}`);
+              }}
+              className={`
           group flex flex-col items-center gap-2
           w-32 p-2 rounded-sm border
           transition-all duration-200
@@ -59,36 +60,36 @@ export default function VariantSelector({
           }
           ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
         `}
-          >
-            {/* IMAGE */}
-            <div className="relative w-28 h-28 rounded-sm bg-gray-50 overflow-hidden">
-              <Image
-                fill
-                src={ImageShowUtil(variant.image)}
-                alt={variant.code || "Variant"}
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                sizes="112px"
-              />
-            </div>
+            >
+              {/* IMAGE */}
+              <div className="relative w-28 h-28 rounded-sm bg-gray-50 overflow-hidden">
+                <Image
+                  fill
+                  src={ImageShowUtil(variant.image)}
+                  alt={variant.code || "Variant"}
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="112px"
+                />
+              </div>
 
-            {/* CODE */}
-            {variant.code && (
-              <span className="text-xs font-medium text-gray-700 text-center">
-                {variant.name}
-              </span>
-            )}
+              {/* CODE */}
+              {variant.code && (
+                <span className="text-xs font-medium text-gray-700 text-center">
+                  {variant.name}
+                </span>
+              )}
 
-            {/* STATUS */}
-            {outOfStock ? (
-              <span className="text-[10px] text-red-500">Out of stock</span>
-            ) : (
-              <span className="text-[10px] text-gray-500">
-                Stock : {variant.stock}
-              </span>
-            )}
-          </button>
-        );
-      })}
+              {/* STATUS */}
+              {outOfStock ? (
+                <span className="text-[10px] text-red-500">Out of stock</span>
+              ) : (
+                <span className="text-[10px] text-gray-500">
+                  Stock : {variant.stock}
+                </span>
+              )}
+            </button>
+          );
+        })}
     </div>
   );
 }

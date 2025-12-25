@@ -19,7 +19,12 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
 
-import { LikeProductType } from "@/app/(User)/Type/Types";
+import {
+  LikeProductType,
+  ProductInfoType,
+  GuestLikeItem,
+  UserLikeItem,
+} from "@/app/(User)/Type/Types";
 
 import { useRouter } from "next/navigation";
 import { useApi } from "@/app/useApi";
@@ -53,10 +58,10 @@ export default function Page() {
     LikeData();
   }, [user, guestCart]);
 
-  type handleCart = LikeProductType;
+  type HandleCart = GuestLikeItem | UserLikeItem;
 
-  const addToCartHandle = async (item: handleCart) => {
-    if (user) {
+  const addToCartHandle = async (item: HandleCart) => {
+    if (user && item.type === "user") {
       try {
         AddCartProduct(item);
         let response = await callApi(
@@ -69,6 +74,7 @@ export default function Page() {
         console.log(err);
       }
     } else {
+      console.log(item);
       AddCartProduct(item);
       RemoveLikeProduct(item.id);
     }

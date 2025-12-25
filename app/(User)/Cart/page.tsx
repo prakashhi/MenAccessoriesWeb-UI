@@ -62,6 +62,9 @@ export default function Page() {
   //   cartListData();
   // }, [user, guestCart]);
 
+  const ShippingCharge = 900;
+  const TaxPercentage = 3;
+
   useEffect(() => {
     if (!user) return;
     CartProductList(user.id).then((res) => {
@@ -92,6 +95,11 @@ export default function Page() {
       );
     }
   }, [cartListData]);
+
+  const ShippingTaxFunction: number = useMemo(() => {
+    let Total = total + ShippingCharge + (total + ShippingCharge) * (3 / 100);
+    return Total;
+  }, [total]);
 
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -146,9 +154,15 @@ export default function Page() {
         </motion.h1>
         <div className="w-24 h-px bg-neutral-300 mx-auto"></div>
 
-        <div className="flex flex-col lg:flex-row gap-10 mt-24">
+        <div className="flex flex-col lg:flex-row gap-10 mt-14">
           {/* CART LIST */}
-          <div className="flex-1">
+          <div
+            className=" flex-1 scroll-m-0
+  overflow-y-auto 
+  max-h-[70vh]
+  sm:max-h-none
+  my-4"
+          >
             <AnimatePresence>
               {cartListData.length > 0 ? (
                 <motion.div
@@ -179,7 +193,7 @@ export default function Page() {
                       <div
                         className="
                 relative
-                w-24 h-24 sm:w-28 sm:h-28
+                w-full h-44 sm:w-28 sm:h-28
                 rounded-xl
                 overflow-hidden
                 bg-[#F2F2F2]
@@ -230,7 +244,7 @@ export default function Page() {
                           )}
                         </div>
 
-                        <div className="flex  items-center gap-4">
+                        <div className="flex flex-col gap-1">
                           <ItemCount
                             productId={user ? item.id : item.id}
                             quantity={item.quantity}
@@ -293,11 +307,29 @@ export default function Page() {
               animate={{ opacity: 1, y: 0 }}
               className="w-full lg:w-[34%]"
             >
-              <div className="bg-white rounded-xl border border-[#ECECEC] p-6 sticky top-24 space-y-6">
+              <div className="bg-white rounded-xl border border-[#ECECEC] p-6 sticky top-24 space-y-4">
+                <div className="flex justify-between text-sm tracking-wide">
+                  <span>Subtotal</span>
+                  <span className="font-semibold">
+                    ₹{formatIndianPrice(total)}.00
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm tracking-wide">
+                  <span>Shipping</span>
+                  <span className="font-semibold">
+                    ₹{formatIndianPrice(ShippingCharge)}.00
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm tracking-wide">
+                  <span>Tax</span>
+                  <span className="font-semibold">{TaxPercentage}%</span>
+                </div>
+
+                <div className="border-b-1 border-gray-400"></div>
                 <div className="flex justify-between text-sm tracking-wide">
                   <span>Total</span>
                   <span className="font-semibold">
-                    ₹{formatIndianPrice(total)}.00
+                    ₹{formatIndianPrice(ShippingTaxFunction)}.00
                   </span>
                 </div>
 

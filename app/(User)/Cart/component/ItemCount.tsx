@@ -44,7 +44,7 @@ export default function ItemCount({
 
   const [inputValue, setInputValue] = useState(String(quantity));
 
-   console.log(quantity)
+  console.log(quantity);
 
   // 🔥 Sync input with actual cart qty
   useEffect(() => {
@@ -153,7 +153,13 @@ export default function ItemCount({
 
       // await incrementCartProduct(productId, cartId, Number(value));
     } else {
-      incrementCartProduct(productId, cartId, value);
+      console.log(value);
+      setState?.((prev) => {
+        if (!prev || !Array.isArray(prev)) return []; // fallback to empty array
+        return prev.map((item: any) =>
+          item.id === cartId ? { ...item, quantity: Number(value) } : item
+        );
+      });
     }
   };
 
@@ -167,7 +173,7 @@ export default function ItemCount({
           className={`w-12 h-12 ${
             isMin
               ? "opacity-40 cursor-not-allowed"
-              : "hover:bg-black hover:text-white"
+              : "hover:bg-black cursor-pointer hover:text-white"
           }`}
         >
           −
@@ -217,7 +223,7 @@ export default function ItemCount({
           className={`w-12 h-12 ${
             isMax
               ? "opacity-40 cursor-not-allowed"
-              : "hover:bg-black hover:text-white"
+              : "hover:bg-black cursor-pointer hover:text-white"
           }`}
         >
           +

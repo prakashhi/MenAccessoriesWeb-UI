@@ -52,6 +52,7 @@ export default function ProductPage() {
     guestCart,
     LikeProductList,
     CartProductList,
+    AddCartProductGuest,
   } = UsePanel();
   const router = useRouter();
 
@@ -226,7 +227,13 @@ export default function ProductPage() {
   ) => {
     setAdding(true);
     try {
-      let res = await AddCartProduct(product, variantSizeId, Size);
+      let res;
+
+      if (user) {
+        res = await AddCartProduct(product, variantSizeId, Size);
+      } else {
+        res = await AddCartProductGuest(product, variantSizeId, Size);
+      }
 
       if (res !== undefined) {
         setState((prev) => ({
@@ -290,7 +297,7 @@ export default function ProductPage() {
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
             >
               <div>
-                <span className="bg-gray-50 px-3 py-1 rounded-full border border-gray-100 font-light text-sm">
+                <span className="bg-gray-50 px-3 py-1 rounded-full border border-gray-100 font-light text-xs">
                   {" "}
                   {product.categoryName?.toLocaleUpperCase()}
                 </span>

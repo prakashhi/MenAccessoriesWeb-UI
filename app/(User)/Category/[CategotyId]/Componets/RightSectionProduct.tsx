@@ -22,12 +22,16 @@ import {
   LikeProductType,
 } from "@/app/(User)/Type/Types";
 import { getUserFromStorage } from "@/context/utils";
+import { useApi } from "@/app/useApi";
+import { useParams } from "next/navigation";
 
 interface RightSectionProps {
   ProductData: any[];
 }
 
 export default function RightSection({ ProductData = [] }: RightSectionProps) {
+  const [sortedProducts, setSortedProducts] = useState<any[]>([]);
+  const params = useParams();
   const userData = useMemo(() => getUserFromStorage(), []);
   const { onOpen, CartProductList, LikeProductList } = UsePanel();
   const [sort, setSort] = useState("Featured");
@@ -37,50 +41,61 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     CartData: {},
   });
 
+  const { callApi } = useApi();
+
   const filterDataOption = [
-    { label: "Featured", icon: FiStar },
-    { label: "Best selling", icon: FiTrendingUp },
-    { label: "A → Z", icon: TbAlphabetLatin },
-    { label: "Z → A", icon: TbAlphabetLatin },
-    { label: "Price: Low → High", icon: FiDollarSign },
-    { label: "Price: High → Low", icon: FiDollarSign },
-    { label: "Newest First", icon: FiClock },
-    { label: "Oldest First", icon: FiClock },
+    { label: "Featured" },
+    // { label: "Best selling", icon: FiTrendingUp },
+    // { label: "A → Z", icon: TbAlphabetLatin },
+    // { label: "Z → A", icon: TbAlphabetLatin },
+    { label: "Price: Low → High" },
+    { label: "Price: High → Low" },
+    { label: "Newest First" },
+    { label: "Oldest First" },
   ];
 
-  const sortedProducts = useMemo(() => {
-    if (!ProductData || ProductData.length === 0) return [];
-    const data = [...ProductData];
-
-    switch (sort) {
-      case "A → Z":
-        return data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-      case "Z → A":
-        return data.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
-      case "Price: Low → High":
-        return data.sort(
-          (a, b) => (a.sellingPrice || 0) - (b.sellingPrice || 0)
-        );
-      case "Price: High → Low":
-        return data.sort(
-          (a, b) => (b.sellingPrice || 0) - (a.sellingPrice || 0)
-        );
-      case "Newest First":
-        return data.sort(
-          (a, b) =>
-            new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
-        );
-      case "Oldest First":
-        return data.sort(
-          (a, b) =>
-            new Date(a.createdAt || 0).getTime() -
-            new Date(b.createdAt || 0).getTime()
-        );
-      default:
-        return data;
+  useEffect(() => {
+    if (!ProductData || ProductData.length === 0) {
+      setSortedProducts([]);
+      return;
     }
-  }, [ProductData, sort]);
+
+    const fetchSortedProducts = async () => {
+      try {
+        let url = "";
+
+        switch (sort) {
+          case "Price: Low → High":
+            url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=asc&sortBy=price`;
+            break;
+
+          case "Price: High → Low":
+            url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=desc&sortBy=price`;
+            break;
+
+          case "Newest First":
+            url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=desc&sortBy=createdAt`;
+            break;
+
+          case "Oldest First":
+            url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=asc&sortBy=createdAt`;
+            break;
+
+          default:
+            setSortedProducts(ProductData);
+            return;
+        }
+
+        const res = await callApi("get", url);
+        setSortedProducts(res.data ?? []);
+      } catch (error) {
+        console.error(error);
+        setSortedProducts([]);
+      }
+    };
+
+    fetchSortedProducts();
+  }, [sort, ProductData, params.CategotyId]);
 
   useEffect(() => {
     const MetaData = async () => {
@@ -110,6 +125,8 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     MetaData();
   }, []);
 
+  console.log(sortedProducts);
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -130,7 +147,15 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
       className="w-full"
     >
       {/* ===== CONTROL BAR ===== */}
-      <div className="sticky top-30 z-20 bg-white border-b border-gray-100 py-3 px-4 sm:px-6 backdrop-blur-sm">
+      <div
+        className="  sticky 
+  lg:top-18  top-14
+  z-30 py-5
+  bg-white/90
+  backdrop-blur
+  border-b
+  border-gray-100"
+      >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 max-w-7xl mx-auto">
           {/* Results Count */}
           <div className="text-sm text-gray-600 font-light">
@@ -166,10 +191,14 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="w-full px-4 cursor-pointer py-2.5 bg-white border border-gray-200 text-sm font-medium rounded-lg appearance-none focus:outline-none focus:border-gray-800 transition-colors pr-10"
+                className="w-full  px-4 cursor-pointer py-2.5 bg-white border border-gray-200 text-sm font-medium rounded-lg appearance-none focus:outline-none focus:border-gray-800 transition-colors pr-10"
               >
                 {filterDataOption.map((option) => (
-                  <option key={option.label} value={option.label}>
+                  <option
+                    key={option.label}
+                    className="cursor-pointer"
+                    value={option.label}
+                  >
                     {option.label}
                   </option>
                 ))}
@@ -198,10 +227,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
         lg:grid-cols-4
         gap-4
         sm:gap-5
-        lg:gap-6
-       
-        
-      "
+        lg:gap-6"
           >
             <CardModel
               CustomWH="
