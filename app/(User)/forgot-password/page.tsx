@@ -26,7 +26,7 @@ export default function page() {
   const onSubmit: SubmitHandler<Data> = async (info) => {
     const res = await callApi(
       "post",
-      "http://localhost:3005/user/send-reset-password-email",
+      "/user/send-reset-password-email",
       {
         data: { email: info.email },
       }

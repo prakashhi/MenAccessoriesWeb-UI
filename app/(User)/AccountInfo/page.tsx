@@ -35,6 +35,7 @@ export default function AccountSection() {
     info: {} as User,
     orders: [] as OrderType[],
     wishlist: [] as LikeProductType[],
+    OrderList: [],
   });
 
   // Logout handler (sample)
@@ -86,17 +87,20 @@ export default function AccountSection() {
         router.replace("/login");
         return;
       } else {
-        let [profileData, likeProductDat] = await Promise.all([
-          callApi("get", `http://localhost:3005/user/${userData.id}`),
-          callApi("get", `http://localhost:3005/like-products/${userData.id}`),
+        let [profileData, likeProductData, OrderList] = await Promise.all([
+          callApi("get", `/user/${userData.id}`),
+          callApi("get", `/like-products/${userData.id}`),
+          callApi("get", `/sales/customer/${userData.id}`),
         ]);
+
+        console.log(OrderList);
 
         if (!mounted) return;
 
         setUserData((prev) => ({
           ...prev,
           info: profileData?.data,
-          wishlist: likeProductDat?.data,
+          wishlist: likeProductData?.data,
         }));
       }
     };
@@ -105,7 +109,7 @@ export default function AccountSection() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [userData]);
 
   return (
     <>

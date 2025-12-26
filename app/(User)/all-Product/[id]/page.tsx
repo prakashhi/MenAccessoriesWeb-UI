@@ -93,29 +93,40 @@ export default function ProductPage() {
         const productData = product?.data ?? product ?? {};
 
         if (product?.data?.isHaveSizeVariants === true) {
-          const [variants, size] = await Promise.all([
-            callApi(
-              "get",
-              `https://backend.9rock.in/variants/products/${product.data.variantId}`
-            ),
-            callApi(
+          if (product.data.variantId == null) {
+            // if No variantId
+            const size = await callApi(
               "get",
               `https://backend.9rock.in/variants/size/product/${
                 selectedVariant ? selectedVariant : params.id
               }`
-            ),
-          ]);
-          const variantsData = variants?.data ?? variants ?? {};
-          const sizeData = size?.data ?? size ?? {};
+            );
 
-          console.log("variants", variants, size);
+            const sizeData = size?.data ?? size ?? {};
+            setSizeData(sizeData);
+          } else {
+            // if variantId and Size available
+            const [variants, size] = await Promise.all([
+              callApi(
+                "get",
+                `https://backend.9rock.in/variants/products/${product.data.variantId}`
+              ),
+              callApi(
+                "get",
+                `https://backend.9rock.in/variants/size/product/${
+                  selectedVariant ? selectedVariant : params.id
+                }`
+              ),
+            ]);
 
-          setVariants(variantsData);
-          setSizeData(sizeData);
+            const variantsData = variants?.data ?? variants ?? {};
+            const sizeData = size?.data ?? size ?? {};
+
+            setVariants(variantsData);
+            setSizeData(sizeData);
+          }
         }
-
         if (!active) return;
-
         setProduct(productData);
       } catch (err) {
         console.error("Product fetch failed", err);
@@ -230,7 +241,7 @@ export default function ProductPage() {
       let res;
 
       if (user) {
-        res = await AddCartProduct(product, variantSizeId, Size);
+        res = await AddCartProduct(product.id, variantSizeId, Size);
       } else {
         res = await AddCartProductGuest(product, variantSizeId, Size);
       }

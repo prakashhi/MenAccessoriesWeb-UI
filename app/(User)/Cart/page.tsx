@@ -15,7 +15,7 @@ import { formatIndianPrice } from "@/app/utils/FormatCurrency";
 import PaymentSuccessModal from "./component/PaymentSucessModel";
 import { RiDeleteBinLine, RiShoppingCart2Line } from "react-icons/ri";
 import PaymentFailedModal from "./component/PaymentFailedModel";
-import GuestUserPaymentForm from "./component/GuestUserPaymentForm";
+import GuestUserPaymentForm from "./component/GuestUserFill";
 import CartInfoModal from "./component/CartInfoModel";
 
 import { IconType } from "react-icons";
@@ -32,35 +32,40 @@ import { useRouter } from "next/navigation";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 
-import { CartItem, CartProductInfo } from "@/app/(User)/Type/Types";
+import {
+  CartItem,
+  CartProductInfo,
+  ProductInfoType,
+  User,
+} from "@/app/(User)/Type/Types";
+import { useApi } from "@/app/useApi";
+import { PaymentModeSelector } from "./component/PaymentMethodSelect";
 
-type GuestCartItem = product & { quantity: number };
+type GuestCartItem = ProductInfoType & { quantity?: number };
 
 type CartListItem = GuestCartItem | CartItem;
+
+type modelTypes = {
+  FillForm: boolean;
+  PaymentMethodModel: boolean;
+};
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
 
   const { RemoveCartProduct, CartProductList, guestCart } = UsePanel();
 
-  const [openCartInfo, setOpenCartInfo] = useState<boolean>(false);
+  const [openModel, setOpenModel] = useState<modelTypes>({
+    FillForm: false,
+    PaymentMethodModel: false,
+  });
+
   const [cartListData, setCartListData] = useState<CartListItem[]>([]);
+  const [Fields, setFields] = useState<string[]>([]);
+
+  const { callApi } = useApi();
 
   const router = useRouter();
-
-  // useEffect(() => {
-  //   const cartListData = async () => {
-  //     if (user) {
-  //       let res = await CartProductList(user.id);
-  //       setCartListData(res.data);
-  //     } else {
-  //       let value = Object.values(guestCart.items);
-  //       setCartListData(value);
-  //     }
-  //   };
-
-  //   cartListData();
-  // }, [user, guestCart]);
 
   const ShippingCharge = 900;
   const TaxPercentage = 3;
@@ -101,18 +106,56 @@ export default function Page() {
     return Total;
   }, [total]);
 
-  const [isSuccess, setIsSuccess] = useState(false);
+  const valueCheckUser = [
+    "contactNumber",
+    "country",
+    "state",
+    "address",
+    "pinCode",
+    "countryCodeLabel",
+  ];
 
-  const handleCheckout = () => {
-    // Simulate payment success
+  const userDataCheck = (user: User) => {
+    console.log("userData", user);
 
-    if (!user) {
-      setOpenCartInfo(true);
-      return;
+    return valueCheckUser.filter((field) => {
+      const value = user[field];
+
+      return (
+        value === undefined ||
+        value === null ||
+        (typeof value === "string" && value.trim() === "")
+      );
+    });
+  };
+
+  const handleCheckout = async () => {
+    try {
+      if (!user || !user.id) {
+        router.push("/login");
+      } else {
+        let res = await callApi("get", `/user/${user.id}`);
+        let isCheck = userDataCheck(res.data);
+
+        if (isCheck.length > 0) {
+          console.log("isCheck", isCheck);
+          setFields(isCheck);
+          setOpenModel((prev) => ({ ...prev, FillForm: true }));
+        } else {
+          setOpenModel((prev) => ({ ...prev, PaymentMethodModel: true }));
+        }
+      }
+    } catch (err) {
+      console.log(err);
     }
-    setTimeout(() => {
-      setIsSuccess(true);
-    }, 500);
+
+    // if (!user) {
+    //   setOpenCartInfo(true);
+    //   return;
+    // }
+    // setTimeout(() => {
+    //   setIsSuccess(true);
+    // }, 500);
   };
 
   const handleRemove = (item: any) => {
@@ -133,16 +176,6 @@ export default function Page() {
       <Nav />
 
       <main className="flex-1 px-4 sm:px-6 lg:px-12 py-12 max-w-7xl mx-auto w-full">
-        {/* TITLE */}
-        {/* <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center text-2xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
-          style={{ fontFamily: "ui-serif, serif" }}
-        >
-          SHOPPING CART
-        </motion.h1> */}
-
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -357,9 +390,38 @@ export default function Page() {
         </div>
 
         <CartInfoModal
-          open={openCartInfo}
-          onClose={() => setOpenCartInfo(false)}
-          children={<GuestUserPaymentForm />}
+          open={openModel.FillForm}
+          onClose={() => setOpenModel((prev) => ({ ...prev, FillForm: false }))}
+          children={
+            <GuestUserPaymentForm
+              requiredFields={Fields}
+              onClose={() =>
+                setOpenModel((prev) => ({ ...prev, FillForm: false }))
+              }
+              UserData={user}
+            />
+          }
+        />
+        <CartInfoModal
+          open={openModel.PaymentMethodModel}
+          onClose={() =>
+            setOpenModel((prev) => ({ ...prev, PaymentMethodModel: false }))
+          }
+          children={
+            <PaymentModeSelector
+              cartListData={cartListData}
+              TotalPrice={ShippingTaxFunction}
+              PaymentAmount={total}
+              tax={TaxPercentage}
+              shipping={ShippingCharge}
+              onClose={() =>
+                setOpenModel((prev) => ({
+                  ...prev,
+                  PaymentMethodModel: false,
+                }))
+              }
+            />
+          }
         />
       </main>
 

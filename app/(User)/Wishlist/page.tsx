@@ -18,6 +18,7 @@ import {
 } from "react-icons/fi";
 import { useEffect, useMemo, useState } from "react";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
+import Loader from "@/public/svg/tube-spinner.svg";
 
 import {
   LikeProductType,
@@ -28,11 +29,17 @@ import {
 
 import { useRouter } from "next/navigation";
 import { useApi } from "@/app/useApi";
+import { toastActions } from "../Component/ToastComponent";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
-  const { AddCartProduct, RemoveLikeProduct, LikeProductList, guestCart } =
-    UsePanel();
+  const {
+    AddCartProduct,
+    RemoveLikeProduct,
+    LikeProductList,
+    guestCart,
+    AddCartProductGuest,
+  } = UsePanel();
 
   const { callApi } = useApi();
 
@@ -49,8 +56,7 @@ export default function Page() {
         let response = await LikeProductList(user.id);
         setLikeProductList(response.data);
       } else {
-        //  console.log(Object.values(guestCart.likeProduct || {}))
-        setLikeProductList(Object.values(guestCart.likeProduct || {}));
+        setLikeProductList(Object.values(guestCart?.likeProduct || {}) ?? []);
       }
       setLoading(false);
     };
@@ -61,12 +67,13 @@ export default function Page() {
   type HandleCart = GuestLikeItem | UserLikeItem;
 
   const addToCartHandle = async (item: HandleCart) => {
-    if (user && item.type === "user") {
+    if (user) {
       try {
-        AddCartProduct(item);
+        let User = item as UserLikeItem;
+        await AddCartProduct(User.product.id);
         let response = await callApi(
           "delete",
-          `/like-product/${user.id}/${item.product.id}`
+          `/like-product/${user.id}/${User.product.id}`
         );
 
         console.log(response);
@@ -74,13 +81,25 @@ export default function Page() {
         console.log(err);
       }
     } else {
-      console.log(item);
-      AddCartProduct(item);
-      RemoveLikeProduct(item.id);
+      let Guest = item as GuestLikeItem;
+      await AddCartProductGuest(Guest);
+      await RemoveLikeProduct(Guest.id);
     }
   };
 
-  console.log(guestCart);
+  const XRemoveHandle = async (item: HandleCart) => {
+    if (user) {
+      let User = item as UserLikeItem;
+      await RemoveLikeProduct(User.product.id);
+      setLikeProductList((prev) =>
+        prev.filter((p) => p.product.id !== User.product.id)
+      );
+    } else {
+      let GuestLike = item as GuestLikeItem;
+      await RemoveLikeProduct(GuestLike.id);
+      toastActions.removeFromWishlist();
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">
@@ -159,16 +178,7 @@ export default function Page() {
 
                     {/* REMOVE */}
                     <button
-                      onClick={() => {
-                        if (user) {
-                          RemoveLikeProduct(item.product.id);
-                          setLikeProductList((prev) =>
-                            prev.filter((p) => p.product.id !== item.product.id)
-                          );
-                        } else {
-                          RemoveLikeProduct(item.id);
-                        }
-                      }}
+                      onClick={() => XRemoveHandle(item)}
                       className="absolute cursor-pointer top-3 right-3 w-8 h-8 rounded-full bg-white/90
                  backdrop-blur-sm flex items-center justify-center
                  opacity-0 group-hover:opacity-100 transition"
@@ -252,7 +262,11 @@ export default function Page() {
                    text-xs tracking-[0.15em] uppercase
                    hover:bg-gray-900 hover:text-white transition"
                       >
-                        Add to Cart
+                        {loading ? (
+                          <Image alt={item.name} src={Loader} />
+                        ) : (
+                          "Add to Cart"
+                        )}
                       </button>
 
                       <span

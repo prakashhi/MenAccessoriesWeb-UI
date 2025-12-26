@@ -26,8 +26,8 @@ import {
 } from "@/app/(User)/Type/Types";
 
 type GuestCartItem = ProductInfoType & {
-  quantity: number;
-  variantSizeId: string | null;
+  quantity?: number;
+  variantSizeId?: string | null;
   size?: string | null;
 };
 
@@ -40,16 +40,16 @@ type GuestCart = {
   likeProduct: Record<string, GuestLikeItem>;
 };
 
-export type AddToCart =
-  | { type: "guest"; data: GuestCartItem }
-  | { type: "user"; data: LikeProductType | ProductInfoType };
+// export type AddToCart =
+//   | { type: "guest"; data: GuestCartItem }
+//   | { type: "user"; data: LikeProductType | ProductInfoType };
 
 type PanelContextType = {
   cartProduct: product[];
   setCartProduct: React.Dispatch<React.SetStateAction<product[]>>;
 
   AddCartProduct: (
-    Product: ProductInfoType,
+    ProductId: string,
     variantSizeId?: string | null,
     size?: string | null
   ) => Promise<void>;
@@ -94,10 +94,17 @@ export const UsePanel = () => {
   if (!context) {
     console.warn("UsePanel used outside provider");
     return {
+      GuestUserDataLength: { Cart: 0, Like: 0 },
       LikeProductList: async () => ({ data: [] }),
       CartProductList: async () => ({ data: [] }),
       AddCartProduct: async () => undefined,
       AddLikeProduct: async () => undefined,
+      AddCartProductGuest: async () => undefined,
+      incrementCartProduct: async () => {},
+      decrementCartProduct: async () => {},
+      setCartProductQty: async () => {},
+      RemoveCartProduct: async () => {},
+      RemoveLikeProduct: async () => {},
       guestCart: null,
     };
   }
@@ -168,28 +175,28 @@ export function SearchPanelContextProvider({
 
   //Cart Functions
   const AddCartProduct = async (
-    Product: ProductInfoType,
+    ProductId: string,
     variantSizeId: string | null | undefined,
     size?: string | null
   ) => {
     try {
       let response = await callApi("post", "/cart", {
         data: {
-          productId: Product?.id,
-          userId: id,
+          productId: ProductId,
+          userId: user.id,
           variantSizeId: variantSizeId ?? null,
         },
       });
-      console.log("response", response);
 
       return response;
     } catch (err) {
-      let message = err?.response.data.message;
+      let message = err?.response?.data?.message || "Something is wrong";
       notify({
         message: message,
         type: "error",
       });
       console.log(err);
+      return err;
     }
   };
 
@@ -199,11 +206,15 @@ export function SearchPanelContextProvider({
     size?: string | null
   ) => {
     let added = false;
+    let exist = false;
     setGuestCart((prev) => {
       if (!prev) return prev;
 
       // prevent duplicate
-      if (prev.items[Product.id]) return prev;
+      if (prev.items[Product.id]) {
+        exist = true;
+        return prev;
+      }
 
       added = true;
       return {
@@ -219,6 +230,13 @@ export function SearchPanelContextProvider({
         },
       };
     });
+
+    if (exist) {
+      notify({
+        message: "Product is already exits in cart",
+        type: "warning",
+      });
+    }
 
     if (added) {
       toastActions.addToCart(`${Product.name}`);
@@ -250,8 +268,6 @@ export function SearchPanelContextProvider({
       }
     }
   };
-
-
 
   //Like Functions
   const AddLikeProduct = async (
@@ -308,8 +324,6 @@ export function SearchPanelContextProvider({
           likeProduct: newItems,
         };
       });
-
-      toastActions.removeFromWishlist();
     } else {
       let response = await callApi(
         "delete",
@@ -408,20 +422,14 @@ export function SearchPanelContextProvider({
 
   const LikeProductList = async (userid: string) => {
     if (user !== null || !user) {
-      let response = await callApi(
-        "get",
-        `http://localhost:3005/like-products/${userid}`
-      );
+      let response = await callApi("get", `/like-products/${userid}`);
       return response;
     }
   };
 
   const CartProductList = async (userid: string) => {
     if (user !== null || !user) {
-      let response = await callApi(
-        "get",
-        `http://localhost:3005/cart/${userid}`
-      );
+      let response = await callApi("get", `/cart/${userid}`);
       return response;
     }
   };

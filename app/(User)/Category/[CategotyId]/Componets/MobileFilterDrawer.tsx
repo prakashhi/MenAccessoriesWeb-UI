@@ -40,7 +40,7 @@ export default function MobileFilterDrawer({
   const handleClick = async () => {
     console.log(state);
 
-    let url = `http://localhost:3005/product-list-for-idk-jwellery?limit=100&offset=0&${
+    let url = `/product-list-for-idk-jwellery?limit=100&offset=0&${
       state.malarialId !== null && `materialIds=${state.malarialId}`
     }&categoryIds=${params.CategotyId}&${
       state.minPrice && `minPrice=${state.minPrice}`
@@ -51,7 +51,7 @@ export default function MobileFilterDrawer({
     try {
       let res = await callApi("get", url);
       setData(res.data);
-      console.log(res);
+
      onOpenChange(false);
     } catch (err) {
       let message = err?.response?.data?.message || "Something is wrong!";

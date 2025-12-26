@@ -56,7 +56,6 @@ export default function UserEditForm({
     },
   });
 
-
   const onSubmit = async (data: FormValues) => {
     if (!isDirty) {
       notify({
@@ -85,6 +84,9 @@ export default function UserEditForm({
           type: "success",
         });
 
+        localStorage.removeItem("UserData");
+
+        localStorage.setItem("UserData", JSON.stringify(res.data));
         onClose();
       }
     } catch (err: any) {

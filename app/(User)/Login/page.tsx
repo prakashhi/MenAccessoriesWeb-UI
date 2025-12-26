@@ -27,7 +27,7 @@ export default function page() {
   const { callApi, error, loading } = useApi();
 
   const onSubmit: SubmitHandler<Info> = async (info) => {
-    const res = await callApi("post", "http://localhost:3005/login", {
+    const res = await callApi("post", "/login", {
       data: { email: info.email, password: info.password },
     });
 

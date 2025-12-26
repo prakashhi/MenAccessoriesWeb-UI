@@ -180,12 +180,7 @@ export type productSize = {
 };
 
 export type GuestLikeItem = ProductInfoType & {
-  type: "guest";
   variantSizeId: string | null;
 };
 
-export type UserLikeItem = LikeProductType & {
-  type: "user";
-};
-
-
+export type UserLikeItem = LikeProductType;

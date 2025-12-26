@@ -44,7 +44,8 @@ export default function CardModel({
 
   const user = useMemo(() => getUserFromStorage(), []);
 
-  const { AddCartProduct, AddLikeProduct, guestCart } = UsePanel();
+  const { AddCartProduct, AddLikeProduct, guestCart, AddCartProductGuest } =
+    UsePanel();
   const router = useRouter();
 
   if (DataObj.length === 0) {
@@ -71,7 +72,6 @@ export default function CardModel({
               variantSizeId: product.variantSizeId ?? null,
             },
           });
-          console.log("response", response);
           if (response !== undefined) {
             setState((prev: any) => {
               const prevItem = prev.CartData[product.id];
@@ -101,7 +101,7 @@ export default function CardModel({
           console.log(err);
         }
       } else {
-        let res = await AddCartProduct(product.data);
+        await AddCartProductGuest(product.data);
       }
     } catch (err) {
       console.log(err);

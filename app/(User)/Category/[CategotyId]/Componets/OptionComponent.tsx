@@ -30,9 +30,9 @@ export default function OptionComponent({
   //     const [subCategoryRes, materialRes] = await Promise.all([
   //       // callApi(
   //       //   "get",
-  //       //   `http://localhost:3005/product/subcategories?id=cfe77101-77f5-4811-9cdc-186ba9af9279&page=1&limit=100`
+  //       //   `/product/subcategories?id=cfe77101-77f5-4811-9cdc-186ba9af9279&page=1&limit=100`
   //       // ),
-  //       callApi("get", `http://localhost:3005/material-list?page=1&limit=10`),
+  //       callApi("get", `/material-list?page=1&limit=10`),
   //     ]);
 
   //     // setState((prev) => ({

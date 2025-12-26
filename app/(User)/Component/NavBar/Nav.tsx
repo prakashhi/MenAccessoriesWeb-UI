@@ -10,13 +10,25 @@ import SearchInput from "@/app/(User)/Component/NavBar/Component/SearchInput";
 import { useEffect, useMemo, useState } from "react";
 import { getUserFromStorage } from "@/context/utils";
 
+type length = {
+  likeProductLength: number;
+  CartProductLength: number;
+};
+
 export default function Nav() {
   const user = useMemo(() => getUserFromStorage(), []);
-  const [state, setState] = useState({
+  const [state, setState] = useState<length>({
     likeProductLength: 0,
     CartProductLength: 0,
   });
-  const { LikeProductList, CartProductList, GuestUserDataLength } = UsePanel();
+  const {
+    LikeProductList,
+    CartProductList,
+    GuestUserDataLength,
+    AddCartProduct,
+    AddLikeProduct,
+    guestCart,
+  } = UsePanel();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -29,18 +41,48 @@ export default function Nav() {
           CartProductLength: GuestUserDataLength.Cart,
         });
         return;
+      } else {
+        console.log(GuestUserDataLength.Cart);
+
+        if (GuestUserDataLength.Cart > 0 || GuestUserDataLength.Like > 0) {
+          // Log-in User LocalData Merge to db logic
+          try {
+            const cartPromises = Object.values(guestCart?.items ?? {}).map(
+              (item) => AddCartProduct(item.id, item.variantSizeId)
+            );
+
+            // Merge Likes
+            const likePromises = Object.values(
+              guestCart?.likeProduct ?? {}
+            ).map((like) => AddLikeProduct(like, like.variantSizeId));
+
+            const results = await Promise.all([
+              ...cartPromises,
+              ...likePromises,
+            ]);
+
+            console.log("Merge Results:", results);
+
+            if (!results) {
+              localStorage.removeItem("GuestUserData");
+            }
+
+            // ✅ Clear guest data ONLY ONCE after success
+          } catch (error) {
+            console.error("Merge failed:", error);
+          }
+        }
+        let [CartData, LikeData] = await Promise.all([
+          CartProductList(user.id),
+          LikeProductList(user.id),
+        ]);
+
+        setState((prev) => ({
+          ...prev,
+          likeProductLength: LikeData?.data?.length ?? 0,
+          CartProductLength: CartData?.data?.length ?? 0,
+        }));
       }
-
-      let [CartData, LikeData] = await Promise.all([
-        CartProductList(user.id),
-        LikeProductList(user.id),
-      ]);
-
-      setState((prev) => ({
-        ...prev,
-        likeProductLength: LikeData?.data?.length ?? 0,
-        CartProductLength: CartData?.data?.length ?? 0,
-      }));
     };
 
     LengthData();
