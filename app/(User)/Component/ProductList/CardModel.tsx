@@ -48,7 +48,7 @@ export default function CardModel({
     UsePanel();
   const router = useRouter();
 
-  if (DataObj.length === 0) {
+  if (DataObj?.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-neutral-500 tracking-widest">NO PRODUCTS FOUND</p>
@@ -155,7 +155,7 @@ export default function CardModel({
 
   return (
     <>
-      {DataObj.length > 1 &&
+      {DataObj?.length > 1 &&
         DataObj.map((product: Product) => {
           let iscart = isUser
             ? !!Data.CartData?.[product.id]

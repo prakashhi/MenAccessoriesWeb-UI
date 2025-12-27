@@ -5,13 +5,11 @@ import { RiCloseLine } from "react-icons/ri";
 import { Variants } from "framer-motion";
 
 interface PaymentFailedModalProps {
-  isOpen: boolean;
   onClose: () => void;
   reason?: string;
 }
 
 export default function PaymentFailedModal({
-  isOpen,
   onClose,
   reason = "Transaction could not be completed",
 }: PaymentFailedModalProps) {

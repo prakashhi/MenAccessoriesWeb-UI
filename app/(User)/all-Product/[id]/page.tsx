@@ -32,8 +32,9 @@ import {
   productSize,
   SizeVariant,
 } from "@/app/(User)/Type/Types";
-import VariantSelector from "./Component/VariantsCompont";
-import SizeSelector from "./Component/SizeComponet";
+import VariantSelector from "./Component/VariantsComponent";
+import SizeSelector from "./Component/SizeComponent";
+import { toastActions } from "../../Component/ToastComponent";
 
 interface ProductState {
   Like: boolean;
@@ -80,54 +81,57 @@ export default function ProductPage() {
 
     const loadProduct = async () => {
       try {
-        // const [product, variants] = await Promise.all([
-        //   callApi("get", `/product/${params.id}`),
-        //   callApi("get", `/variants/size/product/${params.id}`),
-        // ]);
+        const [product, variants] = await Promise.all([
+          callApi("get", `/product/${params.id}`),
+          callApi("get", `/variants/size/product/${params.id}`),
+        ]);
+        setProduct(product?.data);
+        setSelectedVariant(variants.data);
 
-        const product = await callApi(
-          "get",
-          `https://backend.9rock.in/product/${params.id}`
-        );
+        // RealData
+        // const product = await callApi(
+        //   "get",
+        //   `https://backend.9rock.in/product/${params.id}`
+        // );
 
-        const productData = product?.data ?? product ?? {};
+        // const productData = product?.data ?? product ?? {};
 
-        if (product?.data?.isHaveSizeVariants === true) {
-          if (product.data.variantId == null) {
-            // if No variantId
-            const size = await callApi(
-              "get",
-              `https://backend.9rock.in/variants/size/product/${
-                selectedVariant ? selectedVariant : params.id
-              }`
-            );
+        // if (product?.data?.isHaveSizeVariants === true) {
+        //   if (product.data.variantId == null) {
+        //     // if No variantId
+        //     const size = await callApi(
+        //       "get",
+        //       `https://backend.9rock.in/variants/size/product/${
+        //         selectedVariant ? selectedVariant : params.id
+        //       }`
+        //     );
 
-            const sizeData = size?.data ?? size ?? {};
-            setSizeData(sizeData);
-          } else {
-            // if variantId and Size available
-            const [variants, size] = await Promise.all([
-              callApi(
-                "get",
-                `https://backend.9rock.in/variants/products/${product.data.variantId}`
-              ),
-              callApi(
-                "get",
-                `https://backend.9rock.in/variants/size/product/${
-                  selectedVariant ? selectedVariant : params.id
-                }`
-              ),
-            ]);
+        //     const sizeData = size?.data ?? size ?? {};
+        //     setSizeData(sizeData);
+        //   } else {
+        //     // if variantId and Size available
+        //     const [variants, size] = await Promise.all([
+        //       callApi(
+        //         "get",
+        //         `https://backend.9rock.in/variants/products/${product.data.variantId}`
+        //       ),
+        //       callApi(
+        //         "get",
+        //         `https://backend.9rock.in/variants/size/product/${
+        //           selectedVariant ? selectedVariant : params.id
+        //         }`
+        //       ),
+        //     ]);
 
-            const variantsData = variants?.data ?? variants ?? {};
-            const sizeData = size?.data ?? size ?? {};
+        //     const variantsData = variants?.data ?? variants ?? {};
+        //     const sizeData = size?.data ?? size ?? {};
 
-            setVariants(variantsData);
-            setSizeData(sizeData);
-          }
-        }
-        if (!active) return;
-        setProduct(productData);
+        //     setVariants(variantsData);
+        //     setSizeData(sizeData);
+        //   }
+        // }
+        // if (!active) return;
+        // setProduct(productData);
       } catch (err) {
         console.error("Product fetch failed", err);
       } finally {
@@ -150,7 +154,7 @@ export default function ProductPage() {
     const syncUserData = async () => {
       try {
         // ✅ LOGGED-IN USER
-        if (user?.id) {
+        if (user) {
           const [CartData, LikeData] = await Promise.all([
             CartProductList(user.id),
             LikeProductList(user.id),
@@ -158,17 +162,39 @@ export default function ProductPage() {
 
           if (!active) return;
 
-          const like = LikeData?.data?.find(
-            (i: any) =>
-              i.product.id == product.id ||
-              i.product.variantId == product.variantId
-          );
+          const like = LikeData?.data.find((i: any) => {
+            // Both productId must exist and match
+            if (!i.product.id || !product.id) return false;
+            if (i.product.id !== product.id) return false;
 
-          const cart = CartData?.data.find(
-            (i: any) =>
-              i.product.productId == product.id ||
-              i.product.variantId == product.variantId
-          );
+            // If variantId exists on both, it must match
+            if (
+              i.product.variantId !== undefined &&
+              product.variantId !== undefined
+            ) {
+              return i.product.variantId === product.variantId;
+            }
+
+            // If no variantId, match by productId only
+            return true;
+          });
+
+          const cart = CartData?.data.find((i: any) => {
+            // Both productId must exist and match
+            if (!i.product.productId || !product.id) return false;
+            if (i.product.productId !== product.id) return false;
+
+            // If variantId exists on both, it must match
+            if (
+              i.product.variantId !== undefined &&
+              product.variantId !== undefined
+            ) {
+              return i.product.variantId === product.variantId;
+            }
+
+            // If no variantId, match by productId only
+            return true;
+          });
 
           setState((prev) => ({
             ...prev,
@@ -230,7 +256,7 @@ export default function ProductPage() {
     Color: product.color,
     // Material: product.materialUsedName,
   };
-  const iscart = guestCart?.items?.[product.id];
+  const iscart = guestCart.items[product.id];
 
   const addToCartHandle = async (
     variantSizeId: string | null,
@@ -242,6 +268,7 @@ export default function ProductPage() {
 
       if (user) {
         res = await AddCartProduct(product.id, variantSizeId, Size);
+        toastActions.addToCart();
       } else {
         res = await AddCartProductGuest(product, variantSizeId, Size);
       }
@@ -261,6 +288,9 @@ export default function ProductPage() {
 
   const addToLikeHandle = async (variantSizeId: string | null) => {
     let res = await AddLikeProduct(product, variantSizeId);
+
+    console.log("like", res);
+
     if (res !== undefined) {
       setState((prev) => ({
         ...prev,
@@ -281,7 +311,7 @@ export default function ProductPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="lg:sticky lg:top-0"
+            className="lg:sticky lg:top-0 cursor-pointer"
           >
             <PictureGallery
               images={[
@@ -420,7 +450,7 @@ export default function ProductPage() {
                     user ? state.CartData?.quantity ?? 1 : iscart?.quantity ?? 1
                   }
                   stock={product.stock}
-                  setState={(user && setState) || null}
+                  setState={user ? setState : undefined}
                 />
               </div>
             )}
@@ -443,7 +473,7 @@ export default function ProductPage() {
                     className="
         relative flex items-center justify-center gap-3
         bg-black text-white py-4 rounded-none
-        text-xs tracking-[0.25em] font-semibold
+        text-xs tracking-[0.25em] font-semibold cursor-pointer
         overflow-hidden
       "
                   >
@@ -455,7 +485,7 @@ export default function ProductPage() {
                           animate={{ y: 0, opacity: 1 }}
                           exit={{ y: -10, opacity: 0 }}
                           transition={{ duration: 0.3 }}
-                          className="flex items-center gap-2 cursor-pointer"
+                          className="flex items-center gap-2 "
                         >
                           <RiShoppingCart2Line size={16} />
                           ADD TO CART

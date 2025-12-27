@@ -42,6 +42,7 @@ export default function Product() {
   });
 
   const getData = useCallback(async () => {
+    //Original Data
     let res = await callApi(
       "get",
       "https://backend.9rock.in/9rock/cat-with-products"
@@ -247,14 +248,14 @@ export default function Product() {
                       <CardModel
                         DataObj={categoryItem.products}
                         CustomWH="
-            snap-start
-          w-[320px]
-sm:w-[280px]
-lg:w-[300px]
-xl:w-[320px]
-shrink-0
+                        snap-start
+                        w-[320px]
+                        sm:w-[280px]
+                        lg:w-[300px]
+                        xl:w-[320px]
+                        shrink-0
 
-          "
+                      "
                         Data={state}
                         setState={setState}
                         isUser={!!userData}

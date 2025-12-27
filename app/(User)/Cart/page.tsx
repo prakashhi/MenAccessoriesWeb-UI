@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getUserFromStorage } from "@/context/utils";
 import { product } from "@/context/Types/type";
 import { formatIndianPrice } from "@/app/utils/FormatCurrency";
-import PaymentSuccessModal from "./component/PaymentSucessModel";
+import PaymentSuccessModal from "./component/PaymentSuccessModel";
 import { RiDeleteBinLine, RiShoppingCart2Line } from "react-icons/ri";
 import PaymentFailedModal from "./component/PaymentFailedModel";
 import GuestUserPaymentForm from "./component/GuestUserFill";
@@ -40,6 +40,7 @@ import {
 } from "@/app/(User)/Type/Types";
 import { useApi } from "@/app/useApi";
 import { PaymentModeSelector } from "./component/PaymentMethodSelect";
+import CardModel from "../Component/ProductList/CardModel";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
 
@@ -48,6 +49,8 @@ type CartListItem = GuestCartItem | CartItem;
 type modelTypes = {
   FillForm: boolean;
   PaymentMethodModel: boolean;
+  PaymentSuccessModel: boolean;
+  PaymentFailModel: boolean;
 };
 
 export default function Page() {
@@ -58,10 +61,15 @@ export default function Page() {
   const [openModel, setOpenModel] = useState<modelTypes>({
     FillForm: false,
     PaymentMethodModel: false,
+    PaymentSuccessModel: false,
+    PaymentFailModel: false,
   });
 
   const [cartListData, setCartListData] = useState<CartListItem[]>([]);
   const [Fields, setFields] = useState<string[]>([]);
+  const [paymentData, setPaymentData] = useState<any>(null);
+
+  console.log("Liast", cartListData);
 
   const { callApi } = useApi();
 
@@ -99,6 +107,15 @@ export default function Page() {
         0
       );
     }
+  }, [cartListData]);
+
+  const TotalQty: number = useMemo(() => {
+    if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
+
+    return cartListData.reduce(
+      (sum: number, item: any) => sum + Number(item.quantity),
+      0
+    );
   }, [cartListData]);
 
   const ShippingTaxFunction: number = useMemo(() => {
@@ -168,8 +185,6 @@ export default function Page() {
       RemoveCartProduct(item.id);
     }
   };
-
-  console.log(cartListData);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
@@ -279,11 +294,11 @@ export default function Page() {
 
                         <div className="flex flex-col gap-1">
                           <ItemCount
-                            productId={user ? item.id : item.id}
+                            productId={user ? item.product.productId : item.id}
                             quantity={item.quantity}
                             stock={user ? item.product.stock : item.stock}
-                            cartId={item.id}
-                            setState={user && setCartListData}
+                            cartId={user ? item.id : undefined}
+                            setState={user ? setCartListData : undefined}
                           />
                           <div>
                             <button
@@ -355,7 +370,10 @@ export default function Page() {
                 </div>
                 <div className="flex justify-between text-sm tracking-wide">
                   <span>Tax</span>
-                  <span className="font-semibold">{TaxPercentage}%</span>
+                  <span className="font-semibold text-sm">
+                    ₹{Math.floor((total * TaxPercentage) / 100)}(
+                    {`${TaxPercentage}%`})
+                  </span>
                 </div>
 
                 <div className="border-b-1 border-gray-400"></div>
@@ -398,6 +416,14 @@ export default function Page() {
               onClose={() =>
                 setOpenModel((prev) => ({ ...prev, FillForm: false }))
               }
+              onSuccess={() =>
+                setOpenModel({
+                  FillForm: false,
+                  PaymentMethodModel: true,
+                  PaymentSuccessModel: false,
+                  PaymentFailModel: false,
+                })
+              }
               UserData={user}
             />
           }
@@ -410,16 +436,70 @@ export default function Page() {
           children={
             <PaymentModeSelector
               cartListData={cartListData}
-              TotalPrice={ShippingTaxFunction}
-              PaymentAmount={total}
+              TotalPrice={total}
+              TotalQty={TotalQty}
+              PaymentAmount={ShippingTaxFunction}
               tax={TaxPercentage}
               shipping={ShippingCharge}
+              onSuccess={() =>
+                setOpenModel({
+                  FillForm: false,
+                  PaymentMethodModel: false,
+                  PaymentSuccessModel: true,
+                  PaymentFailModel: false,
+                })
+              }
+              setPaymentData={setPaymentData}
+              onFail={() =>
+                setOpenModel({
+                  FillForm: false,
+                  PaymentMethodModel: false,
+                  PaymentSuccessModel: false,
+                  PaymentFailModel: true,
+                })
+              }
               onClose={() =>
                 setOpenModel((prev) => ({
                   ...prev,
                   PaymentMethodModel: false,
                 }))
               }
+            />
+          }
+        />
+
+        <CartInfoModal
+          open={openModel.PaymentSuccessModel}
+          onClose={() =>
+            setOpenModel((prev) => ({ ...prev, PaymentSuccessModel: false }))
+          }
+          children={
+            <PaymentSuccessModal
+              PaymentData={paymentData}
+              onClose={() =>
+                setOpenModel((prev) => ({
+                  ...prev,
+                  PaymentSuccessModel: false,
+                }))
+              }
+            />
+          }
+        />
+
+        <CartInfoModal
+          open={openModel.PaymentFailModel}
+          onClose={() =>
+            setOpenModel((prev) => ({ ...prev, PaymentFailModel: false }))
+          }
+          children={
+            <PaymentFailedModal
+              onClose={() =>
+                setOpenModel((prev) => ({
+                  ...prev,
+                  PaymentFailModel: false,
+                }))
+              }
+              reason={"This is reason"}
             />
           }
         />

@@ -8,7 +8,7 @@ import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
-import CountryFiled from "./Component/CountryFiledComponet";
+import CountryFiled from "./Component/CountryFiledComponent";
 
 import { RegisterType } from "@/app/(User)/Type/Types";
 import API from "@/app/api";

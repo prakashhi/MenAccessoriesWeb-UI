@@ -23,6 +23,7 @@ import {
   CartProductInfo,
   ProductInfoType,
   LikeProductType,
+  User,
 } from "@/app/(User)/Type/Types";
 
 type GuestCartItem = ProductInfoType & {
@@ -89,24 +90,25 @@ type PanelContextType = {
 
 const SearchPanelContext = createContext<PanelContextType | null>(null);
 
-export const UsePanel = () => {
+export const UsePanel = (): PanelContextType => {
   const context = useContext(SearchPanelContext);
   if (!context) {
+    throw new Error("UsePanel must be used within SearchPanelContextProvider");
     console.warn("UsePanel used outside provider");
-    return {
-      GuestUserDataLength: { Cart: 0, Like: 0 },
-      LikeProductList: async () => ({ data: [] }),
-      CartProductList: async () => ({ data: [] }),
-      AddCartProduct: async () => undefined,
-      AddLikeProduct: async () => undefined,
-      AddCartProductGuest: async () => undefined,
-      incrementCartProduct: async () => {},
-      decrementCartProduct: async () => {},
-      setCartProductQty: async () => {},
-      RemoveCartProduct: async () => {},
-      RemoveLikeProduct: async () => {},
-      guestCart: null,
-    };
+    // return {
+    //   GuestUserDataLength: { Cart: 0, Like: 0 },
+    //   LikeProductList: async () => ({ data: [] }),
+    //   CartProductList: async () => ({ data: [] }),
+    //   AddCartProduct: async () => undefined,
+    //   AddLikeProduct: async () => undefined,
+    //   AddCartProductGuest: async () => undefined,
+    //   incrementCartProduct: async () => {},
+    //   decrementCartProduct: async () => {},
+    //   setCartProductQty: async () => {},
+    //   RemoveCartProduct: async () => {},
+    //   RemoveLikeProduct: async () => {},
+    //   guestCart: { items: {}, likeProduct: {} },
+    // };
   }
 
   return context;
@@ -126,7 +128,7 @@ export function SearchPanelContextProvider({
   });
 
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User>(null);
 
   // 1️⃣ Mark client mount
   useEffect(() => {
@@ -147,6 +149,8 @@ export function SearchPanelContextProvider({
     // if (cart) {
     //   setGuestCart(cart); // ✅ restore FULL cart
     // }
+
+    // if (!cart) return;
 
     setGuestCart((prev) => ({
       ...prev,
@@ -179,24 +183,26 @@ export function SearchPanelContextProvider({
     variantSizeId: string | null | undefined,
     size?: string | null
   ) => {
-    try {
-      let response = await callApi("post", "/cart", {
-        data: {
-          productId: ProductId,
-          userId: user.id,
-          variantSizeId: variantSizeId ?? null,
-        },
-      });
+    if (user) {
+      try {
+        let response = await callApi("post", "/cart", {
+          data: {
+            productId: ProductId,
+            userId: user?.id,
+            variantSizeId: variantSizeId ?? null,
+          },
+        });
 
-      return response;
-    } catch (err) {
-      let message = err?.response?.data?.message || "Something is wrong";
-      notify({
-        message: message,
-        type: "error",
-      });
-      console.log(err);
-      return err;
+        return response;
+      } catch (err) {
+        let message = err?.response?.data?.message || "Something is wrong";
+        notify({
+          message: message,
+          type: "error",
+        });
+        console.log(err);
+        return err;
+      }
     }
   };
 
@@ -298,14 +304,16 @@ export function SearchPanelContextProvider({
 
       return;
     } else {
-      let response = await callApi("post", "/like-product", {
-        data: {
-          productId: Product.id,
-          userId: id,
-        },
-      });
+      if (user) {
+        let response = await callApi("post", "/like-product", {
+          data: {
+            productId: Product.id,
+            userId: user?.id,
+          },
+        });
 
-      return response;
+        return response;
+      }
     }
   };
 

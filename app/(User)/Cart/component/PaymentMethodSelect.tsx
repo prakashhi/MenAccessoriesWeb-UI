@@ -1,7 +1,6 @@
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { Wallet, CreditCard } from "lucide-react";
 import { X } from "lucide-react";
-
 import Loader from "@/public/svg/tube-spinner.svg";
 import Image from "next/image";
 import { useApi } from "@/app/useApi";
@@ -13,34 +12,55 @@ import {
 } from "@/app/(User)/Type/Types";
 import { getUserFromStorage } from "@/context/utils";
 import { useMemo } from "react";
+import PaymentSuccessModal from "./PaymentSuccessModel";
 
-type PaymentMode = "CASH" | "ONLINE";
+type PaymentMode = { paymentMode: "CASH" | "ONLINE" };
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
-
 type CartListItem = GuestCartItem | CartItem;
+
+type ProductsListAPi = {
+  productId: string;
+  productName: string;
+  productCategory: string;
+  productSerialNumber: string;
+  productImage: string;
+  productHSNCode: string | null;
+  quantity: number;
+  price: number;
+  totalPrice: number;
+  variantSize: string;
+};
 
 export function PaymentModeSelector({
   onClose,
   cartListData,
   TotalPrice,
+  onSuccess,
   PaymentAmount,
   tax,
   shipping,
+  TotalQty,
+  setPaymentData,
+  onFail,
 }: {
   onClose: () => void;
   cartListData: CartListItem[];
   TotalPrice: number;
   PaymentAmount: number;
+  setPaymentData: React.Dispatch<React.SetStateAction<any>>;
   tax: number;
+  onSuccess: () => void;
+  onFail: () => void;
   shipping: number;
+  TotalQty: number;
 }) {
   const {
     register,
     watch,
     handleSubmit,
     formState: { errors, isSubmitting, isDirty },
-  } = useForm();
+  } = useForm<PaymentMode>();
 
   const user: User = useMemo(() => getUserFromStorage(), []);
 
@@ -54,9 +74,29 @@ export function PaymentModeSelector({
       .toUpperCase()}`;
   };
 
-  const onSubmit = async (info) => {
+  const onSubmit: SubmitHandler<PaymentMode> = async (info) => {
     if (info.paymentMode == "CASH") {
-      console.log(cartListData);
+      let List = cartListData as CartItem[];
+
+      const productsList: ProductsListAPi[] = List.reduce((acc, val) => {
+        const { product, quantity, variantSize } = val;
+        if (!product || quantity <= 0) return acc;
+        const price = Number(product.productPrice);
+        acc.push({
+          productId: product.productId,
+          productName: product.productName,
+          productCategory: product.categoryName,
+          productSerialNumber: product.serialNumber,
+          productImage: product.productImage,
+          productHSNCode: null,
+          quantity,
+          price,
+          totalPrice: quantity * price,
+          variantSize: variantSize.variantSizeId ?? null,
+        });
+
+        return acc;
+      }, [] as ProductsListAPi[]);
 
       let date = new Date().toISOString();
       let res = await callApi("post", "/sales", {
@@ -65,33 +105,20 @@ export function PaymentModeSelector({
             salesDate: date,
             invoiceId: generateOrderId("INVOICE"),
             orderId: generateOrderId("ORD"),
-            totalPrice: TotalPrice,
-            totalQuantity: cartListData.length,
+            totalPrice: Math.floor(PaymentAmount),
+            totalQuantity: TotalQty,
             totalDiscount: 0,
-            totalTax: tax,
+            totalTax: Math.floor(((TotalPrice + shipping) * tax) / 100),
             shippingFee: shipping,
             salesStatus: "PENDING",
             source: "OFFLINE",
           },
-          products: [
-            {
-              productId: "string",
-              productName: "string",
-              productCategory: "string",
-              productSerialNumber: "string",
-              productImage: "string",
-              productHSNCode: "string",
-              quantity: 0,
-              price: 0,
-              totalPrice: 0,
-              variantSize: "string",
-            },
-          ],
+          products: productsList,
           payments: {
             transactionId: generateOrderId("TRAN"),
             paymentMethod: "CASH",
             paymentStatus: "PENDING",
-            paymentAmount: PaymentAmount,
+            paymentAmount: Math.floor(PaymentAmount),
             razorpayOrderId: null,
             razorpayPaymentId: null,
             razorpaySignature: null,
@@ -115,6 +142,11 @@ export function PaymentModeSelector({
           shouldMinimizeStock: true,
         },
       });
+
+      if (res.success == true) {
+        setPaymentData(res.data);
+        onSuce;
+      }
 
       console.log(res);
     }
@@ -156,7 +188,7 @@ export function PaymentModeSelector({
               className={`relative flex gap-4 p-5 rounded-2xl cursor-pointer transition-all duration-200
           border
           ${
-            selected === "COD"
+            selected === "CASH"
               ? "border-gray-300 bg-gray-50 ring-1 ring-gray-200"
               : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/40"
           }`}

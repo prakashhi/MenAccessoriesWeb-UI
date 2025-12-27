@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { notify } from "@/app/(User)/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
-import CountryFiled from "@/app/(User)/register/Component/CountryFiledComponet";
-import PaymentSuccessModal from "./PaymentSucessModel";
+import CountryFiled from "@/app/(User)/register/Component/CountryFiledComponent";
+import PaymentSuccessModal from "./PaymentSuccessModel";
 import { User } from "../../Type/Types";
 import API from "@/app/api";
 import { X } from "lucide-react";
@@ -25,10 +25,12 @@ export default function GuestUserFill({
   requiredFields,
   UserData,
   onClose,
+  onSuccess
 }: {
   requiredFields: string[];
   UserData: User;
   onClose: () => void;
+  onSuccess: () => void;
 }) {
   const {
     register,
@@ -72,6 +74,7 @@ export default function GuestUserFill({
       });
 
       onClose();
+      onSuccess();
     } catch (err: any) {
       notify({
         message: err?.response?.data?.message || "Something went wrong!",

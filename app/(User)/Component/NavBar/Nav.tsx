@@ -56,6 +56,7 @@ export default function Nav() {
               guestCart?.likeProduct ?? {}
             ).map((like) => AddLikeProduct(like, like.variantSizeId));
 
+
             const results = await Promise.all([
               ...cartPromises,
               ...likePromises,

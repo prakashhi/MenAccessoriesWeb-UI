@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import CountryField from "@/app/(User)/register/Component/CountryFiledComponet";
+import CountryField from "@/app/(User)/register/Component/CountryFiledComponent";
 import API from "@/app/api";
 import { toastActions, notify } from "../../Component/ToastComponent";
 import Loader from "@/public/svg/tube-spinner.svg";

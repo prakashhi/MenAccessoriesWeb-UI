@@ -18,7 +18,7 @@ interface ProductState {
   Like: boolean;
   Cart: boolean;
   LikeData: LikeProductType;
-  CartData: CartItem;
+  CartData: Record<string, CartItem>;
 }
 
 interface ItemCountProps {
@@ -65,77 +65,26 @@ export default function ItemCount({
     }
     return true;
   };
+  const requestVersionRef = useRef(0);
 
   const handleInCrement = async () => {
-    if (user) {
-      const Qty = Number(inputValue) + 1;
+    if (user && setState) {
+      const Qty = Math.max(1, Math.min(Number(inputValue) + 1, stock));
+
       setInputValue(String(Qty));
 
-      // setState?.((prev) => ({
-      //   ...prev,
-      //   CartData: {
-      //     ...prev.CartData,
-      //     quantity: Number(Qty),
-      //   },
-      // }));
-      setState?.((prev) =>
-        prev.map((item: any) =>
-          item.id === cartId ? { ...item, quantity: Number(Qty) } : item
-        )
-      );
+      setState((prev) => {
+        if (!prev) return prev;
 
-      await incrementCartProduct(productId, cartId, Number(inputValue));
-    } else {
-      incrementCartProduct(productId, cartId, quantity);
-    }
-  };
-
-  const handleDeCrement = async () => {
-    if (user) {
-      const Qty = Number(inputValue) - 1;
-      setInputValue(String(Qty));
-
-      // setState?.((prev) => ({
-      //   ...prev,
-      //   CartData: {
-      //     ...prev.CartData,
-      //     quantity: Number(Qty),
-      //   },
-      // }));
-
-      setState?.((prev) =>
-        prev.map((item: any) =>
-          item.id === cartId ? { ...item, quantity: Number(Qty) } : item
-        )
-      );
-
-      await decrementCartProduct(productId, cartId, Number(inputValue));
-    } else {
-      decrementCartProduct(productId, cartId, Number(quantity));
-    }
-  };
-
-  const handleEnterNumberChange = async (value: number) => {
-    if (user) {
-      // setState?.((prev) => ({
-      //   ...prev,
-      //   CartData: {
-      //     ...prev.CartData,
-      //     quantity: Number(value),
-      //   },
-      // }));
-
-      // setState?.((prev) =>
-      //   prev.map((item: any) =>
-      //     item.id === cartId ? { ...item, quantity: Number(value) } : item
-      //   )
-      // );
-
-      setState?.((prev) => {
-        if (!prev || !Array.isArray(prev)) return []; // fallback to empty array
-        return prev.map((item: any) =>
-          item.id === cartId ? { ...item, quantity: Number(value) } : item
-        );
+        return prev.map((item) => {
+          if (item.id === cartId) {
+            return {
+              ...item,
+              quantity: Qty,
+            };
+          }
+          return item;
+        });
       });
 
       // 2️⃣ Clear previous API call
@@ -143,15 +92,108 @@ export default function ItemCount({
         clearTimeout(debounceRef.current);
       }
 
+      // 3️⃣ Increase version
+      const currentVersion = ++requestVersionRef.current;
+
       debounceRef.current = setTimeout(async () => {
         try {
-          await incrementCartProduct(productId, cartId, value);
+          await incrementCartProduct(productId, cartId, Qty);
+          // Ignore outdated responses
+          if (currentVersion !== requestVersionRef.current) return;
         } catch (err) {
           console.error("Failed to update cart", err);
         }
       }, 600);
+    } else {
+      incrementCartProduct(productId, cartId, quantity);
+    }
+  };
 
-      // await incrementCartProduct(productId, cartId, Number(value));
+  const handleDeCrement = async () => {
+    if (user && setState) {
+      const Qty = Number(inputValue) - 1;
+      if (Qty >= 1) {
+        setInputValue(String(Qty));
+      }
+
+      setState?.((prev: any) => {
+        const item = prev.CartData?.[cartId];
+        if (!item) return prev;
+
+        return {
+          ...prev,
+          CartData: {
+            ...prev.CartData,
+            [cartId]: {
+              ...item,
+              quantity: Qty,
+            },
+          },
+        };
+      });
+
+      // 2️⃣ Clear previous API call
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      // 3️⃣ Increase version
+      const currentVersion = ++requestVersionRef.current;
+
+      debounceRef.current = setTimeout(async () => {
+        try {
+          await decrementCartProduct(productId, cartId, Qty);
+
+          // Ignore outdated responses
+          if (currentVersion !== requestVersionRef.current) return;
+        } catch (err) {
+          console.error("Failed to update cart", err);
+        }
+      }, 600);
+    } else {
+      decrementCartProduct(productId, cartId, Number(quantity));
+    }
+  };
+
+  const handleEnterNumberChange = async (value: number) => {
+    if (user && setState) {
+      const Qty = value;
+      setInputValue(String(Qty));
+
+      setState?.((prev: any) => {
+        const item = prev.CartData?.[cartId];
+        if (!item) return prev;
+
+        return {
+          ...prev,
+          CartData: {
+            ...prev.CartData,
+            [cartId]: {
+              ...item,
+              quantity: Qty,
+            },
+          },
+        };
+      });
+
+      // 2️⃣ Clear previous API call
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      // 3️⃣ Increase version
+      const currentVersion = ++requestVersionRef.current;
+
+      debounceRef.current = setTimeout(async () => {
+        try {
+          await incrementCartProduct(productId, cartId, Qty);
+
+          // Ignore outdated responses
+          if (currentVersion !== requestVersionRef.current) return;
+        } catch (err) {
+          console.error("Failed to update cart", err);
+        }
+      }, 600);
     } else {
       console.log(value);
       setState?.((prev) => {

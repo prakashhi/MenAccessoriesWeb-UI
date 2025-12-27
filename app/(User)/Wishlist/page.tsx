@@ -159,12 +159,18 @@ export default function Page() {
                   {/* IMAGE */}
                   <div className="relative w-full h-64 md:h-72 bg-gray-50 overflow-hidden">
                     <Image
+                      alt={
+                        user
+                          ? item.product?.name ??
+                            item.product?.data?.name ??
+                            "NO image"
+                          : item.name ?? "NO image"
+                      }
                       onClick={() =>
                         router.push(
-                          `/all-Product/${user ? item.product?.id : item.id}`
+                          `/all-Product/${user ? item.product?.id ?? item.product?.data.id  : item.id}`
                         )
                       }
-                      alt={user ? item.product.name : item.name}
                       src={
                         user
                           ? ImageShowUtil(item.product.image)
@@ -195,7 +201,9 @@ export default function Page() {
                         className="text-md font-light tracking-wide text-gray-900 line-clamp-2"
                         style={{ fontFamily: "'Cormorant Garamond', serif" }}
                       >
-                        {user ? item.product.name : item.name}
+                        {user
+                          ? item.product.name ?? item.product.data.name
+                          : item.name}
                       </h3>
 
                       <p className="text-xs text-gray-500 uppercase tracking-[0.12em] mt-1">

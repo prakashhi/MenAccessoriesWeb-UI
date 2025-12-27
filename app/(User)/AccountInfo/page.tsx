@@ -25,14 +25,22 @@ import { Button } from "@heroui/react";
 import UserEditForm from "./Component/UserEditForm";
 import { Pencil } from "lucide-react";
 import ChangePassword from "./Component/ChangePassword";
+import { UsePanel } from "@/context/Context";
 
 type IconType = "📭";
 
 export default function AccountSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
+  const [active, setActive] = useState<string>("info");
+
+  const { callApi } = useApi();
+
+  const {getUser} = UsePanel()
+
+  const router = useRouter();
 
   const [user, setUserData] = useState({
-    info: {} as User,
+    info: {} as User | null,
     orders: [] as OrderType[],
     wishlist: [] as LikeProductType[],
     OrderList: [],
@@ -47,7 +55,6 @@ export default function AccountSection() {
       message: "Log Out Successfully",
       type: "info",
     });
-    // Redirect to admin dashboard
 
     router.replace("/login");
   };
@@ -63,13 +70,6 @@ export default function AccountSection() {
     },
   ];
 
-  // active tab
-  const [active, setActive] = useState<string>("info");
-
-  const { callApi } = useApi();
-
-  const router = useRouter();
-
   // mobile accordion state
   const [open, setOpen] = useState<{ [k: string]: boolean }>({ info: true });
 
@@ -80,20 +80,21 @@ export default function AccountSection() {
   };
 
   useEffect(() => {
+    const userId = userData?.id;
+    if (!userId) {
+      router.replace("/login");
+      return;
+    }
+
     let mounted = true;
 
     const GetProfileData = async () => {
-      if (!userData?.id) {
-        router.replace("/login");
-        return;
-      } else {
+      try {
         let [profileData, likeProductData, OrderList] = await Promise.all([
-          callApi("get", `/user/${userData.id}`),
-          callApi("get", `/like-products/${userData.id}`),
-          callApi("get", `/sales/customer/${userData.id}`),
+          callApi("get", `/user/${userId}`),
+          callApi("get", `/like-products/${userId}`),
+          callApi("get", `/sales/customer/${userId}`),
         ]);
-
-        console.log(OrderList);
 
         if (!mounted) return;
 
@@ -102,6 +103,8 @@ export default function AccountSection() {
           info: profileData?.data,
           wishlist: likeProductData?.data,
         }));
+      } catch (err) {
+        console.log(err);
       }
     };
     GetProfileData();
@@ -109,7 +112,7 @@ export default function AccountSection() {
     return () => {
       mounted = false;
     };
-  }, [userData]);
+  }, []);
 
   return (
     <>
@@ -330,7 +333,7 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
 
               <div className="flex justify-between">
                 <div className="mt-1 text-gray-900">
-                  {new Date(user.info.createdAt).toLocaleDateString()}
+                  {new Date(user?.info?.createdAt).toLocaleDateString()}
                 </div>
 
                 <div>
