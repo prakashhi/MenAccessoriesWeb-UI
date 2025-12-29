@@ -34,7 +34,6 @@ export default function Product() {
   );
 
   const [product, setProduct] = useState<productCategoryList[]>([]);
-  const [category, setCategory] = useState<CategoryInfo[]>([]);
 
   const [state, setState] = useState<Data>({
     LikeData: {},
@@ -43,43 +42,36 @@ export default function Product() {
 
   const getData = useCallback(async () => {
     //Original Data
-    let res = await callApi(
-      "get",
-      "https://backend.9rock.in/9rock/cat-with-products"
-    );
+    let res = await callApi("get", `/rockroar/catalog`);
     setProduct(res.data);
 
-    // const [category, product] = await Promise.all([
-    //   callApi(
-    //     "get",
-    //     `/product/category-list?page=1&limit=100&hideWithOutImage=false`
-    //   ),
-    //   callApi(
-    //     "get",
-    //     `/product-list?page=1&limit=100&sortOrder=desc&showInStockProducts=false`
-    //   ),
-    // ]);
-    // if (userData) {
-    //   const [category, like] = await Promise.all([
-    //     CartProductList(userData.id),
-    //     LikeProductList(userData.id),
-    //   ]);
-    //   const cartMap: Record<string, CartItem> = {};
-    //   category.data.forEach((item: CartItem) => {
-    //     cartMap[item.product.productId] = item;
-    //   });
-    //   const likeMap: Record<string, LikeProductType> = {};
-    //   like.data.forEach((item: LikeProductType) => {
-    //     likeMap[item.product.id] = item;
-    //   });
-    //   setState((prev) => ({
-    //     ...prev,
-    //     LikeData: likeMap,
-    //     CartData: cartMap,
-    //   }));
-    // }
-    // setCategory(category.data);
-    // setProduct(product.data);
+    if (userData) {
+      const [category, like] = await Promise.all([
+        CartProductList(userData.id),
+        LikeProductList(userData.id),
+      ]);
+
+      console.log(category, like);
+
+      const cartMap: Record<string, CartItem> = {};
+
+      category && category.data.forEach((item: CartItem) => {
+        cartMap[item.product.productId] = item;
+      });
+
+      const likeMap: Record<string, LikeProductType> = {};
+      like && like.data.forEach((item: LikeProductType) => {
+        let id = item.product.data ? item.product.data.id : item.product.id;
+        likeMap[id] = item;
+      });
+
+
+      setState((prev) => ({
+        ...prev,
+        LikeData: likeMap,
+        CartData: cartMap,
+      }));
+    }
   }, []);
 
   const observeSection = useCallback(

@@ -19,20 +19,19 @@ export default function Page() {
   const [data, setData] = useState<ProductInfoType[]>([]);
 
   const getData = useCallback(async () => {
-    // const res = await callApi(
-    //   "get",
-    //   `/product-category-list?id=${params.CategotyId}&limit=100&offset=0`
-    // );
-
     const res = await callApi(
       "get",
-      "https://backend.9rock.in/9rock/cat-with-products"
+      `/product-category-list?id=${params.CategotyId}&limit=100&offset=0`
     );
 
+    // const res = await callApi(
+    //   "get",
+    //   `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/9rock/cat-with-products`
+    // );
 
-    setData(res.data[1]?.products);
+    // setData(res.data[1]?.products);
 
-    // setData(res.data);
+    setData(res.data);
   }, []);
 
   useEffect(() => {

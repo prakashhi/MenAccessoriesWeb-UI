@@ -21,9 +21,9 @@ import {
   Data,
 } from "@/app/(User)/Type/Types";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { getUserFromStorage } from "@/context/utils";
-import { notify } from "../ToastComponent";
+import { notify, toastActions } from "../ToastComponent";
 
 export default function CardModel({
   DataObj,
@@ -44,8 +44,13 @@ export default function CardModel({
 
   const user = useMemo(() => getUserFromStorage(), []);
 
-  const { AddCartProduct, AddLikeProduct, guestCart, AddCartProductGuest } =
-    UsePanel();
+  const {
+    AddCartProduct,
+    AddLikeProduct,
+    guestCart,
+    AddCartProductGuest,
+    RemoveLikeProduct,
+  } = UsePanel();
   const router = useRouter();
 
   if (DataObj?.length === 0) {
@@ -58,10 +63,7 @@ export default function CardModel({
 
   const handleAddToCart = async (productId: string) => {
     try {
-      let product = await callApi(
-        "get",
-        `https://backend.9rock.in/product/${productId}`
-      );
+      let product = await callApi("get", `/product/${productId}`);
 
       if (isUser == true) {
         try {
@@ -72,23 +74,25 @@ export default function CardModel({
               variantSizeId: product.variantSizeId ?? null,
             },
           });
+
           if (response !== undefined) {
             setState((prev: any) => {
-              const prevItem = prev.CartData[product.id];
+              const prevItem = prev.CartData[productId];
               return {
                 ...prev,
                 CartData: {
                   ...prev.CartData,
-                  [product.id]: {
-                    // Preserve previous item if exists
-                    id: product.id,
+                  [productId]: {
+                    id: productId,
                     product: product,
-                    variantSize: prevItem?.variantSize ?? product.size, // optional
+                    variantSize: prevItem?.variantSize ?? product.size ?? null, // optional
                     quantity: (prevItem?.quantity ?? 0) + 1,
                   },
                 },
               };
             });
+
+            toastActions.addToCart();
           }
 
           return response;
@@ -110,21 +114,18 @@ export default function CardModel({
 
   const handleAddToLike = async (productId: string) => {
     try {
-      let product = await callApi(
-        "get",
-        `https://backend.9rock.in/product/${productId}`
-      );
+      let product = await callApi("get", `/product/${productId}`);
 
       if (isUser) {
         let res = await AddLikeProduct(product.data);
 
         if (res !== undefined) {
           setState((prev: Data) => {
-            const isLiked = !!prev.LikeData[product.id];
+            const isLiked = !!prev.LikeData[productId];
 
             // 🔁 remove like
             if (isLiked) {
-              const { [product.id]: _, ...rest } = prev.LikeData;
+              const { [productId]: _, ...rest } = prev.LikeData;
               return {
                 ...prev,
                 LikeData: rest,
@@ -136,14 +137,16 @@ export default function CardModel({
               ...prev,
               LikeData: {
                 ...prev.LikeData,
-                [product.id]: {
-                  id: product.id,
+                [productId]: {
+                  id: productId,
                   product: product,
                   createdAt: new Date().toISOString(),
                 },
               },
             };
           });
+
+          toastActions.addToWishlist();
         }
       } else {
         await AddLikeProduct(product.data);
@@ -198,7 +201,26 @@ export default function CardModel({
                 {/* Wishlist */}
                 {isLike == true ? (
                   <div className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition">
-                    <Heart className="w-5 h-5 text-red-600 fill-red-600" />
+                    <Heart
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        RemoveLikeProduct(product.id);
+
+                        setState((prev: Data) => {
+                          if (!prev) return;
+                          const isLiked = !!prev.LikeData[product.id];
+
+                          if (isLiked) {
+                            const { [product.id]: _, ...rest } = prev.LikeData;
+                            return {
+                              ...prev,
+                              LikeData: rest,
+                            };
+                          }
+                        });
+                      }}
+                      className="w-5 h-5 text-red-600 fill-red-600"
+                    />
                   </div>
                 ) : (
                   <button

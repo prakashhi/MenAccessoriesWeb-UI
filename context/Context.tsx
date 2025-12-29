@@ -198,7 +198,7 @@ export function SearchPanelContextProvider({
         let message = err?.response?.data?.message || "Something is wrong";
         notify({
           message: message,
-          type: "error",
+          type: "warning",
         });
         console.log(err);
         return err;
@@ -337,7 +337,7 @@ export function SearchPanelContextProvider({
         "delete",
         `/like-product/${id}/${ProductId}`
       );
-      if (response) {
+      if (response?.success == true) {
         toastActions.removeFromWishlist();
       }
     }
@@ -429,14 +429,14 @@ export function SearchPanelContextProvider({
   };
 
   const LikeProductList = async (userid: string) => {
-    if (user !== null || !user) {
+    if (user) {
       let response = await callApi("get", `/like-products/${userid}`);
       return response;
     }
   };
 
   const CartProductList = async (userid: string) => {
-    if (user !== null || !user) {
+    if (user) {
       let response = await callApi("get", `/cart/${userid}`);
       return response;
     }

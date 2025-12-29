@@ -50,19 +50,30 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
+    let isMounted = true;
     const LikeData = async () => {
-      setLoading(true);
-      if (user) {
-        let response = await LikeProductList(user.id);
-        setLikeProductList(response.data);
-      } else {
-        setLikeProductList(Object.values(guestCart?.likeProduct || {}) ?? []);
+      try {
+        setLoading(true);
+        if (user) {
+          let response = await LikeProductList(user.id);
+          console.log("response", response);
+          setLikeProductList(response?.data);
+        } else {
+          setLikeProductList(Object.values(guestCart?.likeProduct || {}) ?? []);
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     LikeData();
-  }, [user, guestCart]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   type HandleCart = GuestLikeItem | UserLikeItem;
 
@@ -70,13 +81,22 @@ export default function Page() {
     if (user) {
       try {
         let User = item as UserLikeItem;
-        await AddCartProduct(User.product.id);
+        let ProductID = User.product.data
+          ? User.product.data.id
+          : User.product.id;
+        await AddCartProduct(ProductID);
         let response = await callApi(
           "delete",
-          `/like-product/${user.id}/${User.product.id}`
+          `/like-product/${user.id}/${ProductID}`
         );
 
-        console.log(response);
+        setLikeProductList((prev) =>
+          prev.filter((p) =>
+            p.product.data
+              ? p.product.data.id !== ProductID
+              : p.product.id !== ProductID
+          )
+        );
       } catch (err) {
         console.log(err);
       }
@@ -90,9 +110,16 @@ export default function Page() {
   const XRemoveHandle = async (item: HandleCart) => {
     if (user) {
       let User = item as UserLikeItem;
-      await RemoveLikeProduct(User.product.id);
+      let productId = User?.product?.data
+        ? User?.product?.data.id
+        : User.product.id;
+      await RemoveLikeProduct(productId);
       setLikeProductList((prev) =>
-        prev.filter((p) => p.product.id !== User.product.id)
+        prev.filter((p) =>
+          p.product.data
+            ? p.product.data.id !== productId
+            : p.product.id !== productId
+        )
       );
     } else {
       let GuestLike = item as GuestLikeItem;
@@ -100,6 +127,8 @@ export default function Page() {
       toastActions.removeFromWishlist();
     }
   };
+
+  console.log("Like", likeProductList);
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">
@@ -145,153 +174,174 @@ export default function Page() {
               transition={{ staggerChildren: 0.1 }}
               className="grid lg:grid-cols-3 grid-cols-1 gap-3"
             >
-              {likeProductList.map((item: any) => (
-                <motion.div
-                  key={item.likeId || item.product?.id || item.id}
-                  layout
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  whileHover={{ y: -4 }}
-                  className="group relative bg-white border border-gray-100 hover:border-gray-200
+              {likeProductList &&
+                likeProductList.map((item: any) => (
+                  <motion.div
+                    key={item.likeId || item.product?.id || item.id}
+                    layout
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    whileHover={{ y: -4 }}
+                    className="group relative bg-white border border-gray-100 hover:border-gray-200
              transition-all duration-300 overflow-hidden"
-                >
-                  {/* IMAGE */}
-                  <div className="relative w-full h-64 md:h-72 bg-gray-50 overflow-hidden">
-                    <Image
-                      alt={
-                        user
-                          ? item.product?.name ??
-                            item.product?.data?.name ??
-                            "NO image"
-                          : item.name ?? "NO image"
-                      }
-                      onClick={() =>
-                        router.push(
-                          `/all-Product/${user ? item.product?.id ?? item.product?.data.id  : item.id}`
-                        )
-                      }
-                      src={
-                        user
-                          ? ImageShowUtil(item.product.image)
-                          : ImageShowUtil(item.image) ||
-                            "/images/placeholder.webp"
-                      }
-                      fill
-                      sizes="(max-width: 640px) 100vw, 33vw"
-                      className="object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105"
-                    />
+                  >
+                    {/* IMAGE */}
+                    <div className="relative w-full h-64 md:h-72 bg-gray-50 overflow-hidden">
+                      <Image
+                        alt={
+                          user
+                            ? item.product?.name ??
+                              item.product?.data?.name ??
+                              "NO image"
+                            : item.name ?? "NO image"
+                        }
+                        onClick={() =>
+                          router.push(
+                            `/all-Product/${
+                              item?.product?.id ??
+                              item?.product?.data?.id ??
+                              item?.id
+                            }`
+                          )
+                        }
+                        src={
+                          user
+                            ? item?.product?.data
+                              ? ImageShowUtil(item?.product?.data?.image)
+                              : ImageShowUtil(item?.product?.image)
+                            : ImageShowUtil(item?.image) ||
+                              "/images/placeholder.webp"
+                        }
+                        fill
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                        className="object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105"
+                      />
 
-                    {/* REMOVE */}
-                    <button
-                      onClick={() => XRemoveHandle(item)}
-                      className="absolute cursor-pointer top-3 right-3 w-8 h-8 rounded-full bg-white/90
+                      {/* REMOVE */}
+                      <button
+                        onClick={() => XRemoveHandle(item)}
+                        className="absolute cursor-pointer top-3 right-3 w-8 h-8 rounded-full bg-white/90
                  backdrop-blur-sm flex items-center justify-center
                  opacity-0 group-hover:opacity-100 transition"
-                    >
-                      <FiX className="w-4 h-4 text-gray-600" />
-                    </button>
-                  </div>
-
-                  {/* CONTENT */}
-                  <div className="p-4 flex flex-col gap-4">
-                    {/* TITLE */}
-                    <div>
-                      <h3
-                        className="text-md font-light tracking-wide text-gray-900 line-clamp-2"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
                       >
-                        {user
-                          ? item.product.name ?? item.product.data.name
-                          : item.name}
-                      </h3>
-
-                      <p className="text-xs text-gray-500 uppercase tracking-[0.12em] mt-1">
-                        {user ? item.product.category : item.categoryName}
-                      </p>
+                        <FiX className="w-4 h-4 text-gray-600" />
+                      </button>
                     </div>
 
-                    {/* PRICE */}
-                    <div>
-                      <p className="text-xl font-light text-gray-900">
-                        ₹
-                        {user
-                          ? formatIndianPrice(item.product.sellingPrice)
-                          : formatIndianPrice(item.sellingPrice)}
-                      </p>
-                    </div>
+                    {/* CONTENT */}
+                    <div className="p-4 flex flex-col gap-4">
+                      {/* TITLE */}
+                      <div>
+                        <h3
+                          className="text-md font-light tracking-wide text-gray-900 line-clamp-2"
+                          style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                        >
+                          {user
+                            ? item.product.data
+                              ? item.product.data.name
+                              : item.product.name
+                            : item.name}
+                        </h3>
 
-                    {/* VARIANTS */}
-                    {(item.product?.variants || item.variants) && (
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center gap-2">
-                          <span>Color</span>
-                          <div className="flex gap-1">
+                        <p className="text-xs text-gray-500 uppercase tracking-[0.12em] mt-1">
+                          {user
+                            ? item.product.data
+                              ? item.product.data.categoryName
+                              : item.product.categoryName
+                            : item.categoryName}
+                        </p>
+                      </div>
+
+                      {/* PRICE */}
+                      <div>
+                        <p className="text-xl font-light text-gray-900">
+                          ₹
+                          {user
+                            ? item.product.data
+                              ? formatIndianPrice(
+                                  item.product.data.sellingPrice
+                                )
+                              : formatIndianPrice(item.product.sellingPrice)
+                            : formatIndianPrice(item.sellingPrice)}
+                        </p>
+                      </div>
+
+                      {/* VARIANTS */}
+                      {/* {(item.product?.variants || item.variants) && (
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <div className="flex items-center gap-2">
+                            <span>Color</span>
+                            <div className="flex gap-1">
+                              {(user
+                                ? item.product.variants?.colors
+                                : item.variants?.colors
+                              )
+                                ?.slice(0, 3)
+                                .map((color: string, i: number) => (
+                                  <span
+                                    key={i}
+                                    className="w-3.5 h-3.5 rounded-full border border-gray-200"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                ))}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1">
                             {(user
-                              ? item.product.variants?.colors
-                              : item.variants?.colors
+                              ? item.product.variants?.sizes
+                              : item.variants?.sizes
                             )
-                              ?.slice(0, 3)
-                              .map((color: string, i: number) => (
+                              ?.slice(0, 2)
+                              .map((size: string, i: number) => (
                                 <span
                                   key={i}
-                                  className="w-3.5 h-3.5 rounded-full border border-gray-200"
-                                  style={{ backgroundColor: color }}
-                                />
+                                  className="px-2 py-0.5 border border-gray-200 text-xs"
+                                >
+                                  {size}
+                                </span>
                               ))}
                           </div>
                         </div>
+                      )} */}
 
-                        <div className="flex items-center gap-1">
-                          {(user
-                            ? item.product.variants?.sizes
-                            : item.variants?.sizes
-                          )
-                            ?.slice(0, 2)
-                            .map((size: string, i: number) => (
-                              <span
-                                key={i}
-                                className="px-2 py-0.5 border border-gray-200 text-xs"
-                              >
-                                {size}
-                              </span>
-                            ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ACTIONS */}
-                    <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
-                      <button
-                        onClick={() => {
-                          addToCartHandle(item);
-                        }}
-                        className="w-full py-2.5 border cursor-pointer border-gray-900 rounded-sm text-gray-900
+                      {/* ACTIONS */}
+                      <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
+                        <button
+                          onClick={() => {
+                            addToCartHandle(item);
+                          }}
+                          className="w-full py-2.5 border cursor-pointer border-gray-900 rounded-sm text-gray-900
                    text-xs tracking-[0.15em] uppercase
                    hover:bg-gray-900 hover:text-white transition"
-                      >
-                        {loading ? (
-                          <Image alt={item.name} src={Loader} />
-                        ) : (
-                          "Add to Cart"
-                        )}
-                      </button>
+                        >
+                          {loading ? (
+                            <Image alt={item.name ?? "Loading"} src={Loader} />
+                          ) : (
+                            "Add to Cart"
+                          )}
+                        </button>
 
-                      <span
-                        className={`text-xs text-center py-1 ${
-                          (user ? item.product.stock : item.stock) > 0
-                            ? "text-green-700"
-                            : "text-red-700"
-                        }`}
-                      >
-                        {(user ? item.product.stock : item.stock) > 0
-                          ? "In Stock"
-                          : "Out of Stock"}
-                      </span>
+                        <span
+                          className={`text-xs text-center py-1 ${
+                            (user ? item.product.stock : item.stock) > 0
+                              ? "text-green-700"
+                              : "text-red-700"
+                          }`}
+                        >
+                          {(user
+                            ? item.product.data
+                              ? item.product.data.stock
+                              : item.product.stock
+                            : item.stock) > 0
+                            ? "In Stock"
+                            : "Out of Stock"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
             </motion.div>
           ) : (
             /* EMPTY STATE - RESPONSIVE */

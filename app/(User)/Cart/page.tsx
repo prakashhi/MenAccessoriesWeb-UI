@@ -69,8 +69,6 @@ export default function Page() {
   const [Fields, setFields] = useState<string[]>([]);
   const [paymentData, setPaymentData] = useState<any>(null);
 
-  console.log("Liast", cartListData);
-
   const { callApi } = useApi();
 
   const router = useRouter();
@@ -81,13 +79,12 @@ export default function Page() {
   useEffect(() => {
     if (!user) return;
     CartProductList(user.id).then((res) => {
-      setCartListData(res.data);
+      setCartListData(res?.data);
     });
   }, [user]);
 
   useEffect(() => {
     if (user) return;
-
     setCartListData(Object.values(guestCart.items));
   }, [guestCart]);
 
@@ -129,12 +126,9 @@ export default function Page() {
     "state",
     "address",
     "pinCode",
-    "countryCodeLabel",
   ];
 
   const userDataCheck = (user: User) => {
-    console.log("userData", user);
-
     return valueCheckUser.filter((field) => {
       const value = user[field];
 
@@ -155,11 +149,19 @@ export default function Page() {
         let isCheck = userDataCheck(res.data);
 
         if (isCheck.length > 0) {
-          console.log("isCheck", isCheck);
           setFields(isCheck);
-          setOpenModel((prev) => ({ ...prev, FillForm: true }));
+          setOpenModel((prev) => ({
+            ...prev,
+            FillForm: true,
+            PaymentMethodModel: false,
+            PaymentSuccessModel: false,
+            PaymentFailModel: false,
+          }));
         } else {
-          setOpenModel((prev) => ({ ...prev, PaymentMethodModel: true }));
+          setOpenModel((prev) => ({
+            ...prev,
+            PaymentMethodModel: true,
+          }));
         }
       }
     } catch (err) {
@@ -212,7 +214,7 @@ export default function Page() {
   my-4"
           >
             <AnimatePresence>
-              {cartListData.length > 0 ? (
+              {cartListData && cartListData.length > 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -407,102 +409,113 @@ export default function Page() {
           )}
         </div>
 
-        <CartInfoModal
-          open={openModel.FillForm}
-          onClose={() => setOpenModel((prev) => ({ ...prev, FillForm: false }))}
-          children={
-            <GuestUserPaymentForm
-              requiredFields={Fields}
-              onClose={() =>
-                setOpenModel((prev) => ({ ...prev, FillForm: false }))
-              }
-              onSuccess={() =>
-                setOpenModel({
-                  FillForm: false,
-                  PaymentMethodModel: true,
-                  PaymentSuccessModel: false,
-                  PaymentFailModel: false,
-                })
-              }
-              UserData={user}
-            />
-          }
-        />
-        <CartInfoModal
-          open={openModel.PaymentMethodModel}
-          onClose={() =>
-            setOpenModel((prev) => ({ ...prev, PaymentMethodModel: false }))
-          }
-          children={
-            <PaymentModeSelector
-              cartListData={cartListData}
-              TotalPrice={total}
-              TotalQty={TotalQty}
-              PaymentAmount={ShippingTaxFunction}
-              tax={TaxPercentage}
-              shipping={ShippingCharge}
-              onSuccess={() =>
-                setOpenModel({
-                  FillForm: false,
-                  PaymentMethodModel: false,
-                  PaymentSuccessModel: true,
-                  PaymentFailModel: false,
-                })
-              }
-              setPaymentData={setPaymentData}
-              onFail={() =>
-                setOpenModel({
-                  FillForm: false,
-                  PaymentMethodModel: false,
-                  PaymentSuccessModel: false,
-                  PaymentFailModel: true,
-                })
-              }
-              onClose={() =>
-                setOpenModel((prev) => ({
-                  ...prev,
-                  PaymentMethodModel: false,
-                }))
-              }
-            />
-          }
-        />
+        {openModel.FillForm === true && (
+          <CartInfoModal
+            open={openModel.FillForm}
+            onClose={() =>
+              setOpenModel((prev) => ({ ...prev, FillForm: false }))
+            }
+            children={
+              <GuestUserPaymentForm
+                requiredFields={Fields}
+                onClose={() =>
+                  setOpenModel((prev) => ({ ...prev, FillForm: false }))
+                }
+                onSuccess={() =>
+                  setOpenModel({
+                    FillForm: false,
+                    PaymentMethodModel: true,
+                    PaymentSuccessModel: false,
+                    PaymentFailModel: false,
+                  })
+                }
+                UserData={user}
+              />
+            }
+          />
+        )}
 
-        <CartInfoModal
-          open={openModel.PaymentSuccessModel}
-          onClose={() =>
-            setOpenModel((prev) => ({ ...prev, PaymentSuccessModel: false }))
-          }
-          children={
-            <PaymentSuccessModal
-              PaymentData={paymentData}
-              onClose={() =>
-                setOpenModel((prev) => ({
-                  ...prev,
-                  PaymentSuccessModel: false,
-                }))
-              }
-            />
-          }
-        />
+        {openModel.PaymentMethodModel === true && (
+          <CartInfoModal
+            open={openModel.PaymentMethodModel}
+            onClose={() =>
+              setOpenModel((prev) => ({ ...prev, PaymentMethodModel: false }))
+            }
+            children={
+              <PaymentModeSelector
+                cartListData={cartListData}
+                TotalPrice={total}
+                TotalQty={TotalQty}
+                PaymentAmount={ShippingTaxFunction}
+                tax={TaxPercentage}
+                shipping={ShippingCharge}
+                onSuccess={() =>
+                  setOpenModel({
+                    FillForm: false,
+                    PaymentMethodModel: false,
+                    PaymentSuccessModel: true,
+                    PaymentFailModel: false,
+                  })
+                }
+                setPaymentData={setPaymentData}
+                onFail={() =>
+                  setOpenModel({
+                    FillForm: false,
+                    PaymentMethodModel: false,
+                    PaymentSuccessModel: false,
+                    PaymentFailModel: true,
+                  })
+                }
+                onClose={() =>
+                  setOpenModel((prev) => ({
+                    ...prev,
+                    PaymentMethodModel: false,
+                  }))
+                }
+              />
+            }
+          />
+        )}
 
-        <CartInfoModal
-          open={openModel.PaymentFailModel}
-          onClose={() =>
-            setOpenModel((prev) => ({ ...prev, PaymentFailModel: false }))
-          }
-          children={
-            <PaymentFailedModal
-              onClose={() =>
-                setOpenModel((prev) => ({
-                  ...prev,
-                  PaymentFailModel: false,
-                }))
-              }
-              reason={"This is reason"}
-            />
-          }
-        />
+        {openModel.PaymentSuccessModel === true && (
+          <CartInfoModal
+            open={openModel.PaymentSuccessModel}
+            onClose={() =>
+              setOpenModel((prev) => ({ ...prev, PaymentSuccessModel: false }))
+            }
+            children={
+              <PaymentSuccessModal
+                PaymentData={paymentData}
+                onClose={() =>
+                  setOpenModel((prev) => ({
+                    ...prev,
+                    PaymentSuccessModel: false,
+                  }))
+                }
+              />
+            }
+          />
+        )}
+
+        {openModel.PaymentFailModel === true && (
+          <CartInfoModal
+            open={openModel.PaymentFailModel}
+            onClose={() =>
+              setOpenModel((prev) => ({ ...prev, PaymentFailModel: false }))
+            }
+            children={
+              <PaymentFailedModal
+                onClose={() =>
+                  setOpenModel((prev) => ({
+                    ...prev,
+                    PaymentFailModel: false,
+                  }))
+                }
+                reason={"This is reason"}
+              />
+            }
+          />
+        )}
       </main>
 
       <Footer />

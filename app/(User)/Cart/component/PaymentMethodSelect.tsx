@@ -145,7 +145,7 @@ export function PaymentModeSelector({
 
       if (res.success == true) {
         setPaymentData(res.data);
-        onSuce;
+        onSuccess();
       }
 
       console.log(res);

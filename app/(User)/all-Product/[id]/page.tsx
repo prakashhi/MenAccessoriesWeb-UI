@@ -81,57 +81,57 @@ export default function ProductPage() {
 
     const loadProduct = async () => {
       try {
-        const [product, variants] = await Promise.all([
-          callApi("get", `/product/${params.id}`),
-          callApi("get", `/variants/size/product/${params.id}`),
-        ]);
-        setProduct(product?.data);
-        setSelectedVariant(variants.data);
+        // const [product, variants] = await Promise.all([
+        //   callApi("get", `/product/${params.id}`),
+        //   callApi("get", `/variants/size/product/${params.id}`),
+        // ]);
+        // setProduct(product?.data);
+        // setSelectedVariant(variants?.data);
 
         // RealData
-        // const product = await callApi(
-        //   "get",
-        //   `https://backend.9rock.in/product/${params.id}`
-        // );
+        const product = await callApi(
+          "get",
+          `/product/${params.id}`
+        );
 
-        // const productData = product?.data ?? product ?? {};
+        const productData = product?.data ?? product ?? {};
 
-        // if (product?.data?.isHaveSizeVariants === true) {
-        //   if (product.data.variantId == null) {
-        //     // if No variantId
-        //     const size = await callApi(
-        //       "get",
-        //       `https://backend.9rock.in/variants/size/product/${
-        //         selectedVariant ? selectedVariant : params.id
-        //       }`
-        //     );
+        if (product?.data?.isHaveSizeVariants === true) {
+          if (product.data.variantId == null) {
+            // if No variantId
+            const size = await callApi(
+              "get",
+              `/variants/size/product/${
+                selectedVariant ? selectedVariant : params.id
+              }`
+            );
 
-        //     const sizeData = size?.data ?? size ?? {};
-        //     setSizeData(sizeData);
-        //   } else {
-        //     // if variantId and Size available
-        //     const [variants, size] = await Promise.all([
-        //       callApi(
-        //         "get",
-        //         `https://backend.9rock.in/variants/products/${product.data.variantId}`
-        //       ),
-        //       callApi(
-        //         "get",
-        //         `https://backend.9rock.in/variants/size/product/${
-        //           selectedVariant ? selectedVariant : params.id
-        //         }`
-        //       ),
-        //     ]);
+            const sizeData = size?.data ?? size ?? {};
+            setSizeData(sizeData);
+          } else {
+            // if variantId and Size available
+            const [variants, size] = await Promise.all([
+              callApi(
+                "get",
+                `/variants/products/${product.data.variantId}`
+              ),
+              callApi(
+                "get",
+                `/variants/size/product/${
+                  selectedVariant ? selectedVariant : params.id
+                }`
+              ),
+            ]);
 
-        //     const variantsData = variants?.data ?? variants ?? {};
-        //     const sizeData = size?.data ?? size ?? {};
+            const variantsData = variants?.data ?? variants ?? {};
+            const sizeData = size?.data ?? size ?? {};
 
-        //     setVariants(variantsData);
-        //     setSizeData(sizeData);
-        //   }
-        // }
-        // if (!active) return;
-        // setProduct(productData);
+            setVariants(variantsData);
+            setSizeData(sizeData);
+          }
+        }
+        if (!active) return;
+        setProduct(productData);
       } catch (err) {
         console.error("Product fetch failed", err);
       } finally {

@@ -156,6 +156,7 @@ export default function GuestUserFill({
                 {...register("pinCode", {
                   pattern: {
                     value: /^[A-Za-z0-9\s-]{3,10}$/,
+                  
                     message: "Enter valid pin code",
                   },
                 })}
@@ -187,13 +188,7 @@ export default function GuestUserFill({
             ) : (
               "Save"
             )}
-          </button>
-
-          <PaymentSuccessModal
-            isOpen={isSuccess}
-            onClose={() => setIsSuccess(false)}
-            amount={123456} // Example amount
-          />
+          </button> 
         </form>
       </div>
     </div>

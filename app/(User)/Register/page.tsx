@@ -190,7 +190,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label className="text-sm font-medium text-gray-700">
               Is Supplier
             </label>
@@ -212,7 +212,7 @@ export default function RegisterPage() {
                 {errors.isSupplier.message}
               </p>
             )}
-          </div>
+          </div> */}
 
           {/* Password */}
           <div>
