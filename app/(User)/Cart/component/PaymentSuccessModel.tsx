@@ -54,7 +54,7 @@ export default function PaymentSuccessModal({
     },
   };
 
-  console.log(PaymentData);
+
   return (
     <AnimatePresence>
       <>

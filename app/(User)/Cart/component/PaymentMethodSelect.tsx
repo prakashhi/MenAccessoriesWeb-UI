@@ -148,11 +148,9 @@ export function PaymentModeSelector({
         onSuccess();
       }
 
-      console.log(res);
     }
   };
 
-  console.log("isDirty", isDirty);
 
   return (
     <>

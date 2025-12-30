@@ -83,7 +83,7 @@ export default function GuestUserFill({
     }
   };
 
-  console.log(requiredFields);
+
 
   return (
     <div className="lg:min-h-dvh  flex items-center justify-center lg:px-4 py-6  from-gray-100 to-gray-200">

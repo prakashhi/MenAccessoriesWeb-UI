@@ -125,7 +125,6 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     MetaData();
   }, []);
 
-  console.log(sortedProducts);
 
   // Animation variants
   const containerVariants = {

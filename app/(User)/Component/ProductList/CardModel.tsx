@@ -50,6 +50,7 @@ export default function CardModel({
     guestCart,
     AddCartProductGuest,
     RemoveLikeProduct,
+    setUserCountData,
   } = UsePanel();
   const router = useRouter();
 
@@ -91,6 +92,11 @@ export default function CardModel({
                 },
               };
             });
+
+            setUserCountData((prev) => ({
+              ...prev,
+              CartCount: prev.CartCount + 1,
+            }));
 
             toastActions.addToCart();
           }
@@ -145,6 +151,11 @@ export default function CardModel({
               },
             };
           });
+
+          setUserCountData((prev) => ({
+            ...prev,
+            LikeCount: prev.LikeCount + 1,
+          }));
 
           toastActions.addToWishlist();
         }
@@ -218,6 +229,11 @@ export default function CardModel({
                             };
                           }
                         });
+
+                        setUserCountData((prev) => ({
+                          ...prev,
+                          LikeCount: prev.LikeCount - 1,
+                        }));
                       }}
                       className="w-5 h-5 text-red-600 fill-red-600"
                     />

@@ -44,7 +44,6 @@ export default function ItemCount({
 
   const [inputValue, setInputValue] = useState(String(quantity));
 
-  console.log(quantity);
 
   // 🔥 Sync input with actual cart qty
   useEffect(() => {
@@ -195,7 +194,6 @@ export default function ItemCount({
         }
       }, 600);
     } else {
-      console.log(value);
       setState?.((prev) => {
         if (!prev || !Array.isArray(prev)) return []; // fallback to empty array
         return prev.map((item: any) =>

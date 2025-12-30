@@ -19,8 +19,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { notify, toastActions } from "@/app/(User)/Component/ToastComponent";
 import { getUserFromStorage } from "@/context/utils";
 import { User, LikeProductType, OrderType } from "@/app/(User)/Type/Types";
-import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
-import Image from "next/image";
 import { Button } from "@heroui/react";
 import UserEditForm from "./Component/UserEditForm";
 import { Pencil } from "lucide-react";
@@ -35,7 +33,7 @@ export default function AccountSection() {
 
   const { callApi } = useApi();
 
-  const {getUser} = UsePanel()
+  const { getUser } = UsePanel();
 
   const router = useRouter();
 
@@ -121,7 +119,7 @@ export default function AccountSection() {
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center text-2xl lg:text-4xl font-medium tracking-[0.3em] mb-14"
+          className="text-center text-2xl lg:text-4xl font-medium tracking-[0.2em] mb-14"
           style={{ fontFamily: "ui-serif, serif" }}
         >
           My Account

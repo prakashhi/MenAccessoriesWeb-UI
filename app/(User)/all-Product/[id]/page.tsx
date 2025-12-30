@@ -54,6 +54,7 @@ export default function ProductPage() {
     LikeProductList,
     CartProductList,
     AddCartProductGuest,
+    setUserCountData,
   } = UsePanel();
   const router = useRouter();
 
@@ -89,10 +90,7 @@ export default function ProductPage() {
         // setSelectedVariant(variants?.data);
 
         // RealData
-        const product = await callApi(
-          "get",
-          `/product/${params.id}`
-        );
+        const product = await callApi("get", `/product/${params.id}`);
 
         const productData = product?.data ?? product ?? {};
 
@@ -111,10 +109,7 @@ export default function ProductPage() {
           } else {
             // if variantId and Size available
             const [variants, size] = await Promise.all([
-              callApi(
-                "get",
-                `/variants/products/${product.data.variantId}`
-              ),
+              callApi("get", `/variants/products/${product.data.variantId}`),
               callApi(
                 "get",
                 `/variants/size/product/${
@@ -162,17 +157,21 @@ export default function ProductPage() {
 
           if (!active) return;
 
+          console.log("LikeData", LikeData);
+
           const like = LikeData?.data.find((i: any) => {
             // Both productId must exist and match
-            if (!i.product.id || !product.id) return false;
-            if (i.product.id !== product.id) return false;
+            let ProductId = i.product.data ? i.product.data.id : i.product.id;
+            let variantId = i.product.data
+              ? i.product.data.variantId
+              : i.product.variantId;
+
+            if (!ProductId || !product.id) return false;
+            if (ProductId !== product.id) return false;
 
             // If variantId exists on both, it must match
-            if (
-              i.product.variantId !== undefined &&
-              product.variantId !== undefined
-            ) {
-              return i.product.variantId === product.variantId;
+            if (variantId !== undefined && product.variantId !== undefined) {
+              return variantId === product.variantId;
             }
 
             // If no variantId, match by productId only
@@ -230,8 +229,6 @@ export default function ProductPage() {
     };
   }, [product, user, guestCart]);
 
-  console.log("cart", guestCart);
-
   const parsedDescription =
     typeof product?.description === "string"
       ? (() => {
@@ -279,6 +276,11 @@ export default function ProductPage() {
           Cart: true,
         }));
 
+        setUserCountData((prev) => ({
+          ...prev,
+          CartCount: prev.CartCount + 1,
+        }));
+
         setTimeout(() => setAdding(false), 600);
       }
     } catch (err) {
@@ -289,12 +291,15 @@ export default function ProductPage() {
   const addToLikeHandle = async (variantSizeId: string | null) => {
     let res = await AddLikeProduct(product, variantSizeId);
 
-    console.log("like", res);
-
     if (res !== undefined) {
       setState((prev) => ({
         ...prev,
         Like: true,
+      }));
+
+      setUserCountData((prev) => ({
+        ...prev,
+        LikeCount: prev.LikeCount + 1,
       }));
     }
   };

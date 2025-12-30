@@ -92,8 +92,6 @@ export interface CartItem {
   variantSize: VariantSize;
 }
 
-
-
 export interface User {
   id: string;
 
@@ -186,3 +184,38 @@ export type GuestLikeItem = ProductInfoType & {
 };
 
 export type UserLikeItem = LikeProductType;
+
+export type CartRemoveResponseType = {
+  id: string;
+  success: boolean;
+  message: string;
+};
+
+export type GuestCartItem = ProductInfoType & {
+  quantity?: number;
+  variantSizeId?: string | null;
+  size?: string | null;
+};
+
+export type GuestCart = {
+  items: Record<string, GuestCartItem>;
+  likeProduct: Record<string, GuestLikeItem>;
+};
+
+export type ApiResponse<T> = {
+  success: boolean;
+  data: T | null;
+};
+
+// Log in User Types
+
+export type CountStateType = {
+  LikeCount: number;
+  CartCount: number;
+};
+
+export type RemoveCartResponse = {
+  id: string;
+  success: true;
+  message: string;
+};

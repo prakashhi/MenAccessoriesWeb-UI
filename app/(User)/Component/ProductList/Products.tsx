@@ -14,6 +14,11 @@ import {
   ProductInfoType,
   CategoryInfo,
   Data,
+  GuestCart,
+  GuestCartItem,
+  GuestLikeItem,
+  ApiResponse,
+  CartProductInfo,
 } from "@/app/(User)/Type/Types";
 import Image from "next/image";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
@@ -46,25 +51,28 @@ export default function Product() {
     setProduct(res.data);
 
     if (userData) {
-      const [category, like] = await Promise.all([
-        CartProductList(userData.id),
-        LikeProductList(userData.id),
+      const [cart, like]: [
+        PromiseSettledResult<ApiResponse<LikeProductType>>,
+        PromiseSettledResult<ApiResponse<CartProductInfo>>
+      ] = await Promise.allSettled([
+        callApi("get", `/cart/${userData.id}`),
+        callApi("get", `/like-products/${userData.id}`),
       ]);
-
-      console.log(category, like);
+      const LikeData = like.status == "fulfilled" ? like.value?.data ?? [] : [];
+      const CartData = cart.status == "fulfilled" ? cart.value?.data ?? [] : [];
 
       const cartMap: Record<string, CartItem> = {};
 
-      category && category.data.forEach((item: CartItem) => {
+      CartData.forEach((item: CartItem) => {
         cartMap[item.product.productId] = item;
       });
 
       const likeMap: Record<string, LikeProductType> = {};
-      like && like.data.forEach((item: LikeProductType) => {
+
+      LikeData.forEach((item: LikeProductType) => {
         let id = item.product.data ? item.product.data.id : item.product.id;
         likeMap[id] = item;
       });
-
 
       setState((prev) => ({
         ...prev,
@@ -181,7 +189,6 @@ export default function Product() {
                 {/* CATEGORY IMAGE */}
                 <div
                   onClick={() => {
-                    console.log("clicked");
                     router.replace(`/Category/${categoryItem.id}`);
                   }}
                   className="group relative items-center

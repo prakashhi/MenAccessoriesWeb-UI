@@ -38,6 +38,8 @@ export default function Page() {
     RemoveLikeProduct,
     LikeProductList,
     guestCart,
+    setUserCountData,
+    userCountData,
     AddCartProductGuest,
   } = UsePanel();
 
@@ -56,8 +58,13 @@ export default function Page() {
         setLoading(true);
         if (user) {
           let response = await LikeProductList(user.id);
-          console.log("response", response);
+          console.log("Like", response);
           setLikeProductList(response?.data);
+
+          setUserCountData((prev: any) => ({
+            ...prev,
+            LikeCount: response?.data?.length,
+          }));
         } else {
           setLikeProductList(Object.values(guestCart?.likeProduct || {}) ?? []);
         }
@@ -73,7 +80,7 @@ export default function Page() {
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [user, guestCart?.likeProduct]);
 
   type HandleCart = GuestLikeItem | UserLikeItem;
 
@@ -113,7 +120,8 @@ export default function Page() {
       let productId = User?.product?.data
         ? User?.product?.data.id
         : User.product.id;
-      await RemoveLikeProduct(productId);
+      let res = await RemoveLikeProduct(productId);
+
       setLikeProductList((prev) =>
         prev.filter((p) =>
           p.product.data
@@ -121,14 +129,19 @@ export default function Page() {
             : p.product.id !== productId
         )
       );
+      if (res.success == true) {
+        toastActions.removeFromWishlist();
+      }
+      setUserCountData((prev) => ({ ...prev, LikeCount: prev.LikeCount - 1 }));
     } else {
       let GuestLike = item as GuestLikeItem;
-      await RemoveLikeProduct(GuestLike.id);
-      toastActions.removeFromWishlist();
+      let res = await RemoveLikeProduct(GuestLike.id);
+
+      if (res.success == true) {
+        toastActions.removeFromWishlist();
+      }
     }
   };
-
-  console.log("Like", likeProductList);
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">

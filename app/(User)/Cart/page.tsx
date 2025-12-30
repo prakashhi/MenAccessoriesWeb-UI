@@ -35,12 +35,14 @@ import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 import {
   CartItem,
   CartProductInfo,
+  CartRemoveResponseType,
   ProductInfoType,
   User,
 } from "@/app/(User)/Type/Types";
 import { useApi } from "@/app/useApi";
 import { PaymentModeSelector } from "./component/PaymentMethodSelect";
 import CardModel from "../Component/ProductList/CardModel";
+import { toastActions } from "../Component/ToastComponent";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
 
@@ -56,7 +58,14 @@ type modelTypes = {
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
 
-  const { RemoveCartProduct, CartProductList, guestCart } = UsePanel();
+  const {
+    RemoveCartProduct,
+    CartProductList,
+    guestCart,
+    setUserCountData,
+    userCountData,
+    RemoveCartUserProduct,
+  } = UsePanel();
 
   const [openModel, setOpenModel] = useState<modelTypes>({
     FillForm: false,
@@ -78,9 +87,15 @@ export default function Page() {
 
   useEffect(() => {
     if (!user) return;
-    CartProductList(user.id).then((res) => {
-      setCartListData(res?.data);
-    });
+    const CartList = async () => {
+      let response = await CartProductList(user.id);
+      setCartListData(response.data);
+      setUserCountData((prev) => ({
+        ...prev,
+        CartCount: response?.data.length,
+      }));
+    };
+    CartList();
   }, [user]);
 
   useEffect(() => {
@@ -177,12 +192,24 @@ export default function Page() {
     // }, 500);
   };
 
-  const handleRemove = (item: any) => {
+  const handleRemove = async (item: any) => {
     if (user) {
-      RemoveCartProduct(item.product.productId);
-      setCartListData((prev) =>
-        prev.filter((p: any) => p.product.productId !== item.product.productId)
-      );
+      let response = await RemoveCartProduct(item.product.productId, user.id);
+
+      if (response.success == true) {
+        setCartListData((prev) =>
+          prev.filter(
+            (p: any) => p.product.productId !== item.product.productId
+          )
+        );
+
+        setUserCountData((prev) => ({
+          ...prev,
+          CartCount: prev.CartCount - 1,
+        }));
+
+        toastActions.removeFromWishlist();
+      }
     } else {
       RemoveCartProduct(item.id);
     }

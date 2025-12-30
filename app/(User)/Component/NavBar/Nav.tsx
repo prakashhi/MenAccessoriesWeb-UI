@@ -10,6 +10,7 @@ import SearchInput from "@/app/(User)/Component/NavBar/Component/SearchInput";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getUserFromStorage } from "@/context/utils";
 import { useApi } from "@/app/useApi";
+import { notify } from "../ToastComponent";
 
 type length = {
   likeProductLength: number;
@@ -17,32 +18,154 @@ type length = {
 };
 
 export default function Nav() {
+  const {
+    LikeProductList,
+    CartProductList,
+    GuestUserDataLength,
+    guestCart,
+    setUserCountData,
+    userCountData,
+  } = UsePanel();
+
   const { callApi } = useApi();
   const user = useMemo(() => getUserFromStorage(), []);
+  const [isMerging, setIsMerging] = useState(false);
+
   const [state, setState] = useState<length>({
     likeProductLength: 0,
     CartProductLength: 0,
   });
-  const { LikeProductList, CartProductList, GuestUserDataLength, guestCart } =
-    UsePanel();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const mergeOnceRef = useRef(false);
 
   const CountLikeCartFun = async () => {
-    let [CartData, LikeData] = await Promise.all([
-      CartProductList(user.id),
-      LikeProductList(user.id),
-    ]);
+    // let [CartData, LikeData] = await Promise.all([
+    //   CartProductList(user.id),
+    //   LikeProductList(user.id),
+    // ]);
 
     setState((prev) => ({
       ...prev,
-      likeProductLength: LikeData?.data?.length ?? 0,
-      CartProductLength: CartData?.data?.length ?? 0,
+      likeProductLength: userCountData.LikeCount,
+      CartProductLength: userCountData.CartCount,
     }));
 
-    console.log("Mergfe", CartData, LikeData);
+    // setState((prev) => ({
+    //   ...prev,
+    //   likeProductLength: LikeData?.data?.length,
+    //   CartProductLength: CartData?.data?.length,
+    // }));
+  };
+
+  const MergeLogic = async () => {
+    if (!user?.id) return;
+
+    if (localStorage.getItem("guest_cart_merged") === "true") return;
+    if (localStorage.getItem("guest_cart_merge_in_progress") === "true") return;
+
+    localStorage.setItem("guest_cart_merge_in_progress", "true");
+    setIsMerging(true);
+
+    const guestData = JSON.parse(localStorage.getItem("GuestUserData") || "{}");
+
+    // const cartItems = Object.values(guestData?.items ?? {});
+    // const likeItems = Object.values(guestData?.likeProduct ?? {});
+
+    // 🔧 CHANGED: freeze data to avoid index mismatch
+    const cartItems = [...Object.values(guestData?.items ?? {})];
+    const likeItems = [...Object.values(guestData?.likeProduct ?? {})];
+
+    if (cartItems.length === 0 && likeItems.length === 0) {
+      localStorage.setItem("guest_cart_merged", "true");
+      localStorage.removeItem("guest_cart_merge_in_progress");
+      setIsMerging(false);
+      return;
+    }
+
+    // localStorage.setItem("guest_cart_merge_in_progress", "true");
+
+    const failedCart: any[] = [];
+    const failedLikes: any[] = [];
+
+    try {
+      // ---- CART MERGE ----
+      const cartResults = await Promise.allSettled(
+        cartItems.map((item: any) =>
+          callApi("post", "/cart", {
+            data: {
+              productId: item.id,
+              userId: user.id,
+              variantSizeId: item.variantSizeId ?? null,
+            },
+          })
+        )
+      );
+
+      cartResults.forEach((res, index) => {
+        const item = cartItems[index];
+        if (
+          res.status === "rejected" &&
+          res.reason?.response?.data?.message !==
+            "Error: Cart item already exists"
+        ) {
+          failedCart.push(item);
+        }
+      });
+
+      // ---- WISHLIST MERGE ----
+      const likeResults = await Promise.allSettled(
+        likeItems.map((item: any) =>
+          callApi("post", "/like-product", {
+            data: {
+              productId: item.id,
+              userId: user.id,
+            },
+          })
+        )
+      );
+
+      likeResults.forEach((res, index) => {
+        const item = likeItems[index];
+        if (
+          res.status === "rejected" &&
+          res.reason?.response?.data?.message !==
+            "Error: Like product already exists"
+        ) {
+          failedLikes.push(item);
+        }
+      });
+
+      //---- UPDATE LOCAL STORAGE ----
+      if (failedCart.length === 0 && failedLikes.length === 0) {
+        // ✅ All succeeded
+
+        localStorage.removeItem("GuestUserData");
+        localStorage.setItem("guest_cart_merged", "true");
+        console.log("✅ Guest merge completed fully");
+
+        notify({
+          message: "Your cart and wishlist have been successfully synced.",
+          type: "success",
+        });
+      } else {
+        // ❌ Partial failure → keep only failed items
+        localStorage.setItem(
+          "GuestUserData",
+          JSON.stringify({
+            items: failedCart,
+            likeProduct: failedLikes,
+          })
+        );
+        console.warn("⚠️ Some items failed, will retry next login");
+      }
+    } catch (err) {
+      console.error("Merge crash:", err);
+    } finally {
+      localStorage.removeItem("guest_cart_merge_in_progress");
+      setIsMerging(false);
+    }
   };
 
   useEffect(() => {
@@ -54,70 +177,15 @@ export default function Nav() {
         });
         return;
       } else {
-        CountLikeCartFun();
+        await MergeLogic();
+        // await new Promise((res) => setTimeout(res, 300));
 
-      
-
-        if (mergeOnceRef.current) return;
-        if (localStorage.getItem("guest_cart_merged")) return;
-
-        const items = Object.values(guestCart?.items ?? {});
-        const likes = Object.values(guestCart?.likeProduct ?? {});
-
-         console.log("items",items,likes,guestCart)
-
-        if (items.length === 0 && likes.length === 0) return;
-
-        mergeOnceRef.current = true;
-        localStorage.setItem("guest_cart_merge_in_progress", "true");
-
-        try {
-          localStorage.removeItem("GuestUserData");
-          for (const item of items) {
-            try {
-              let res = await callApi("post", "/cart", {
-                data: {
-                  productId: item.id,
-                  userId: user.id,
-                  variantSizeId: item.variantSizeId ?? null,
-                },
-              });
-
-              console.log(res);
-            } catch (e) {
-              console.error("Cart failed:", item.id);
-            }
-          }
-
-          for (const item of likes) {
-            try {
-              let res = await callApi("post", "/like-product", {
-                data: {
-                  productId: item.id,
-                  userId: user.id,
-                },
-              });
-
-              console.log(res);
-            } catch (e) {
-              console.error("Wishlist failed:", item.id);
-            }
-          }
-
-          localStorage.setItem("guest_cart_merged", "true");
-          localStorage.removeItem("guest_cart_merge_in_progress");
-
-          console.log("✅ Guest merge completed safely");
-          CountLikeCartFun();
-        } catch (error) {
-          console.error("Merge failed:", error);
-          mergeOnceRef.current = false;
-        }
+        await CountLikeCartFun();
       }
     };
 
     LengthData();
-  }, [user?.id,GuestUserDataLength]);
+  }, [GuestUserDataLength, user?.id, isMerging, userCountData.LikeCount,userCountData.CartCount]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024); // Tailwind lg breakpoint

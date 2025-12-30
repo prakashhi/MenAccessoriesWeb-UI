@@ -38,7 +38,7 @@ export default function MobileFilterDrawer({
   const { callApi } = useApi();
 
   const handleClick = async () => {
-    console.log(state);
+
 
     let url = `/product-list-for-idk-jwellery?limit=100&offset=0&${
       state.malarialId !== null && `materialIds=${state.malarialId}`

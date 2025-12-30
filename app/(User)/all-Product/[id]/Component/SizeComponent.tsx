@@ -14,7 +14,7 @@ export default function SizeSelector({
   onSelect,
   sizeCart,
 }: Props) {
-  console.log(sizeCart);
+
   return (
     <div className="flex flex-wrap gap-2">
       {sizes?.map((item) => {

@@ -119,7 +119,7 @@ export default function page() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full flex justify-center py-3 bg-black text-white font-medium rounded-xl shadow-lg hover:bg-black/90 transition"
+            className="w-full flex justify-center cursor-pointer py-3 bg-black text-white font-medium rounded-xl shadow-lg hover:bg-black/90 transition"
           >
             {loading == true ? (
               <Image width={20} height={20} alt="Loading" src={Loader} />

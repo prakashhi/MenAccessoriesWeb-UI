@@ -46,13 +46,12 @@ export function useApi<T = any>() {
           throw new Error(`Unsupported method: ${method}`);
       }
       setData(response.data);
-
-      return response.data;
+      return response!.data;
     } catch (err: any) {
       let errorMsg;
       errorMsg = err.response?.data?.message || err.response?.data?.error;
 
-       console.log("err",err)
+      console.log("err", err);
 
       setError(errorMsg);
 
@@ -60,6 +59,7 @@ export function useApi<T = any>() {
         message: errorMsg,
         type: "error",
       });
+      throw err;
     } finally {
       setLoading(false);
     }
