@@ -29,7 +29,11 @@ import {
 
 import { useRouter } from "next/navigation";
 import { useApi } from "@/app/useApi";
-import { toastActions } from "../Component/ToastComponent";
+import {
+  LuxuryToastContainer,
+  notify,
+  toastActions,
+} from "../Component/ToastComponent";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
@@ -47,7 +51,7 @@ export default function Page() {
 
   const [likeProductList, setLikeProductList] = useState<any[]>([]);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -58,7 +62,6 @@ export default function Page() {
         setLoading(true);
         if (user) {
           let response = await LikeProductList(user.id);
-          console.log("Like", response);
           setLikeProductList(response?.data);
 
           setUserCountData((prev: any) => ({
@@ -80,7 +83,7 @@ export default function Page() {
     return () => {
       isMounted = false;
     };
-  }, [user, guestCart?.likeProduct]);
+  }, [user, guestCart]);
 
   type HandleCart = GuestLikeItem | UserLikeItem;
 
@@ -91,19 +94,50 @@ export default function Page() {
         let ProductID = User.product.data
           ? User.product.data.id
           : User.product.id;
-        await AddCartProduct(ProductID);
-        let response = await callApi(
-          "delete",
-          `/like-product/${user.id}/${ProductID}`
-        );
 
-        setLikeProductList((prev) =>
-          prev.filter((p) =>
-            p.product.data
-              ? p.product.data.id !== ProductID
-              : p.product.id !== ProductID
-          )
-        );
+        let response = await AddCartProduct(ProductID);
+
+        if (response.success == true) {
+          toastActions.addToCart();
+
+          setUserCountData((prev) => ({
+            ...prev,
+            LikeCount: prev.LikeCount - 1,
+            CartCount: prev.CartCount + 1,
+          }));
+
+          await callApi("delete", `/like-product/${user.id}/${ProductID}`);
+
+          setLikeProductList((prev) =>
+            prev.filter((p) =>
+              p.product.data
+                ? p.product.data.id !== ProductID
+                : p.product.id !== ProductID
+            )
+          );
+        } else {
+          let msg = response?.response?.data?.message || "Something is Wrong";
+
+          setUserCountData((prev) => ({
+            ...prev,
+            LikeCount: prev.LikeCount - 1,
+          }));
+
+          await callApi("delete", `/like-product/${user.id}/${ProductID}`);
+
+          setLikeProductList((prev) =>
+            prev.filter((p) =>
+              p.product.data
+                ? p.product.data.id !== ProductID
+                : p.product.id !== ProductID
+            )
+          );
+
+          notify({
+            message: msg,
+            type: "warning",
+          });
+        }
       } catch (err) {
         console.log(err);
       }
@@ -122,17 +156,20 @@ export default function Page() {
         : User.product.id;
       let res = await RemoveLikeProduct(productId);
 
-      setLikeProductList((prev) =>
-        prev.filter((p) =>
-          p.product.data
-            ? p.product.data.id !== productId
-            : p.product.id !== productId
-        )
-      );
       if (res.success == true) {
+        setLikeProductList((prev) =>
+          prev.filter((p) =>
+            p.product.data
+              ? p.product.data.id !== productId
+              : p.product.id !== productId
+          )
+        );
+        setUserCountData((prev) => ({
+          ...prev,
+          LikeCount: prev.LikeCount - 1,
+        }));
         toastActions.removeFromWishlist();
       }
-      setUserCountData((prev) => ({ ...prev, LikeCount: prev.LikeCount - 1 }));
     } else {
       let GuestLike = item as GuestLikeItem;
       let res = await RemoveLikeProduct(GuestLike.id);
@@ -142,6 +179,8 @@ export default function Page() {
       }
     }
   };
+
+  console.log(likeProductList);
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">
@@ -323,20 +362,38 @@ export default function Page() {
                       <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
                         <button
                           onClick={() => {
-                            addToCartHandle(item);
+                            (user
+                              ? item.product.data
+                                ? item.product.data.stock
+                                : item.product.stock
+                              : item.stock) > 0 && addToCartHandle(item);
                           }}
-                          className="w-full py-2.5 border cursor-pointer border-gray-900 rounded-sm text-gray-900
+                          className={`w-full py-2.5 border ${
+                            (user
+                              ? item.product.data
+                                ? item.product.data.stock
+                                : item.product.stock
+                              : item.stock) === 0
+                              ? "bg-gray-100 cursor-not-allowed border-none"
+                              : "cursor-pointer hover:bg-black hover:text-white  border-gray-900  text-gray-900"
+                          } 
                    text-xs tracking-[0.15em] uppercase
-                   hover:bg-gray-900 hover:text-white transition"
+                    transition`}
                         >
                           {loading ? (
                             <Image alt={item.name ?? "Loading"} src={Loader} />
+                          ) : (user
+                              ? item.product.data
+                                ? item.product.data.stock
+                                : item.product.stock
+                              : item.stock) === 0 ? (
+                            " Out of Stock"
                           ) : (
                             "Add to Cart"
                           )}
                         </button>
 
-                        <span
+                        {/* <span
                           className={`text-xs text-center py-1 ${
                             (user ? item.product.stock : item.stock) > 0
                               ? "text-green-700"
@@ -350,7 +407,7 @@ export default function Page() {
                             : item.stock) > 0
                             ? "In Stock"
                             : "Out of Stock"}
-                        </span>
+                        </span> */}
                       </div>
                     </div>
                   </motion.div>

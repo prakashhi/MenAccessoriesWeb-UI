@@ -44,7 +44,6 @@ export default function ItemCount({
 
   const [inputValue, setInputValue] = useState(String(quantity));
 
-
   // 🔥 Sync input with actual cart qty
   useEffect(() => {
     setInputValue(String(quantity));
@@ -72,18 +71,20 @@ export default function ItemCount({
 
       setInputValue(String(Qty));
 
-      setState((prev) => {
-        if (!prev) return prev;
+      setState?.((prev: any) => {
+        const item = prev.CartData?.[cartId];
+        if (!item) return prev;
 
-        return prev.map((item) => {
-          if (item.id === cartId) {
-            return {
+        return {
+          ...prev,
+          CartData: {
+            ...prev.CartData,
+            [cartId]: {
               ...item,
               quantity: Qty,
-            };
-          }
-          return item;
-        });
+            },
+          },
+        };
       });
 
       // 2️⃣ Clear previous API call
@@ -110,7 +111,7 @@ export default function ItemCount({
 
   const handleDeCrement = async () => {
     if (user && setState) {
-      const Qty = Number(inputValue) - 1;
+      const Qty = Math.max(1, Math.min(Number(inputValue) - 1, stock));
       if (Qty >= 1) {
         setInputValue(String(Qty));
       }

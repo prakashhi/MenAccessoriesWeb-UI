@@ -31,9 +31,9 @@ export default function AccountSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
   const [active, setActive] = useState<string>("info");
 
-  const { callApi } = useApi();
+  const { UserRefreshKey } = UsePanel();
 
-  const { getUser } = UsePanel();
+  const { callApi } = useApi();
 
   const router = useRouter();
 
@@ -46,8 +46,9 @@ export default function AccountSection() {
 
   // Logout handler (sample)
   const handleLogout = async () => {
-    localStorage.removeItem("UserData");
-    localStorage.removeItem("Token");
+    // localStorage.removeItem("UserData");
+    // localStorage.removeItem("Token");
+    localStorage.clear();
 
     notify({
       message: "Log Out Successfully",
@@ -79,6 +80,7 @@ export default function AccountSection() {
 
   useEffect(() => {
     const userId = userData?.id;
+
     if (!userId) {
       router.replace("/login");
       return;
@@ -100,6 +102,7 @@ export default function AccountSection() {
           ...prev,
           info: profileData?.data,
           wishlist: likeProductData?.data,
+          OrderList: OrderList.data,
         }));
       } catch (err) {
         console.log(err);
@@ -110,7 +113,9 @@ export default function AccountSection() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [UserRefreshKey]);
+
+  console.log(user);
 
   return (
     <>

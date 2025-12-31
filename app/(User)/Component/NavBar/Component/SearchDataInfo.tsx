@@ -16,7 +16,7 @@ export default function SearchComponents({ Data }: { Data: any }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 8 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="absolute top-full left-0 z-50 mt-3 w-full max-h-[420px] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.08)]"
+        className="absolute top-full left-0 z-50  w-full max-h-[420px] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.08)]"
       >
         {/* 🔹 Categories Horizontal */}
         {Data.categories?.length > 0 && (
@@ -29,7 +29,7 @@ export default function SearchComponents({ Data }: { Data: any }) {
             </p>
 
             <div className="flex gap-3 overflow-x-auto scrollbar-hide">
-              {Data.categories.map((cat:any) => (
+              {Data.categories.map((cat: any) => (
                 <motion.div
                   key={cat.id}
                   onClick={() => router.push(`/Category/${cat.id}`)}
@@ -71,7 +71,7 @@ export default function SearchComponents({ Data }: { Data: any }) {
             </p>
 
             <div className="flex flex-col gap-2">
-              {Data.products.map((product:any) => (
+              {Data.products.map((product: any) => (
                 <motion.div
                   onClick={() => router.push(`/all-Product/${product.id}`)}
                   key={product.id}

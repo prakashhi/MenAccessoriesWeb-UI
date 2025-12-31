@@ -26,6 +26,8 @@ const API = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
 });
 
+ console.log("token",token)
+
 // 🔐 Request Interceptor
 API.interceptors.request.use(
   (config) => {

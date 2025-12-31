@@ -202,10 +202,15 @@ export type GuestCart = {
   likeProduct: Record<string, GuestLikeItem>;
 };
 
+// API Type
 export type ApiResponse<T> = {
   success: boolean;
   data: T | null;
 };
+
+export type PromiseSettledResult<T> =
+  | { status: "fulfilled"; value: T }
+  | { status: "rejected"; reason: any };
 
 // Log in User Types
 

@@ -1,15 +1,14 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import axios from "axios";
+
 import CountryField from "@/app/(User)/register/Component/CountryFiledComponent";
 import API from "@/app/api";
-import { toastActions, notify } from "../../Component/ToastComponent";
+import { notify } from "../../Component/ToastComponent";
 import Loader from "@/public/svg/tube-spinner.svg";
 import Image from "next/image";
-import { useState } from "react";
-import { Button } from "@heroui/react";
-import ChangePassword from "./ChangePassword";
+import { setAuthData } from "@/app/utils/localStorageUtil";
+import { UsePanel } from "@/context/Context";
 
 type FormValues = {
   userName: string;
@@ -56,6 +55,8 @@ export default function UserEditForm({
     },
   });
 
+  const { UserTrigger } = UsePanel();
+
   const onSubmit = async (data: FormValues) => {
     if (!isDirty) {
       notify({
@@ -85,8 +86,13 @@ export default function UserEditForm({
         });
 
         localStorage.removeItem("UserData");
-
-        localStorage.setItem("UserData", JSON.stringify(res.data));
+        setAuthData(
+          "UserData",
+          JSON.stringify(res.data.data),
+          24 * 60 * 60 * 1000
+        );
+        //localStorage.setItem("UserData", JSON.stringify(res.data.data));
+        UserTrigger();
         onClose();
       }
     } catch (err: any) {

@@ -30,7 +30,8 @@ export default function Product() {
   const userData = useMemo(() => getUserFromStorage(), []);
   const { callApi } = useApi();
 
-  const { LikeProductList, CartProductList } = UsePanel();
+  const { LikeProductList, CartProductList, setUserCountData, refreshKey } =
+    UsePanel();
 
   const router = useRouter();
 
@@ -51,13 +52,12 @@ export default function Product() {
     setProduct(res.data);
 
     if (userData) {
-      const [cart, like]: [
-        PromiseSettledResult<ApiResponse<LikeProductType>>,
-        PromiseSettledResult<ApiResponse<CartProductInfo>>
-      ] = await Promise.allSettled([
-        callApi("get", `/cart/${userData.id}`),
-        callApi("get", `/like-products/${userData.id}`),
+      const [cart, like] = await Promise.allSettled([
+        await CartProductList(userData.id),
+        await LikeProductList(userData.id),
       ]);
+
+      console.log("likeCart", like, cart);
       const LikeData = like.status == "fulfilled" ? like.value?.data ?? [] : [];
       const CartData = cart.status == "fulfilled" ? cart.value?.data ?? [] : [];
 
@@ -70,7 +70,7 @@ export default function Product() {
       const likeMap: Record<string, LikeProductType> = {};
 
       LikeData.forEach((item: LikeProductType) => {
-        let id = item.product.data ? item.product.data.id : item.product.id;
+        let id = item?.product?.data?.id ?? item?.product?.id;
         likeMap[id] = item;
       });
 
@@ -78,6 +78,12 @@ export default function Product() {
         ...prev,
         LikeData: likeMap,
         CartData: cartMap,
+      }));
+
+      setUserCountData((prev) => ({
+        ...prev,
+        LikeCount: LikeData.length,
+        CartCount: CartData.length,
       }));
     }
   }, []);
@@ -103,18 +109,9 @@ export default function Product() {
     []
   );
 
-  // const groupedData = useMemo(() => {
-  //   if (!category.length || !product.length) return [];
-
-  //   return category.map((category) => ({
-  //     ...category,
-  //     products: product.filter((product) => product.categoryId === category.id),
-  //   }));
-  // }, [category, product]);
-
   useEffect(() => {
     getData();
-  }, []);
+  }, [refreshKey]);
 
   return (
     <section className="pt-12 lg:pt-49 px-4 lg:overflow-x-hidden sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">

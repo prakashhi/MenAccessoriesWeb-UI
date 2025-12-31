@@ -107,20 +107,27 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const MetaData = async () => {
       if (userData) {
-        const [category, like] = await Promise.all([
+        const [cart, like] = await Promise.all([
           CartProductList(userData.id),
           LikeProductList(userData.id),
         ]);
 
+        console.log("category, like", cart, like);
+
+        let categoryData = cart.success === true && cart.data;
+        let likeData = like.success === true && like.data;
+
         const cartMap: Record<string, CartItem> = {};
-        category.data.forEach((item: CartItem) => {
-          cartMap[item.product.productId] = item;
-        });
+        Array.isArray(categoryData) &&
+          categoryData.forEach((item: CartItem) => {
+            cartMap[item.product.productId] = item;
+          });
 
         const likeMap: Record<string, LikeProductType> = {};
-        like.data.forEach((item: LikeProductType) => {
-          likeMap[item.product.id] = item;
-        });
+        Array.isArray(likeData) &&
+          likeData.forEach((item: LikeProductType) => {
+            likeMap[item.product.id] = item;
+          });
 
         setState((prev) => ({
           ...prev,
@@ -139,7 +146,7 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
         {/* SEARCH CONTENT */}
 
         <motion.div
-          className="relative w-full lg:w-[500px]"
+          className="relative w-full lg:w-[800px]"
           initial={{
             opacity: 0,
             y: -14,
@@ -204,7 +211,7 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
         pl-11 sm:pl-12
         pr-10
         text-[12px] sm:text-[13px]
-        tracking-[0.14em] sm:tracking-[0.15em]
+       
         text-black
         placeholder-black/40
         focus:outline-none

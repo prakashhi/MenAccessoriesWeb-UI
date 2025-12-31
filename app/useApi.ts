@@ -9,6 +9,7 @@ interface ApiState<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
+  ISErrorThrowMSg?: boolean;
 }
 
 export function useApi<T = any>() {
@@ -19,7 +20,8 @@ export function useApi<T = any>() {
   const callApi = async (
     method: "get" | "post" | "put" | "delete" | "patch",
     url: string,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
+    ISErrorThrowMSg?: false | true
   ) => {
     try {
       let response;
@@ -55,10 +57,13 @@ export function useApi<T = any>() {
 
       setError(errorMsg);
 
-      notify({
-        message: errorMsg,
-        type: "error",
-      });
+      if (ISErrorThrowMSg === false) {
+        notify({
+          message: errorMsg,
+          type: "error",
+        });
+      }
+
       throw err;
     } finally {
       setLoading(false);

@@ -157,8 +157,6 @@ export default function ProductPage() {
 
           if (!active) return;
 
-          console.log("LikeData", LikeData);
-
           const like = LikeData?.data.find((i: any) => {
             // Both productId must exist and match
             let ProductId = i.product.data ? i.product.data.id : i.product.id;
@@ -195,13 +193,12 @@ export default function ProductPage() {
             return true;
           });
 
-          setState((prev) => ({
-            ...prev,
+          setState({
             LikeData: like ?? null,
             CartData: cart ?? null,
             Like: Boolean(like),
             Cart: Boolean(cart),
-          }));
+          });
         }
         // ✅ GUEST USER
         else {
@@ -303,6 +300,8 @@ export default function ProductPage() {
       }));
     }
   };
+
+  console.log(product);
 
   return (
     <>
@@ -466,6 +465,7 @@ export default function ProductPage() {
                   <motion.button
                     key="add"
                     onClick={() =>
+                      product.stock > 0 &&
                       addToCartHandle(
                         selectedSize?.id ?? null,
                         selectedSize?.size ?? null
@@ -475,15 +475,29 @@ export default function ProductPage() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="
+                    className={`
         relative flex items-center justify-center gap-3
-        bg-black text-white py-4 rounded-none
-        text-xs tracking-[0.25em] font-semibold cursor-pointer
+         py-4 rounded-none 
+        text-xs font-semibold  ${
+          product.stock === 0
+            ? "cursor-not-allowed text-gray-400 tracking-[0.15em]  bg-gray-100"
+            : "cursor-pointer tracking-[0.25em]  bg-black text-white"
+        } 
         overflow-hidden
-      "
+      `}
                   >
                     <AnimatePresence mode="wait">
-                      {state.Cart == false ? (
+                      {product.stock === 0 && state.Cart == false ? (
+                        <motion.span
+                          initial={{ y: 10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -10, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="flex  items-center gap-2 "
+                        >
+                          Out of Stock
+                        </motion.span>
+                      ) : state.Cart == false ? (
                         <motion.span
                           key="cart"
                           initial={{ y: 10, opacity: 0 }}

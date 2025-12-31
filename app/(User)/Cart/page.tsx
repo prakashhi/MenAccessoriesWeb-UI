@@ -41,7 +41,7 @@ import {
 } from "@/app/(User)/Type/Types";
 import { useApi } from "@/app/useApi";
 import { PaymentModeSelector } from "./component/PaymentMethodSelect";
-import CardModel from "../Component/ProductList/CardModel";
+
 import { toastActions } from "../Component/ToastComponent";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
@@ -58,14 +58,10 @@ type modelTypes = {
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
 
-  const {
-    RemoveCartProduct,
-    CartProductList,
-    guestCart,
-    setUserCountData,
-    userCountData,
-    RemoveCartUserProduct,
-  } = UsePanel();
+  console.log(user);
+
+  const { RemoveCartProduct, CartProductList, guestCart, setUserCountData } =
+    UsePanel();
 
   const [openModel, setOpenModel] = useState<modelTypes>({
     FillForm: false,
@@ -88,38 +84,131 @@ export default function Page() {
   useEffect(() => {
     if (!user) return;
     const CartList = async () => {
-      let response = await CartProductList(user.id);
-      setCartListData(response.data);
-      setUserCountData((prev) => ({
-        ...prev,
-        CartCount: response?.data.length,
-      }));
+      try {
+        let response = await CartProductList(user.id);
+        setCartListData(response?.data);
+        setUserCountData((prev: any) => ({
+          ...prev,
+          CartCount: response?.data?.length,
+        }));
+      } catch (err) {
+        console.log(err);
+      }
     };
     CartList();
   }, [user]);
+
+  console.log(cartListData);
 
   useEffect(() => {
     if (user) return;
     setCartListData(Object.values(guestCart.items));
   }, [guestCart]);
 
+  const sample = {
+    id: "50c35f0c-8e7d-497e-9f74-f0e538d7241d",
+    customerType: "RETAIL_CUSTOMER",
+    customerName: "Prakash Prajapati",
+    customerEmail: "prakash398prajapati@gmail.com",
+    customerPhone: "9234567890",
+    customerAddress: "LODARA",
+    customerGSTAddress: null,
+    customerState: "Gujarat",
+    customerPinCode: "476576869",
+    customerCountry: "India",
+    customerCountryCode: "+91",
+    totalPrice: 1431,
+    totalQuantity: 1,
+    totalDiscount: 0,
+    totalTax: 41,
+    shippingFee: 900,
+    customerId: "67a91bce-5665-4d5d-909c-6349c3e761b9",
+    customerGSTIN: null,
+    address: null,
+    contactNumber: null,
+    countryCode: null,
+    country: null,
+    state: null,
+    invoiceId: "INVOICE-1767185450449-JHT3",
+    orderId: "ORD-1767185450449-2P8X",
+    salesDate: "2025-12-31T12:50:50.449Z",
+    salesStatus: "PENDING",
+    source: "OFFLINE",
+    createdAt: "2025-12-31T12:50:48.642Z",
+    updatedAt: "2025-12-31T12:50:48.642Z",
+    deletedAt: null,
+    products: [
+      {
+        id: "daab7c48-588c-4949-bfad-e8a802d118d4",
+        salesId: "50c35f0c-8e7d-497e-9f74-f0e538d7241d",
+        productId: "f69b9625-d945-48be-917f-3085c8308a93",
+        productName: "",
+        productCategory: "Buttons",
+        productSerialNumber: "B0BK4194",
+        productImage: "/1765349675079-1000067030.jpg/",
+        productHSNCode: "",
+        quantity: 1,
+        weight: null,
+        price: 490,
+        variantSize: null,
+        totalPrice: 490,
+        createdAt: "2025-12-31T12:50:48.642Z",
+        updatedAt: "2025-12-31T12:50:48.642Z",
+        deletedAt: null,
+      },
+    ],
+    payments: [
+      {
+        id: "5ed9e8b3-b8d9-40e7-a9eb-3702685eb4a0",
+        transactionId: "TRAN-1767185450449-ONMV",
+        salesId: "50c35f0c-8e7d-497e-9f74-f0e538d7241d",
+        paymentDate: "2025-12-31T12:50:50.449Z",
+        paymentMethod: "CASH",
+        paymentStatus: "PENDING",
+        paymentAmount: 1431,
+        createdAt: "2025-12-31T12:50:48.642Z",
+        razorpayOrderId: "",
+        razorpayPaymentId: "",
+        razorpaySignature: "",
+        updatedAt: "2025-12-31T12:50:48.642Z",
+        deletedAt: null,
+      },
+    ],
+  };
+
+  // const total: number = useMemo(() => {
+  //   if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
+
+  //   if (user) {
+  //     return cartListData.reduce(
+  //       (sum: number, item: any) =>
+  //         sum + Number(item.product.productPrice) * Number(item.quantity),
+  //       0
+  //     );
+  //   } else {
+  //     return cartListData.reduce(
+  //       (sum: number, item: any) =>
+  //         sum + Number(item.sellingPrice) * item.quantity,
+  //       0
+  //     );
+  //   }
+  // }, [cartListData]);
+
   const total: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
 
-    if (user) {
-      return cartListData.reduce(
-        (sum: number, item: any) =>
-          sum + Number(item.product.productPrice) * Number(item.quantity),
-        0
-      );
-    } else {
-      return cartListData.reduce(
-        (sum: number, item: any) =>
-          sum + Number(item.sellingPrice) * item.quantity,
-        0
-      );
-    }
-  }, [cartListData]);
+    return cartListData.reduce((sum: number, item: any) => {
+      const stock = user ? item.product?.stock : item.stock;
+
+      if (!stock || stock === 0) return sum; // ❌ exclude out-of-stock
+
+      const price = user
+        ? Number(item.product.productPrice)
+        : Number(item.sellingPrice);
+
+      return sum + price * Number(item.quantity);
+    }, 0);
+  }, [cartListData, user]);
 
   const TotalQty: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
@@ -175,26 +264,22 @@ export default function Page() {
         } else {
           setOpenModel((prev) => ({
             ...prev,
-            PaymentMethodModel: true,
+            // PaymentMethodModel: true,
+            PaymentSuccessModel: true,
           }));
         }
       }
     } catch (err) {
       console.log(err);
     }
-
-    // if (!user) {
-    //   setOpenCartInfo(true);
-    //   return;
-    // }
-    // setTimeout(() => {
-    //   setIsSuccess(true);
-    // }, 500);
   };
 
   const handleRemove = async (item: any) => {
     if (user) {
-      let response = await RemoveCartProduct(item.product.productId, user.id);
+      let response = await RemoveCartProduct(
+        item.product.productId,
+        item.variantSize.variantSizeId
+      );
 
       if (response.success == true) {
         setCartListData((prev) =>
@@ -400,8 +485,11 @@ export default function Page() {
                 <div className="flex justify-between text-sm tracking-wide">
                   <span>Tax</span>
                   <span className="font-semibold text-sm">
-                    ₹{Math.floor((total * TaxPercentage) / 100)}(
-                    {`${TaxPercentage}%`})
+                    ₹
+                    {Math.floor(
+                      ((total + ShippingCharge) * TaxPercentage) / 100
+                    )}
+                    {/* ({`${TaxPercentage}%`}) */}
                   </span>
                 </div>
 
@@ -512,7 +600,7 @@ export default function Page() {
             }
             children={
               <PaymentSuccessModal
-                PaymentData={paymentData}
+                PaymentData={sample}
                 onClose={() =>
                   setOpenModel((prev) => ({
                     ...prev,

@@ -10,9 +10,12 @@ import { notify } from "@/app/(User)/Component/ToastComponent";
 import Image from "next/image";
 import Link from "next/link";
 import { setAuthData } from "@/app/utils/localStorageUtil";
+import { UsePanel } from "@/context/Context";
 
 export default function page() {
   const [showPass, setShowPass] = useState(false);
+
+  const { setUser } = UsePanel();
   type Info = {
     email: string;
     password: string;
@@ -36,7 +39,7 @@ export default function page() {
         message: "Login successful!",
         type: "success",
       });
-
+      setUser(res.data);
       setAuthData("UserData", JSON.stringify(res.data), 24 * 60 * 60 * 1000);
       setAuthData("Token", JSON.stringify(res.jwtToken), 24 * 60 * 60 * 1000);
       router.push("/");

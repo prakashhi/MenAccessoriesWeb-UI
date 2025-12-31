@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Heart, User, ShoppingBag, Search } from "lucide-react";
 import { UsePanel } from "@/context/Context";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 import SearchInput from "@/app/(User)/Component/NavBar/Component/SearchInput";
 
@@ -18,14 +18,7 @@ type length = {
 };
 
 export default function Nav() {
-  const {
-    LikeProductList,
-    CartProductList,
-    GuestUserDataLength,
-    guestCart,
-    setUserCountData,
-    userCountData,
-  } = UsePanel();
+  const { GuestUserDataLength, userCountData, triggerRefresh } = UsePanel();
 
   const { callApi } = useApi();
   const user = useMemo(() => getUserFromStorage(), []);
@@ -38,25 +31,13 @@ export default function Nav() {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const mergeOnceRef = useRef(false);
 
   const CountLikeCartFun = async () => {
-    // let [CartData, LikeData] = await Promise.all([
-    //   CartProductList(user.id),
-    //   LikeProductList(user.id),
-    // ]);
-
     setState((prev) => ({
       ...prev,
       likeProductLength: userCountData.LikeCount,
       CartProductLength: userCountData.CartCount,
     }));
-
-    // setState((prev) => ({
-    //   ...prev,
-    //   likeProductLength: LikeData?.data?.length,
-    //   CartProductLength: CartData?.data?.length,
-    // }));
   };
 
   const MergeLogic = async () => {
@@ -70,9 +51,6 @@ export default function Nav() {
 
     const guestData = JSON.parse(localStorage.getItem("GuestUserData") || "{}");
 
-    // const cartItems = Object.values(guestData?.items ?? {});
-    // const likeItems = Object.values(guestData?.likeProduct ?? {});
-
     // 🔧 CHANGED: freeze data to avoid index mismatch
     const cartItems = [...Object.values(guestData?.items ?? {})];
     const likeItems = [...Object.values(guestData?.likeProduct ?? {})];
@@ -84,8 +62,6 @@ export default function Nav() {
       return;
     }
 
-    // localStorage.setItem("guest_cart_merge_in_progress", "true");
-
     const failedCart: any[] = [];
     const failedLikes: any[] = [];
 
@@ -93,13 +69,18 @@ export default function Nav() {
       // ---- CART MERGE ----
       const cartResults = await Promise.allSettled(
         cartItems.map((item: any) =>
-          callApi("post", "/cart", {
-            data: {
-              productId: item.id,
-              userId: user.id,
-              variantSizeId: item.variantSizeId ?? null,
+          callApi(
+            "post",
+            "/cart",
+            {
+              data: {
+                productId: item.id,
+                userId: user.id,
+                variantSizeId: item.variantSizeId ?? null,
+              },
             },
-          })
+            true
+          )
         )
       );
 
@@ -117,12 +98,17 @@ export default function Nav() {
       // ---- WISHLIST MERGE ----
       const likeResults = await Promise.allSettled(
         likeItems.map((item: any) =>
-          callApi("post", "/like-product", {
-            data: {
-              productId: item.id,
-              userId: user.id,
+          callApi(
+            "post",
+            "/like-product",
+            {
+              data: {
+                productId: item.id,
+                userId: user.id,
+              },
             },
-          })
+            true
+          )
         )
       );
 
@@ -149,6 +135,7 @@ export default function Nav() {
           message: "Your cart and wishlist have been successfully synced.",
           type: "success",
         });
+        triggerRefresh();
       } else {
         // ❌ Partial failure → keep only failed items
         localStorage.setItem(
@@ -178,14 +165,18 @@ export default function Nav() {
         return;
       } else {
         await MergeLogic();
-        // await new Promise((res) => setTimeout(res, 300));
-
         await CountLikeCartFun();
       }
     };
 
     LengthData();
-  }, [GuestUserDataLength, user?.id, isMerging, userCountData.LikeCount,userCountData.CartCount]);
+  }, [
+    GuestUserDataLength,
+    user?.id,
+    isMerging,
+    userCountData.LikeCount,
+    userCountData.CartCount,
+  ]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024); // Tailwind lg breakpoint

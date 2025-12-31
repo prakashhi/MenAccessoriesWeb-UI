@@ -11,17 +11,11 @@ import { product, Like } from "./Types/type";
 import { useDisclosure } from "@heroui/react";
 import { useApi } from "@/app/useApi";
 import { notify, toastActions } from "@/app/(User)/Component/ToastComponent";
-import {
-  getUserFromStorage,
-  getGuestCart,
-  saveGuestCart,
-  updateGuestCart,
-} from "./utils";
+import { getUserFromStorage, getGuestCart } from "./utils";
 
 import {
   CartItem,
   CartProductInfo,
-  ProductInfoType,
   LikeProductType,
   ApiResponse,
   User,
@@ -30,26 +24,8 @@ import {
   CartRemoveResponseType,
   CountStateType,
   RemoveCartResponse,
+  PromiseSettledResult,
 } from "@/app/(User)/Type/Types";
-
-// type GuestCartItem = ProductInfoType & {
-//   quantity?: number;
-//   variantSizeId?: string | null;
-//   size?: string | null;
-// };
-
-// type GuestLikeItem = ProductInfoType & {
-//   variantSizeId: string | null;
-// };
-
-// type GuestCart = {
-//   items: Record<string, GuestCartItem>;
-//   likeProduct: Record<string, GuestLikeItem>;
-// };
-
-// export type AddToCart =
-//   | { type: "guest"; data: GuestCartItem }
-//   | { type: "user"; data: LikeProductType | ProductInfoType };
 
 type PanelContextType = {
   cartProduct: product[];
@@ -70,16 +46,21 @@ type PanelContextType = {
   userCountData: CountStateType;
   setUserCountData: React.Dispatch<React.SetStateAction<CountStateType>>;
 
-  RemoveCartProduct: (id: string) => Promise<void>;
+  RemoveCartProduct: (
+    id: string,
+    VariantId?: string
+  ) => Promise<ApiResponse<RemoveCartResponse>>;
 
   guestCart: GuestCart;
   AddLikeProduct: (
     Product: product,
     variantSizeId?: string | null
   ) => Promise<void>;
-  RemoveLikeProduct: (ProductId: string) => Promise<void>;
+  RemoveLikeProduct: (
+    ProductId: string
+  ) => Promise<ApiResponse<RemoveCartResponse>>;
   LikeProductList: (userid: string) => Promise<ApiResponse<LikeProductType[]>>;
-  CartProductList: (userid: string) => Promise<ApiResponse<CartProductInfo[]>>;
+  CartProductList: (userid: string) => Promise<ApiResponse<CartItem[]>>;
   incrementCartProduct: (
     productId: string,
     cardId: string,
@@ -96,6 +77,12 @@ type PanelContextType = {
   onOpen: () => void;
   onOpenChange: () => void;
   GuestUserDataLength: { Cart: number; Like: number };
+  setUser: React.Dispatch<React.SetStateAction<User>>;
+  triggerRefresh: () => void;
+  refreshKey: number;
+
+  UserTrigger: () => void;
+  UserRefreshKey: number;
 };
 
 const SearchPanelContext = createContext<PanelContextType | null>(null);
@@ -145,14 +132,13 @@ export function SearchPanelContextProvider({
     CartCount: 0,
   });
 
+  const [refreshKey, setRefreshKey] = useState<number>(0);
+  const [UserRefreshKey, setUserRefreshKey] = useState<number>(0);
+
   // 1️⃣ Mark client mount
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  type PromiseSettledResult<T> =
-    | { status: "fulfilled"; value: T }
-    | { status: "rejected"; reason: any };
 
   // 2️⃣ Read localStorage AFTER mount
   useEffect(() => {
@@ -162,20 +148,19 @@ export function SearchPanelContextProvider({
     const LoadCountData = async () => {
       if (userData) {
         setUser(userData);
+
         const [Like, Cart]: [
           PromiseSettledResult<ApiResponse<LikeProductType>>,
           PromiseSettledResult<ApiResponse<CartProductInfo>>
         ] = await Promise.allSettled([
           callApi("get", `/like-products/${userData.id}`),
-          CartProductList(userData.id),
+          callApi("get", `/cart/${userData.id}`),
         ]);
 
         const likeCount =
           Like.status === "fulfilled" && Like.value?.success
             ? Like.value.data?.length ?? 0
             : 0;
-
-        console.log("Cart", Cart);
 
         const cartCount: number =
           Cart.status === "fulfilled" && Cart.value?.success
@@ -188,8 +173,6 @@ export function SearchPanelContextProvider({
           CartCount: cartCount,
         }));
       } else {
-        // setUser(userData);
-
         const cart = getGuestCart();
 
         setGuestCart((prev: any) => ({
@@ -218,8 +201,6 @@ export function SearchPanelContextProvider({
       Like: Object.keys(guestCart?.likeProduct || {}).length,
     };
   }, [guestCart]);
-
-  // All functions
 
   //Cart Functions
   const AddCartProduct = async (
@@ -289,7 +270,8 @@ export function SearchPanelContextProvider({
   };
 
   const RemoveCartProduct = async (
-    ProductId: string
+    ProductId: string,
+    VariantId?: string
   ): Promise<ApiResponse<RemoveCartResponse>> => {
     if (user == null || !user) {
       setGuestCart((prev) => {
@@ -307,16 +289,19 @@ export function SearchPanelContextProvider({
       });
 
       toastActions.removeFromCart();
-
       return {
         success: true,
         data: null,
       };
     } else {
-      let res: ApiResponse<RemoveCartResponse> = await callApi(
-        "delete",
-        `/cart/${user?.id}/${ProductId}`
-      );
+      let url;
+
+      if (VariantId) {
+        url = `/cart/${user?.id}/${ProductId}?variantSizeId=${VariantId}`;
+      } else {
+        url = `/cart/${user?.id}/${ProductId}`;
+      }
+      let res: ApiResponse<RemoveCartResponse> = await callApi("delete", url);
       return res;
     }
   };
@@ -367,7 +352,6 @@ export function SearchPanelContextProvider({
     ProductId: string
   ): Promise<ApiResponse<RemoveCartResponse>> => {
     if (user == null || !user) {
-      console.log("Product", ProductId);
       setGuestCart((prev) => {
         if (!prev || !prev.likeProduct) return prev;
 
@@ -489,8 +473,16 @@ export function SearchPanelContextProvider({
 
   const CartProductList = async (
     userid: string
-  ): Promise<ApiResponse<CartProductInfo[]>> => {
+  ): Promise<ApiResponse<CartItem[]>> => {
     return await callApi("get", `/cart/${userid}`);
+  };
+
+  const triggerRefresh = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  const UserTrigger = () => {
+    setUserRefreshKey((prev) => prev + 1);
   };
 
   return (
@@ -516,6 +508,11 @@ export function SearchPanelContextProvider({
         onOpenChange,
         userCountData,
         setUserCountData,
+        setUser,
+        triggerRefresh,
+        refreshKey,
+        UserTrigger,
+        UserRefreshKey,
       }}
     >
       {children}
