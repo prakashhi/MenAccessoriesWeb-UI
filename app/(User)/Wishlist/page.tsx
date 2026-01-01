@@ -4,36 +4,26 @@ import Nav from "../Component/NavBar/Nav";
 import Footer from "../Component/Footer/Footer";
 import { UsePanel } from "@/context/Context";
 import Image from "next/image";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserFromStorage } from "@/context/utils";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 import { formatIndianPrice } from "@/app/utils/FormatCurrency";
-import {
-  FiHeart,
-  FiShoppingBag,
-  FiX,
-  FiChevronRight,
-  FiTrash2,
-} from "react-icons/fi";
+import { FiHeart, FiX } from "react-icons/fi";
 import { useEffect, useMemo, useState } from "react";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
 import Loader from "@/public/svg/tube-spinner.svg";
 
 import {
+  GuestLikeItem,
   LikeProductType,
   ProductInfoType,
-  GuestLikeItem,
   UserLikeItem,
 } from "@/app/(User)/Type/Types";
 
 import { useRouter } from "next/navigation";
 import { useApi } from "@/app/useApi";
-import {
-  LuxuryToastContainer,
-  notify,
-  toastActions,
-} from "../Component/ToastComponent";
+import { notify, toastActions } from "../Component/ToastComponent";
+import { getProductId } from "@/app/utils/getProductId";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
@@ -43,17 +33,25 @@ export default function Page() {
     LikeProductList,
     guestCart,
     setUserCountData,
-    userCountData,
     AddCartProductGuest,
   } = UsePanel();
 
   const { callApi } = useApi();
 
-  const [likeProductList, setLikeProductList] = useState<any[]>([]);
+  const [likeProductList, setLikeProductList] = useState<LikeProductType[]>([]);
 
   const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
+
+  const mapGuestLikesToLikeProducts = (
+    guestLikes: Record<string, ProductInfoType>
+  ): LikeProductType[] => {
+    return Object.values(guestLikes).map((item) => ({
+      likeId: `guest-${item.id}`, // temp id
+      product: item, // reuse product shape
+    }));
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -62,14 +60,22 @@ export default function Page() {
         setLoading(true);
         if (user) {
           let response = await LikeProductList(user.id);
-          setLikeProductList(response?.data);
 
-          setUserCountData((prev: any) => ({
-            ...prev,
-            LikeCount: response?.data?.length,
-          }));
+          if (response.success == true) {
+            const likeArray = response.data ?? [];
+            setLikeProductList(likeArray);
+
+            setUserCountData((prev) => ({
+              ...prev,
+              LikeCount: likeArray.length,
+            }));
+          }
         } else {
-          setLikeProductList(Object.values(guestCart?.likeProduct || {}) ?? []);
+          let Guest = guestCart;
+          // let data = Object.values(Guest.likeProduct || {}) ?? [];
+          // setLikeProductList(data);
+          const data = mapGuestLikesToLikeProducts(Guest.likeProduct ?? {});
+          setLikeProductList(data);
         }
       } catch (err) {
         console.log(err);
@@ -91,9 +97,7 @@ export default function Page() {
     if (user) {
       try {
         let User = item as UserLikeItem;
-        let ProductID = User.product.data
-          ? User.product.data.id
-          : User.product.id;
+        let ProductID = User.product.id;
 
         let response = await AddCartProduct(ProductID);
 
@@ -109,28 +113,25 @@ export default function Page() {
           await callApi("delete", `/like-product/${user.id}/${ProductID}`);
 
           setLikeProductList((prev) =>
-            prev.filter((p) =>
-              p.product.data
-                ? p.product.data.id !== ProductID
-                : p.product.id !== ProductID
-            )
+            prev.filter((p) => p.product.id !== ProductID)
           );
         } else {
-          let msg = response?.response?.data?.message || "Something is Wrong";
+          // let msg = response?.response?.data?.message || "Something is Wrong";
+          const msg = response.message || "Something went wrong!";
 
           setUserCountData((prev) => ({
             ...prev,
             LikeCount: prev.LikeCount - 1,
           }));
 
-          await callApi("delete", `/like-product/${user.id}/${ProductID}`);
+          let res = await callApi(
+            "delete",
+            `/like-product/${user.id}/${ProductID}`
+          );
+          console.log("res", res);
 
           setLikeProductList((prev) =>
-            prev.filter((p) =>
-              p.product.data
-                ? p.product.data.id !== ProductID
-                : p.product.id !== ProductID
-            )
+            prev.filter((p) => p.product.id !== ProductID)
           );
 
           notify({
@@ -142,27 +143,21 @@ export default function Page() {
         console.log(err);
       }
     } else {
-      let Guest = item as GuestLikeItem;
-      await AddCartProductGuest(Guest);
-      await RemoveLikeProduct(Guest.id);
+      let guest = item as LikeProductType;
+      await AddCartProductGuest(guest.product);
+      await RemoveLikeProduct(guest.product.id);
     }
   };
 
   const XRemoveHandle = async (item: HandleCart) => {
     if (user) {
       let User = item as UserLikeItem;
-      let productId = User?.product?.data
-        ? User?.product?.data.id
-        : User.product.id;
+      let productId = getProductId(User.product);
       let res = await RemoveLikeProduct(productId);
 
       if (res.success == true) {
         setLikeProductList((prev) =>
-          prev.filter((p) =>
-            p.product.data
-              ? p.product.data.id !== productId
-              : p.product.id !== productId
-          )
+          prev.filter((p) => p.product.id !== productId)
         );
         setUserCountData((prev) => ({
           ...prev,
@@ -171,16 +166,14 @@ export default function Page() {
         toastActions.removeFromWishlist();
       }
     } else {
-      let GuestLike = item as GuestLikeItem;
-      let res = await RemoveLikeProduct(GuestLike.id);
+      let GuestLike = item as LikeProductType;
+      let res = await RemoveLikeProduct(GuestLike.product.id);
 
       if (res.success == true) {
         toastActions.removeFromWishlist();
       }
     }
   };
-
-  console.log(likeProductList);
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">
@@ -241,29 +234,13 @@ export default function Page() {
                     {/* IMAGE */}
                     <div className="relative w-full h-64 md:h-72 bg-gray-50 overflow-hidden">
                       <Image
-                        alt={
-                          user
-                            ? item.product?.name ??
-                              item.product?.data?.name ??
-                              "NO image"
-                            : item.name ?? "NO image"
-                        }
+                        alt={item.product?.data?.name ?? "NO image"}
                         onClick={() =>
-                          router.push(
-                            `/all-Product/${
-                              item?.product?.id ??
-                              item?.product?.data?.id ??
-                              item?.id
-                            }`
-                          )
+                          router.push(`/all-Product/${item?.product?.id}`)
                         }
                         src={
-                          user
-                            ? item?.product?.data
-                              ? ImageShowUtil(item?.product?.data?.image)
-                              : ImageShowUtil(item?.product?.image)
-                            : ImageShowUtil(item?.image) ||
-                              "/images/placeholder.webp"
+                          ImageShowUtil(item?.product.image) ||
+                          "/images/placeholder.webp"
                         }
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"
@@ -289,33 +266,18 @@ export default function Page() {
                           className="text-md font-light tracking-wide text-gray-900 line-clamp-2"
                           style={{ fontFamily: "'Cormorant Garamond', serif" }}
                         >
-                          {user
-                            ? item.product.data
-                              ? item.product.data.name
-                              : item.product.name
-                            : item.name}
+                          {item.product.name}
                         </h3>
 
                         <p className="text-xs text-gray-500 uppercase tracking-[0.12em] mt-1">
-                          {user
-                            ? item.product.data
-                              ? item.product.data.categoryName
-                              : item.product.categoryName
-                            : item.categoryName}
+                          {item.product.categoryName}
                         </p>
                       </div>
 
                       {/* PRICE */}
                       <div>
                         <p className="text-xl font-light text-gray-900">
-                          ₹
-                          {user
-                            ? item.product.data
-                              ? formatIndianPrice(
-                                  item.product.data.sellingPrice
-                                )
-                              : formatIndianPrice(item.product.sellingPrice)
-                            : formatIndianPrice(item.sellingPrice)}
+                          ₹{formatIndianPrice(item.product.sellingPrice)}
                         </p>
                       </div>
 
@@ -362,18 +324,10 @@ export default function Page() {
                       <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
                         <button
                           onClick={() => {
-                            (user
-                              ? item.product.data
-                                ? item.product.data.stock
-                                : item.product.stock
-                              : item.stock) > 0 && addToCartHandle(item);
+                            item.product.stock > 0 && addToCartHandle(item);
                           }}
                           className={`w-full py-2.5 border ${
-                            (user
-                              ? item.product.data
-                                ? item.product.data.stock
-                                : item.product.stock
-                              : item.stock) === 0
+                            item.product.stock === 0
                               ? "bg-gray-100 cursor-not-allowed border-none"
                               : "cursor-pointer hover:bg-black hover:text-white  border-gray-900  text-gray-900"
                           } 
@@ -382,11 +336,7 @@ export default function Page() {
                         >
                           {loading ? (
                             <Image alt={item.name ?? "Loading"} src={Loader} />
-                          ) : (user
-                              ? item.product.data
-                                ? item.product.data.stock
-                                : item.product.stock
-                              : item.stock) === 0 ? (
+                          ) : item.product.stock === 0 ? (
                             " Out of Stock"
                           ) : (
                             "Add to Cart"

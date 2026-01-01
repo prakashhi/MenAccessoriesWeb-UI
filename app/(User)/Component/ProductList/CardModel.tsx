@@ -3,7 +3,6 @@
 import { UsePanel } from "@/context/Context";
 import Image from "next/image";
 import { FcLikePlaceholder } from "react-icons/fc";
-import Star from "./Star";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/app/useApi";
 import { formatIndianPrice } from "@/app/utils/FormatCurrency";
@@ -12,18 +11,12 @@ import { CircleCheck } from "lucide-react";
 import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
 
 import { Heart } from "lucide-react";
-import {
-  CartItem,
-  VariantSize,
-  LikeProductType,
-  ProductInfoType,
-  CategoryInfo,
-  Data,
-} from "@/app/(User)/Type/Types";
+import { ProductInfoType, Data } from "@/app/(User)/Type/Types";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 import { useMemo, useState } from "react";
 import { getUserFromStorage } from "@/context/utils";
 import { notify, toastActions } from "../ToastComponent";
+import axios from "axios";
 
 export default function CardModel({
   DataObj,
@@ -77,7 +70,7 @@ export default function CardModel({
           });
 
           if (response !== undefined) {
-            setState((prev: any) => {
+            setState((prev) => {
               const prevItem = prev.CartData[productId];
               return {
                 ...prev,
@@ -103,7 +96,12 @@ export default function CardModel({
 
           return response;
         } catch (err) {
-          let message = err?.response?.data.message || "Something is Wrong!";
+          let message;
+
+          if (axios.isAxiosError(err)) {
+            message = err?.response?.data.message || "Something is Wrong!";
+          }
+
           notify({
             message: message,
             type: "error",
@@ -118,6 +116,34 @@ export default function CardModel({
     }
   };
 
+  const addLikeToState = (productId: string, product: ProductInfoType) => {
+    setState((prev: Data) => {
+      const newLike = {
+        likeId: crypto.randomUUID(), // required
+        product, // matches ProductInfoType
+        createdAt: new Date().toISOString(),
+      };
+
+      return {
+        ...prev,
+        LikeData: {
+          ...prev.LikeData,
+          [productId]: newLike, // ✅ correct type
+        },
+      };
+    });
+  };
+
+  const removeLikeFromState = (productId: string) => {
+    setState((prev: Data) => {
+      const { [productId]: _, ...rest } = prev.LikeData;
+      return {
+        ...prev,
+        LikeData: rest,
+      };
+    });
+  };
+
   const handleAddToLike = async (productId: string) => {
     try {
       let product = await callApi("get", `/product/${productId}`);
@@ -126,32 +152,38 @@ export default function CardModel({
         let res = await AddLikeProduct(product.data);
 
         if (res !== undefined) {
-          setState((prev: Data) => {
-            const isLiked = !!prev.LikeData[productId];
+          // setState((prev) => {
+          //   const isLiked = !!prev.LikeData[productId];
 
-            // 🔁 remove like
-            if (isLiked) {
-              const { [productId]: _, ...rest } = prev.LikeData;
-              return {
-                ...prev,
-                LikeData: rest,
-              };
-            }
+          //   // 🔁 remove like
+          //   if (isLiked) {
+          //     const { [productId]: _, ...rest } = prev.LikeData;
+          //     return {
+          //       ...prev,
+          //       LikeData: rest,
+          //     };
+          //   }
+          //   // ❤️ add like
+          //   return {
+          //     ...prev,
+          //     LikeData: {
+          //       ...prev.LikeData,
+          //       [productId]: {
+          //         id: productId,
+          //         product: product,
+          //         createdAt: new Date().toISOString(),
+          //       },
+          //     },
+          //   };
+          // });
 
-            // ❤️ add like
-            return {
-              ...prev,
-              LikeData: {
-                ...prev.LikeData,
-                [productId]: {
-                  id: productId,
-                  product: product,
-                  createdAt: new Date().toISOString(),
-                },
-              },
-            };
-          });
+          const isLiked = Boolean(Data.LikeData[productId]);
 
+          if (isLiked) {
+            removeLikeFromState(productId);
+          } else {
+            addLikeToState(productId, product);
+          }
           setUserCountData((prev) => ({
             ...prev,
             LikeCount: prev.LikeCount + 1,
@@ -217,17 +249,25 @@ export default function CardModel({
                         e.stopPropagation();
                         RemoveLikeProduct(product.id);
 
-                        setState((prev: Data) => {
-                          if (!prev) return;
-                          const isLiked = !!prev.LikeData[product.id];
+                        setState((prev) => {
+                          // if (!prev) return;
+                          // const isLiked = !!prev.LikeData[product.id];
 
-                          if (isLiked) {
-                            const { [product.id]: _, ...rest } = prev.LikeData;
-                            return {
-                              ...prev,
-                              LikeData: rest,
-                            };
-                          }
+                          // if (isLiked) {
+                          //   const { [product.id]: _, ...rest } = prev.LikeData;
+                          //   return {
+                          //     ...prev,
+                          //     LikeData: rest,
+                          //   };
+                          // }
+                          if (!prev.LikeData[product.id]) return prev;
+
+                          const { [product.id]: _, ...rest } = prev.LikeData;
+
+                          return {
+                            ...prev,
+                            LikeData: rest,
+                          };
                         });
 
                         setUserCountData((prev) => ({

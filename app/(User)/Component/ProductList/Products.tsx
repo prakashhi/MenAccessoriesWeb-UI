@@ -25,6 +25,7 @@ import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 import { motion } from "framer-motion";
 
 import { useRouter } from "next/navigation";
+import { getProductId } from "@/app/utils/getProductId";
 
 export default function Product() {
   const userData = useMemo(() => getUserFromStorage(), []);
@@ -70,7 +71,8 @@ export default function Product() {
       const likeMap: Record<string, LikeProductType> = {};
 
       LikeData.forEach((item: LikeProductType) => {
-        let id = item?.product?.data?.id ?? item?.product?.id;
+        const id = getProductId(item.product);
+        console.log("id", id);
         likeMap[id] = item;
       });
 

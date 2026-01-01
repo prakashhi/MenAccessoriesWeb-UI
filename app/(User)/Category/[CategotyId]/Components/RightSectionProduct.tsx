@@ -4,16 +4,8 @@ import CardModel from "@/app/(User)/Component/ProductList/CardModel";
 import { motion } from "framer-motion";
 import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useState } from "react";
-import EmptyTableComponent from "./EmptyTableComponet";
-import {
-  FiFilter,
-  FiChevronDown,
-  FiTrendingUp,
-  FiClock,
-  FiDollarSign,
-  FiStar,
-} from "react-icons/fi";
-import { TbAlphabetLatin } from "react-icons/tb";
+import EmptyTableComponent from "./EmptyTableComponents";
+import { FiFilter, FiChevronDown } from "react-icons/fi";
 
 import {
   Data,
@@ -105,13 +97,16 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
           LikeProductList(userData.id),
         ]);
 
+        let cartData: CartItem[] = category.data ?? [];
+        let likeData: LikeProductType[] = like.data ?? [];
+
         const cartMap: Record<string, CartItem> = {};
-        category.data.forEach((item: CartItem) => {
+        cartData.forEach((item: CartItem) => {
           cartMap[item.product.productId] = item;
         });
 
         const likeMap: Record<string, LikeProductType> = {};
-        like.data.forEach((item: LikeProductType) => {
+        likeData.forEach((item: LikeProductType) => {
           likeMap[item.product.id] = item;
         });
 
@@ -124,7 +119,6 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     };
     MetaData();
   }, []);
-
 
   // Animation variants
   const containerVariants = {

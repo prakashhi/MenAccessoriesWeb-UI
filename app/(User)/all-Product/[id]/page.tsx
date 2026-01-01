@@ -155,9 +155,12 @@ export default function ProductPage() {
             LikeProductList(user.id),
           ]);
 
+          let likeList: LikeProductType[] = LikeData?.data ?? [];
+          let cartList: CartItem[] = CartData?.data ?? [];
+
           if (!active) return;
 
-          const like = LikeData?.data.find((i: any) => {
+          const like = likeList.find((i: any) => {
             // Both productId must exist and match
             let ProductId = i.product.data ? i.product.data.id : i.product.id;
             let variantId = i.product.data
@@ -176,7 +179,7 @@ export default function ProductPage() {
             return true;
           });
 
-          const cart = CartData?.data.find((i: any) => {
+          const cart = cartList.find((i: any) => {
             // Both productId must exist and match
             if (!i.product.productId || !product.id) return false;
             if (i.product.productId !== product.id) return false;
@@ -448,13 +451,13 @@ export default function ProductPage() {
             {state.Cart == true && (
               <div className="w-40">
                 <ItemCount
-                  cartId={user && state.CartData?.id}
+                  cartId={user && state?.CartData?.id}
                   productId={product.id}
                   quantity={
                     user ? state.CartData?.quantity ?? 1 : iscart?.quantity ?? 1
                   }
                   stock={product.stock}
-                  setState={user ? setState : undefined}
+                  setState={user && setState}
                 />
               </div>
             )}
@@ -601,13 +604,6 @@ export default function ProductPage() {
                 </Button>
               )}
             </div>
-            {/* DETAILS */}
-            {/* <div className="pt-6 border-t text-sm text-gray-600 space-y-2">
-              <p>
-                <span className="font-medium">Category:</span>{" "}
-                {product.categoryName}
-              </p>
-            </div> */}
           </motion.div>
         </div>
       </section>

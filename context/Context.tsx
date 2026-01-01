@@ -21,10 +21,10 @@ import {
   User,
   GuestCart,
   GuestCartItem,
-  CartRemoveResponseType,
   CountStateType,
   RemoveCartResponse,
   PromiseSettledResult,
+  AddCartProductResponse,
 } from "@/app/(User)/Type/Types";
 
 type PanelContextType = {
@@ -35,7 +35,7 @@ type PanelContextType = {
     ProductId: string,
     variantSizeId?: string | null,
     size?: string | null
-  ) => Promise<void>;
+  ) => Promise<ApiResponse<AddCartProductResponse> | undefined>;
 
   AddCartProductGuest: (
     Product: GuestCartItem,
@@ -125,7 +125,7 @@ export function SearchPanelContextProvider({
   });
 
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<User>();
 
   const [userCountData, setUserCountData] = useState<CountStateType>({
     LikeCount: 0,
@@ -150,8 +150,8 @@ export function SearchPanelContextProvider({
         setUser(userData);
 
         const [Like, Cart]: [
-          PromiseSettledResult<ApiResponse<LikeProductType>>,
-          PromiseSettledResult<ApiResponse<CartProductInfo>>
+          PromiseSettledResult<ApiResponse<LikeProductType[]>>,
+          PromiseSettledResult<ApiResponse<CartItem[]>>
         ] = await Promise.allSettled([
           callApi("get", `/like-products/${userData.id}`),
           callApi("get", `/cart/${userData.id}`),
@@ -164,7 +164,7 @@ export function SearchPanelContextProvider({
 
         const cartCount: number =
           Cart.status === "fulfilled" && Cart.value?.success
-            ? Cart.value.data.length ?? 0
+            ? Cart.value.data?.length ?? 0
             : 0;
 
         setUserCountData((prev) => ({
@@ -207,7 +207,7 @@ export function SearchPanelContextProvider({
     ProductId: string,
     variantSizeId: string | null | undefined,
     size?: string | null
-  ) => {
+  ): Promise<ApiResponse<AddCartProductResponse> | undefined> => {
     if (user) {
       try {
         let response = await callApi("post", "/cart", {
@@ -221,7 +221,7 @@ export function SearchPanelContextProvider({
       } catch (err) {
         let message = err?.response?.data?.message || "Something is wrong";
         console.log(err);
-        return err;
+        return undefined;
       }
     }
   };

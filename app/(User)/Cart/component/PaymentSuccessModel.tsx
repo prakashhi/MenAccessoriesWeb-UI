@@ -14,10 +14,12 @@ const DetailRow = ({
   label,
   value,
   success,
+  valueClass,
 }: {
   label: string;
   value: string;
   success?: boolean;
+  valueClass?: string;
 }) => (
   <div className="flex justify-between py-1 text-gray-700 dark:text-gray-300">
     <span className="opacity-70">{label}</span>
@@ -90,7 +92,7 @@ export default function PaymentSuccessModal({
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="w-20 h-20 sm:w-24 sm:h-24 rounded-full
-        bg-gradient-to-br from-emerald-300/30 to-emerald-500/10
+        bg-linear-to-br from-emerald-300/30 to-emerald-500/10
         flex items-center justify-center
         shadow-[0_0_40px_rgba(16,185,129,0.35)]"
             >

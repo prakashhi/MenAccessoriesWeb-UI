@@ -12,6 +12,7 @@ import {
   VariantSize,
   LikeProductType,
   ProductInfoType,
+  GuestCartItem,
 } from "@/app/(User)/Type/Types";
 
 interface ProductState {
@@ -21,12 +22,18 @@ interface ProductState {
   CartData: Record<string, CartItem>;
 }
 
+type CartListItem = GuestCartItem | CartItem;
+type ProductStateSetter =
+  | React.Dispatch<React.SetStateAction<ProductState>>
+  // | React.Dispatch<React.SetStateAction<ProductState[]>>
+  | React.Dispatch<React.SetStateAction<CartListItem[]>>;
+
 interface ItemCountProps {
   productId: string;
   quantity: number;
   stock: number;
   cartId: string;
-  setState?: React.Dispatch<React.SetStateAction<ProductState[]>>;
+  setState?: ProductStateSetter;
 }
 
 export default function ItemCount({
@@ -49,8 +56,8 @@ export default function ItemCount({
     setInputValue(String(quantity));
   }, [quantity]);
 
-  const isMin = quantity <= 1;
-  const isMax = quantity >= stock || stock === 0;
+  const isMin = Number(inputValue) <= 1;
+  const isMax = Number(inputValue) >= stock || stock === 0;
 
   const onBlur = () => {
     const num = Number(inputValue);
@@ -195,8 +202,8 @@ export default function ItemCount({
         }
       }, 600);
     } else {
-      setState?.((prev) => {
-        if (!prev || !Array.isArray(prev)) return []; // fallback to empty array
+      setState?.((prev: any) => {
+        // if (!prev || !Array.isArray(prev)) return []; // fallback to empty array
         return prev.map((item: any) =>
           item.id === cartId ? { ...item, quantity: Number(value) } : item
         );

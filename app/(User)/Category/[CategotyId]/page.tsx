@@ -2,12 +2,11 @@
 
 import Nav from "@/app/(User)/Component/NavBar/Nav";
 import { useParams } from "next/navigation";
-import { LeftBar } from "./Componets/LeftBar";
-import RightSection from "./Componets/RightSectionProduct";
+// import { LeftBar } from "./Components/LeftBar";
+import RightSection from "./Components/RightSectionProduct";
 import Footer from "@/app/(User)/Component/Footer/Footer";
-import MobileFilterDrawer from "./Componets/MobileFilterDrawer";
+import MobileFilterDrawer from "./Components/MobileFilterDrawer";
 import { useApi } from "@/app/useApi";
-import { notify } from "../../Component/ToastComponent";
 import { useCallback, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Data, ProductInfoType } from "@/app/(User)/Type/Types";
@@ -23,14 +22,6 @@ export default function Page() {
       "get",
       `/product-category-list?id=${params.CategotyId}&limit=100&offset=0`
     );
-
-    // const res = await callApi(
-    //   "get",
-    //   `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/9rock/cat-with-products`
-    // );
-
-    // setData(res.data[1]?.products);
-
     setData(res.data);
   }, []);
 

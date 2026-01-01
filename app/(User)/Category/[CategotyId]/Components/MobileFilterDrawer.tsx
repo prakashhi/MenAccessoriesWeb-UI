@@ -5,6 +5,7 @@ import { Button } from "@heroui/react";
 import { X } from "lucide-react";
 import OptionComponent from "./OptionComponent";
 import { UsePanel } from "@/context/Context";
+import axios from "axios";
 
 import { ProductInfoType } from "@/app/(User)/Type/Types";
 import { useApi } from "@/app/useApi";
@@ -38,8 +39,6 @@ export default function MobileFilterDrawer({
   const { callApi } = useApi();
 
   const handleClick = async () => {
-
-
     let url = `/product-list-for-idk-jwellery?limit=100&offset=0&${
       state.malarialId !== null && `materialIds=${state.malarialId}`
     }&categoryIds=${params.CategotyId}&${
@@ -52,9 +51,13 @@ export default function MobileFilterDrawer({
       let res = await callApi("get", url);
       setData(res.data);
 
-     onOpenChange(false);
-    } catch (err) {
-      let message = err?.response?.data?.message || "Something is wrong!";
+      onOpenChange();
+    } catch (err: unknown) {
+      let message;
+      if (axios.isAxiosError(err)) {
+        message = err?.response?.data?.message || "Something is wrong!";
+      }
+
       notify({
         message: message,
         type: "error",

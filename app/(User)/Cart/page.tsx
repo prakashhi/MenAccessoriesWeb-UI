@@ -6,39 +6,23 @@ import Image from "next/image";
 import { Button, image } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+
 import ItemCount from "./component/ItemCount";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserFromStorage } from "@/context/utils";
-import { product } from "@/context/Types/type";
 import { formatIndianPrice } from "@/app/utils/FormatCurrency";
 import PaymentSuccessModal from "./component/PaymentSuccessModel";
-import { RiDeleteBinLine, RiShoppingCart2Line } from "react-icons/ri";
 import PaymentFailedModal from "./component/PaymentFailedModel";
 import GuestUserPaymentForm from "./component/GuestUserFill";
 import CartInfoModal from "./component/CartInfoModel";
 
-import { IconType } from "react-icons";
-
-import {
-  FiHeart,
-  FiShoppingBag,
-  FiX,
-  FiChevronRight,
-  FiTrash2,
-} from "react-icons/fi";
+import { FiShoppingBag } from "react-icons/fi";
 
 import { useRouter } from "next/navigation";
 import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
 import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
 
-import {
-  CartItem,
-  CartProductInfo,
-  CartRemoveResponseType,
-  ProductInfoType,
-  User,
-} from "@/app/(User)/Type/Types";
+import { CartItem, ProductInfoType, User } from "@/app/(User)/Type/Types";
 import { useApi } from "@/app/useApi";
 import { PaymentModeSelector } from "./component/PaymentMethodSelect";
 
@@ -86,7 +70,8 @@ export default function Page() {
     const CartList = async () => {
       try {
         let response = await CartProductList(user.id);
-        setCartListData(response?.data);
+        let Data = response.data ?? [];
+        setCartListData(Data);
         setUserCountData((prev: any) => ({
           ...prev,
           CartCount: response?.data?.length,
@@ -224,7 +209,7 @@ export default function Page() {
     return Total;
   }, [total]);
 
-  const valueCheckUser = [
+  const valueCheckUser: (keyof User)[] = [
     "contactNumber",
     "country",
     "state",
@@ -326,13 +311,13 @@ export default function Page() {
   my-4"
           >
             <AnimatePresence>
-              {cartListData && cartListData.length > 0 ? (
+              { cartListData.length > 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="space-y-4"
                 >
-                  {cartListData.map((item: any) => (
+                  {cartListData && cartListData.map((item: any) => (
                     <motion.div
                       key={item.id}
                       layout

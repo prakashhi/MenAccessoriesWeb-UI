@@ -43,10 +43,13 @@ export default function RegisterPage() {
     try {
       const res = await API.post("/signup", formData);
 
-      notify({
-        message: res.msg || "Registration is successful!",
-        type: "success",
-      });
+      if (res) {
+        notify({
+          message: res.data.msg || "Registration is successful!",
+          type: "success",
+        });
+      }
+
       router.push("/login");
     } catch (err: any) {
       // Show error toast

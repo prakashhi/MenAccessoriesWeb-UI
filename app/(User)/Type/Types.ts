@@ -197,9 +197,13 @@ export type GuestCartItem = ProductInfoType & {
   size?: string | null;
 };
 
+type likeProductType = ProductInfoType & {
+  variantSizeId?: string | null;
+};
+
 export type GuestCart = {
   items: Record<string, GuestCartItem>;
-  likeProduct: Record<string, GuestLikeItem>;
+  likeProduct: Record<string, likeProductType>;
 };
 
 // API Type
@@ -224,3 +228,12 @@ export type RemoveCartResponse = {
   success: true;
   message: string;
 };
+export interface AddCartProductResponse {
+  id: string;
+  productId: string;
+  userId: string;
+  quantity: number;
+  variantSizeId: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -18,5 +18,3 @@ export type Like = {
   seqId: number;
   stock: number;
 };
-
-
