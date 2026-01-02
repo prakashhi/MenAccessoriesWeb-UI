@@ -249,7 +249,7 @@ export default function Page() {
         } else {
           setOpenModel((prev) => ({
             ...prev,
-             PaymentMethodModel: true,
+            PaymentMethodModel: true,
             // PaymentFailModel: true,
           }));
         }
@@ -311,21 +311,22 @@ export default function Page() {
   my-4"
           >
             <AnimatePresence>
-              { cartListData.length > 0 ? (
+              {cartListData.length > 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="space-y-4"
                 >
-                  {cartListData && cartListData.map((item: any) => (
-                    <motion.div
-                      key={item.id}
-                      layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                      className="
+                  {cartListData &&
+                    cartListData.map((item: any) => (
+                      <motion.div
+                        key={item.id}
+                        layout
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        className="
               flex flex-col sm:flex-row
               gap-5
               p-5 sm:p-6
@@ -335,10 +336,10 @@ export default function Page() {
               hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)]
               transition-shadow
             "
-                    >
-                      {/* IMAGE */}
-                      <div
-                        className="
+                      >
+                        {/* IMAGE */}
+                        <div
+                          className="
                 relative
                 w-full h-44 sm:w-28 sm:h-28
                 rounded-xl
@@ -348,61 +349,63 @@ export default function Page() {
                 cursor-pointer
                 group
               "
-                        onClick={() =>
-                          router.push(
-                            `/all-Product/${
-                              user ? item.product.productId : item.id
-                            }`
-                          )
-                        }
-                      >
-                        <Image
-                          alt={item.name ?? "Product image"}
-                          src={
-                            ImageShowUtil(
-                              user ? item.product?.productImage : item?.image
-                            ) || "/images/placeholder.webp"
+                          onClick={() =>
+                            router.push(
+                              `/all-Product/${
+                                user ? item.product.productId : item.id
+                              }`
+                            )
                           }
-                          fill
-                          sizes="112px"
-                          className="
+                        >
+                          <Image
+                            alt={item.name ?? "Product image"}
+                            src={
+                              ImageShowUtil(
+                                user ? item.product?.productImage : item?.image
+                              ) || "/images/placeholder.webp"
+                            }
+                            fill
+                            sizes="112px"
+                            className="
                   object-cover
                   transition-transform duration-500
                   group-hover:scale-110
                 "
-                        />
-                      </div>
-
-                      {/* INFO */}
-                      <div className="flex-1 flex flex-col justify-between gap-3">
-                        <div>
-                          <h3 className="text-sm sm:text-base font-medium tracking-wide text-neutral-900">
-                            {user ? item.product.productName : item.name}
-                          </h3>
-                          <h6 className="text-gray-400 text-[10px]">
-                            {user ? item.product.categoryName : item.cate}
-                          </h6>
-
-                          {/* OPTIONAL: variant / size */}
-                          {item.size && (
-                            <p className="text-xs text-neutral-500 mt-1">
-                              Size: {item.size}
-                            </p>
-                          )}
+                          />
                         </div>
 
-                        <div className="flex flex-col gap-1">
-                          <ItemCount
-                            productId={user ? item.product.productId : item.id}
-                            quantity={item.quantity}
-                            stock={user ? item.product.stock : item.stock}
-                            cartId={user ? item.id : undefined}
-                            setState={user ? setCartListData : undefined}
-                          />
+                        {/* INFO */}
+                        <div className="flex-1 flex flex-col justify-between gap-3">
                           <div>
-                            <button
-                              onClick={() => handleRemove(item)}
-                              className="
+                            <h3 className="text-sm sm:text-base font-medium tracking-wide text-neutral-900">
+                              {user ? item.product.productName : item.name}
+                            </h3>
+                            <h6 className="text-gray-400 text-[10px]">
+                              {user ? item.product.categoryName : item.cate}
+                            </h6>
+
+                            {/* OPTIONAL: variant / size */}
+                            {item.size && (
+                              <p className="text-xs text-neutral-500 mt-1">
+                                Size: {item.size}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <ItemCount
+                              productId={
+                                user ? item.product.productId : item.id
+                              }
+                              quantity={item.quantity}
+                              stock={user ? item.product.stock : item.stock}
+                              cartId={user ? item.id : undefined}
+                              setState={user ? setCartListData : undefined}
+                            />
+                            <div>
+                              <button
+                                onClick={() => handleRemove(item)}
+                                className="
                     text-[11px] cursor-pointer
                     tracking-widest
                     uppercase
@@ -410,31 +413,31 @@ export default function Page() {
                     hover:text-neutral-900
                     
                   "
-                            >
-                              Remove
-                            </button>
+                              >
+                                Remove
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* PRICE */}
-                      <div
-                        className="
+                        {/* PRICE */}
+                        <div
+                          className="
                 text-sm sm:text-base
                 font-semibold
                 text-neutral-900
                 sm:self-center
                 sm:text-right
               "
-                      >
-                        ₹{" "}
-                        {user
-                          ? formatIndianPrice(item.product.productPrice)
-                          : formatIndianPrice(item.sellingPrice)}
-                        .00
-                      </div>
-                    </motion.div>
-                  ))}
+                        >
+                          ₹{" "}
+                          {user
+                            ? formatIndianPrice(item.product.productPrice)
+                            : formatIndianPrice(item.sellingPrice)}
+                          .00
+                        </div>
+                      </motion.div>
+                    ))}
                 </motion.div>
               ) : (
                 <EmptyDataModel
@@ -485,17 +488,6 @@ export default function Page() {
                     ₹{formatIndianPrice(ShippingTaxFunction)}.00
                   </span>
                 </div>
-
-                {/* DISCOUNT */}
-                {/* <div className="flex">
-                  <input
-                    placeholder="Discount code"
-                    className="flex-1 border border-gray-300 px-4 py-3 text-sm outline-none"
-                  />
-                  <button className="px-5 border border-black text-xs tracking-widest hover:bg-black hover:text-white transition">
-                    APPLY
-                  </button>
-                </div> */}
 
                 {/* CHECKOUT */}
                 <Button

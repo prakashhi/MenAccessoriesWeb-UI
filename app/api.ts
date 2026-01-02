@@ -24,19 +24,25 @@ const token = getAuthData("Token");
 
 const API = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
+  // withCredentials: true,
 });
 
- console.log("token",token)
+console.log("token", token);
 
 // 🔐 Request Interceptor
 API.interceptors.request.use(
   (config) => {
-    const authToken = token ? JSON.parse(token) : process.env.NEXT_PUBLIC_TOKEN;
+    config.headers = config.headers || {};
+    const authToken = JSON.parse(token);
 
     //const authToken = token && JSON.parse(token);
 
     if (authToken) {
       config.headers.Authorization = `Bearer ${authToken}`;
+    }
+
+    if (config.responseType === "blob") {
+      return config;
     }
 
     // ✅ IMPORTANT: Detect FormData

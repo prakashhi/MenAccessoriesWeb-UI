@@ -57,7 +57,6 @@ const staggerItem: Variants = {
 
 export default function SearchInput({ onClose }: { onClose: () => void }) {
   const userData = useMemo(() => getUserFromStorage(), []);
-  const [categoryNameList, setCategoryNameList] = useState<any[]>([]);
   const [searchData, setSearchData] = useState<any[]>([]);
   const [searchWord, setSearchWord] = useState("");
 
@@ -70,21 +69,12 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
 
   const { callApi } = useApi();
 
-  const GetCategoryName = async () => {
-    const response = await callApi(
-      "get",
-      "/product/subcategories?id=cfe77101-77f5-4811-9cdc-186ba9af9279&page=1&limit=100"
-    );
-
-    setCategoryNameList(response?.data || []);
-  };
-
   const SearchProduct = async (words: string) => {
     if (!words) return;
 
     const res = await callApi(
       "get",
-      `/product-search-response?keyword=${words}`
+      `/rockroars/product-search-response?keyword=${words}`
     );
 
     setSearchData(res);
@@ -99,10 +89,6 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
 
     return () => clearTimeout(delay);
   }, [searchWord]);
-
-  useEffect(() => {
-    GetCategoryName();
-  }, []);
 
   useEffect(() => {
     const MetaData = async () => {

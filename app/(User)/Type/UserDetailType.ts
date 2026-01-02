@@ -1,0 +1,76 @@
+export type OrderProductLisType = {
+  id: string;
+  salesId: string;
+  productId: string;
+  productName: string;
+  productCategory: string;
+  productSerialNumber: string;
+  productImage: string;
+  productHSNCode: string;
+  quantity: number;
+  weight: string | null;
+  price: number;
+  variantSize: string | null;
+  totalPrice: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: null;
+};
+
+export type paymentSectionType = {
+  id: string;
+  transactionId: string;
+  salesId: string;
+  paymentDate: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  paymentAmount: number;
+  createdAt: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+export type OrderDetailType = {
+  id: string;
+  customerType: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerAddress: string;
+  customerGSTAddress: string | null;
+  customerState: string;
+  customerPinCode: string;
+  customerCountry: string;
+  customerCountryCode: string;
+  totalPrice: number;
+  totalQuantity: number;
+  totalDiscount: number;
+  totalTax: number;
+  shippingFee: number;
+  customerId: string;
+  customerGSTIN: string | null;
+  address: string | null;
+  contactNumber: string | null;
+  countryCode: string | null;
+  country: string | null;
+  state: string | null;
+  invoiceId: string;
+  orderId: string;
+  salesDate: string;
+  salesStatus: string;
+  source: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  products: OrderProductLisType[];
+  payments: paymentSectionType[];
+  paymentSummary: {
+    totalPaid: number;
+    balanceDue: number;
+    recordedPayments: number;
+    lastPaidAt: string | null;
+  };
+};
