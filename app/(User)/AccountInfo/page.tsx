@@ -24,6 +24,7 @@ import UserEditForm from "./Component/UserEditForm";
 import { Pencil } from "lucide-react";
 import ChangePassword from "./Component/ChangePassword";
 import { UsePanel } from "@/context/Context";
+import OrderListComponent from "./Component/OrderListComponent";
 
 type IconType = "📭";
 
@@ -391,22 +392,10 @@ function ContentRenderer({ keyname, user, onLogout }: any) {
       <section>
         <h3 className="text-xl font-semibold mb-3">My Orders</h3>
 
-        <div className="space-y-3">
-          {user.orders?.length > 0 ? (
-            user.orders.map((o: any) => (
-              <div
-                key={o.id}
-                className="flex items-center justify-between p-3 border border-gray-100 rounded-lg"
-              >
-                <div>
-                  <div className="font-medium">{o.item}</div>
-                  <div className="text-sm text-gray-500">{o.date}</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold">{o.status}</div>
-                  <div className="text-xs text-gray-400">{o.id}</div>
-                </div>
-              </div>
+        <div className="space-y-3 p-5">
+          {user.OrderList?.length > 0 ? (
+            user.OrderList.map((o: any) => (
+              <OrderListComponent key={o.id} Data={o} />
             ))
           ) : (
             <NoData label="Orders" icon="📭" />

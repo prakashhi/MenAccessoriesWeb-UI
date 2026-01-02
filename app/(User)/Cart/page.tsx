@@ -249,8 +249,8 @@ export default function Page() {
         } else {
           setOpenModel((prev) => ({
             ...prev,
-            // PaymentMethodModel: true,
-            PaymentSuccessModel: true,
+             PaymentMethodModel: true,
+            // PaymentFailModel: true,
           }));
         }
       }
@@ -611,7 +611,7 @@ export default function Page() {
                     PaymentFailModel: false,
                   }))
                 }
-                reason={"This is reason"}
+                //reason={"This is reason"}
               />
             }
           />

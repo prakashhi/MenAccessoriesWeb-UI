@@ -55,7 +55,7 @@ export default function PaymentFailedModal({
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
         >
           <motion.div
-            className="bg-white dark:bg-[#111] rounded-[2.5rem] shadow-2xl max-w-sm w-full p-8 flex flex-col items-center gap-6 border border-gray-100 dark:border-gray-700"
+            className="bg-white dark:bg-[#111] md:rounded-[2.5rem] rounded-3xl shadow-2xl max-w-sm w-full p-8 flex flex-col items-center gap-6 border border-gray-100 dark:border-gray-700"
             variants={staggerContainer}
             initial="hidden"
             animate="show"
@@ -74,7 +74,7 @@ export default function PaymentFailedModal({
 
             {/* TITLE */}
             <motion.h2
-              className="text-2xl sm:text-3xl font-serif font-extrabold text-center tracking-[0.15em] text-gray-900 dark:text-gray-50"
+              className="text-xl sm:text-3xl font-serif font-extrabold text-center tracking-[0.15em] text-gray-900 dark:text-gray-50"
               style={{ fontFamily: "'Playfair Display', serif" }}
               variants={fadeUp}
             >
@@ -92,7 +92,7 @@ export default function PaymentFailedModal({
             {/* BUTTON */}
             <motion.button
               onClick={onClose}
-              className="mt-6 w-full bg-linear-to-r from-red-900 via-red-800 to-red-700 text-white py-3 rounded-xl font-semibold tracking-wide shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+              className="mt-6 w-full cursor-pointer bg-linear-to-r from-red-900 via-red-800 to-red-700 text-white py-3 rounded-xl font-semibold tracking-wide shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
               variants={fadeUp}
             >
               Try Again

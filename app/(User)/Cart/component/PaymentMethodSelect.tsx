@@ -99,58 +99,62 @@ export function PaymentModeSelector({
       }, [] as ProductsListAPi[]);
 
       let date = new Date().toISOString();
-      let res = await callApi("post", "/sales", {
-        data: {
-          sales: {
-            salesDate: date,
-            invoiceId: generateOrderId("INVOICE"),
-            orderId: generateOrderId("ORD"),
-            totalPrice: Math.floor(PaymentAmount),
-            totalQuantity: TotalQty,
-            totalDiscount: 0,
-            totalTax: Math.floor(((TotalPrice + shipping) * tax) / 100),
-            shippingFee: shipping,
-            salesStatus: "PENDING",
-            source: "OFFLINE",
-          },
-          products: productsList,
-          payments: {
-            transactionId: generateOrderId("TRAN"),
-            paymentMethod: "CASH",
-            paymentStatus: "PENDING",
-            paymentAmount: Math.floor(PaymentAmount),
-            razorpayOrderId: null,
-            razorpayPaymentId: null,
-            razorpaySignature: null,
-            paymentDate: date,
-          },
-          customer: {
-            customerType: "RETAIL_CUSTOMER",
-            customerName: user.userName,
-            customerEmail: user.email,
-            customerPhone: user.contactNumber,
-            customerAddress: user.address,
-            customerState: user.state,
-            customerPinCode: user.pinCode,
-            customerCountry: user.country,
-            customerCountryCode: user.countryCode,
-            customerId: user.id,
-            customerGSTIN: null,
-            customerGSTAddress: null,
-          },
-          shouldSendEmail: true,
-          shouldMinimizeStock: true,
-        },
-      });
 
-      if (res.success == true) {
-        setPaymentData(res.data);
-        onSuccess();
+      try {
+        let res = await callApi("post", "/sales", {
+          data: {
+            sales: {
+              salesDate: date,
+              invoiceId: generateOrderId("INVOICE"),
+              orderId: generateOrderId("ORD"),
+              totalPrice: Math.floor(PaymentAmount),
+              totalQuantity: TotalQty,
+              totalDiscount: 0,
+              totalTax: Math.floor(((TotalPrice + shipping) * tax) / 100),
+              shippingFee: shipping,
+              salesStatus: "PENDING",
+              source: "OFFLINE",
+            },
+            products: productsList,
+            payments: {
+              transactionId: generateOrderId("TRAN"),
+              paymentMethod: "CASH",
+              // paymentStatus: "PENDING",
+              paymentAmount: Math.floor(PaymentAmount),
+              razorpayOrderId: null,
+              razorpayPaymentId: null,
+              razorpaySignature: null,
+              paymentDate: date,
+            },
+            customer: {
+              customerType: "RETAIL_CUSTOMER",
+              customerName: user.userName,
+              customerEmail: user.email,
+              customerPhone: user.contactNumber,
+              customerAddress: user.address,
+              customerState: user.state,
+              customerPinCode: user.pinCode,
+              customerCountry: user.country,
+              customerCountryCode: user.countryCode,
+              customerId: user.id,
+              customerGSTIN: null,
+              customerGSTAddress: null,
+            },
+            shouldSendEmail: true,
+            shouldMinimizeStock: true,
+          },
+        });
+
+        if (res.success == true) {
+          setPaymentData(res.data);
+          onSuccess();
+        }
+      } catch (err) {
+        console.log(err);
+        onFail();
       }
-
     }
   };
-
 
   return (
     <>

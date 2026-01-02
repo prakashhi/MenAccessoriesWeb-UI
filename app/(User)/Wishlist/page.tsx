@@ -45,12 +45,21 @@ export default function Page() {
   const router = useRouter();
 
   const mapGuestLikesToLikeProducts = (
-    guestLikes: Record<string, ProductInfoType>
+    guestLikes: Record<string, ProductInfoType | { data: ProductInfoType }>
   ): LikeProductType[] => {
-    return Object.values(guestLikes).map((item) => ({
-      likeId: `guest-${item.id}`, // temp id
-      product: item, // reuse product shape
-    }));
+    return Object.values(guestLikes).map((item) => {
+      //const product = item.data ? item.data : item;
+      const product = "data" in item ? item.data : item;
+
+      return {
+        likeId: `guest-${product.id}`, // temp id
+        product, // always normalized
+      };
+    });
+  };
+
+  const normalizeProduct = (input: any): ProductInfoType => {
+    return input?.data ?? input?.product?.data ?? input?.product ?? input;
   };
 
   useEffect(() => {
@@ -63,7 +72,12 @@ export default function Page() {
 
           if (response.success == true) {
             const likeArray = response.data ?? [];
-            setLikeProductList(likeArray);
+            const normalizedLikes = likeArray.map((like) => ({
+              ...like,
+              product: normalizeProduct(like.product),
+            }));
+
+            setLikeProductList(normalizedLikes);
 
             setUserCountData((prev) => ({
               ...prev,
@@ -101,6 +115,8 @@ export default function Page() {
 
         let response = await AddCartProduct(ProductID);
 
+        console.log("response", response);
+
         if (response.success == true) {
           toastActions.addToCart();
 
@@ -116,7 +132,6 @@ export default function Page() {
             prev.filter((p) => p.product.id !== ProductID)
           );
         } else {
-          // let msg = response?.response?.data?.message || "Something is Wrong";
           const msg = response.message || "Something went wrong!";
 
           setUserCountData((prev) => ({
@@ -128,7 +143,6 @@ export default function Page() {
             "delete",
             `/like-product/${user.id}/${ProductID}`
           );
-          console.log("res", res);
 
           setLikeProductList((prev) =>
             prev.filter((p) => p.product.id !== ProductID)
@@ -139,7 +153,7 @@ export default function Page() {
             type: "warning",
           });
         }
-      } catch (err) {
+      } catch (err: any) {
         console.log(err);
       }
     } else {
@@ -174,6 +188,8 @@ export default function Page() {
       }
     }
   };
+
+  console.log("likeProductList", likeProductList);
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">

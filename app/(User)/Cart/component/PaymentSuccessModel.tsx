@@ -22,9 +22,11 @@ const DetailRow = ({
   valueClass?: string;
 }) => (
   <div className="flex justify-between py-1 text-gray-700 dark:text-gray-300">
-    <span className="opacity-70">{label}</span>
+    <span className="opacity-70 text-xs sm:text-sm lg:text-md ">{label}</span>
     <span
-      className={success ? "text-emerald-600 font-semibold" : "font-medium"}
+      className={`${valueClass} text-xs sm:text-sm lg:text-md  ${
+        success ? "text-emerald-600 font-semibold" : "font-medium"
+      }`}
     >
       {value}
     </span>
@@ -71,7 +73,7 @@ export default function PaymentSuccessModal({
         />
 
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center  p-4"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 30 }}
@@ -81,10 +83,10 @@ export default function PaymentSuccessModal({
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-sm sm:max-w-md
       bg-white dark:bg-[#0c0c0c]
-      rounded-[2.8rem] px-6 sm:px-8 py-8 sm:py-10
+      lg:rounded-[2.8rem] rounded-4xl px-6  sm:px-8 py-8 sm:py-10
       shadow-[0_30px_70px_rgba(0,0,0,0.35)]
       border border-gray-100 dark:border-gray-800
-      flex flex-col items-center"
+      flex flex-col items-center "
           >
             {/* ICON */}
             <motion.div
@@ -101,8 +103,8 @@ export default function PaymentSuccessModal({
 
             {/* TITLE */}
             <h2
-              style={{ fontFamily: "system-ui" }}
-              className="mt-6 sm:mt-7 text-2xl sm:text-3xl font-bold
+              style={{ fontFamily: "revert" }}
+              className="mt-6 sm:mt-7 text-md sm:text-xl font-bold
         tracking-[0.15em] sm:tracking-[0.18em] uppercase
         text-gray-900 dark:text-white text-center"
             >
@@ -134,7 +136,7 @@ export default function PaymentSuccessModal({
               <DetailRow
                 label="Transaction ID"
                 value={PaymentData.payments[0].transactionId}
-                valueClass="text-gray-800 dark:text-gray-200 font-medium"
+                valueClass="text-gray-800     dark:text-gray-200 "
               />
 
               <div className="h-px bg-gray-200 dark:bg-gray-800" />
@@ -168,19 +170,19 @@ export default function PaymentSuccessModal({
             {/* ACTION */}
             <button
               onClick={onClose}
-              className="mt-7 sm:mt-8 w-full py-3.5 sm:py-4 rounded-xl
+              className="mt-7 sm:mt-8 w-full py-3.5 sm:py-4 cursor-pointer rounded-xl
         bg-black dark:bg-gray-900 text-white font-medium 
         tracking-wider sm:tracking-widest
         hover:scale-[1.02] active:scale-[0.99]
         transition-all duration-300
         shadow-[0_15px_40px_rgba(0,0,0,0.4)]
-        border border-gray-800 dark:border-gray-700"
+        border border-gray-800 dark:border-gray-700 text-xs sm:text-sm lg:text-md "
             >
               Continue Shopping
             </button>
 
             {/* FOOTER NOTE */}
-            <p className="mt-4 text-xs text-center text-gray-500 dark:text-gray-400">
+            <p className="mt-4 text-xs text-center  text-gray-500 dark:text-gray-400">
               Order confirmation email sent
             </p>
           </motion.div>

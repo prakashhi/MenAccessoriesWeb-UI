@@ -35,7 +35,7 @@ type PanelContextType = {
     ProductId: string,
     variantSizeId?: string | null,
     size?: string | null
-  ) => Promise<ApiResponse<AddCartProductResponse> | undefined>;
+  ) => Promise<ApiResponse<AddCartProductResponse>>;
 
   AddCartProductGuest: (
     Product: GuestCartItem,
@@ -207,22 +207,23 @@ export function SearchPanelContextProvider({
     ProductId: string,
     variantSizeId: string | null | undefined,
     size?: string | null
-  ): Promise<ApiResponse<AddCartProductResponse> | undefined> => {
-    if (user) {
-      try {
-        let response = await callApi("post", "/cart", {
-          data: {
-            productId: ProductId,
-            userId: user?.id,
-            variantSizeId: variantSizeId ?? null,
-          },
-        });
-        return response;
-      } catch (err) {
-        let message = err?.response?.data?.message || "Something is wrong";
-        console.log(err);
-        return undefined;
-      }
+  ): Promise<ApiResponse<AddCartProductResponse>> => {
+    if (!user) {
+      throw new Error("User not logged in");
+    }
+    try {
+      let response = await callApi("post", "/cart", {
+        data: {
+          productId: ProductId,
+          userId: user?.id,
+          variantSizeId: variantSizeId ?? null,
+        },
+      });
+      return response;
+    } catch (err: any) {
+      let message = err?.response?.data?.message || "Something is wrong";
+      console.log(err);
+      return { success: false, data: null, message: message };
     }
   };
 
