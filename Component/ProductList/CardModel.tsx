@@ -5,18 +5,20 @@ import Image from "next/image";
 import { FcLikePlaceholder } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/app/useApi";
-import { formatIndianPrice } from "@/app/utils/FormatCurrency";
+import { PriceShowFunction } from "@/utils/FormatCurrency";
 import { motion, AnimatePresence } from "framer-motion";
 import { CircleCheck } from "lucide-react";
-import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
+import { RiShoppingCart2Line } from "react-icons/ri";
 
 import { Heart } from "lucide-react";
-import { ProductInfoType, Data } from "@/app/(User)/Type/Types";
-import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+import { Data } from "@/Type/Types";
+import { ProductInfoType } from "@/Type/ProductType";
+import { ImageShowUtil } from "@/utils/ImageShowUtil";
 import { useMemo, useState } from "react";
 import { getUserFromStorage } from "@/context/utils";
 import { notify, toastActions } from "../ToastComponent";
 import axios from "axios";
+import { useUserLike } from "@/context/UserLikeContext";
 
 export default function CardModel({
   DataObj,
@@ -39,12 +41,15 @@ export default function CardModel({
 
   const {
     AddCartProduct,
-    AddLikeProduct,
     guestCart,
     AddCartProductGuest,
-    RemoveLikeProduct,
+
     setUserCountData,
   } = UsePanel();
+
+  const { RemoveLikeProduct } = useUserLike();
+
+  const { AddLikeProduct } = useUserLike();
   const router = useRouter();
 
   if (DataObj?.length === 0) {
@@ -61,10 +66,10 @@ export default function CardModel({
 
       if (isUser == true) {
         try {
-          let response = await callApi("post", "/cart", {
+          let response = await callApi("post", "/9rock/cart", {
             data: {
               productId: productId,
-              userId: user.id,
+              nineRockUserId: process.env.NEXT_PUBLIC_USER_ID,
               variantSizeId: product.variantSizeId ?? null,
             },
           });
@@ -149,47 +154,36 @@ export default function CardModel({
       let product = await callApi("get", `/product/${productId}`);
 
       if (isUser) {
-        let res = await AddLikeProduct(product.data);
+        console.log(isUser);
 
-        if (res !== undefined) {
-          // setState((prev) => {
-          //   const isLiked = !!prev.LikeData[productId];
+        try {
+          let res = await AddLikeProduct(product.data);
 
-          //   // 🔁 remove like
-          //   if (isLiked) {
-          //     const { [productId]: _, ...rest } = prev.LikeData;
-          //     return {
-          //       ...prev,
-          //       LikeData: rest,
-          //     };
-          //   }
-          //   // ❤️ add like
-          //   return {
-          //     ...prev,
-          //     LikeData: {
-          //       ...prev.LikeData,
-          //       [productId]: {
-          //         id: productId,
-          //         product: product,
-          //         createdAt: new Date().toISOString(),
-          //       },
-          //     },
-          //   };
-          // });
+          console.log("like", res);
 
-          const isLiked = Boolean(Data.LikeData[productId]);
+          if (res.success == true) {
+            const isLiked = Boolean(Data.LikeData[productId]);
 
-          if (isLiked) {
-            removeLikeFromState(productId);
-          } else {
-            addLikeToState(productId, product);
+            if (isLiked) {
+              removeLikeFromState(productId);
+            } else {
+              addLikeToState(productId, product);
+            }
+
+            setUserCountData((prev) => ({
+              ...prev,
+              LikeCount: prev.LikeCount + 1,
+            }));
+
+            toastActions.addToWishlist();
           }
-          setUserCountData((prev) => ({
-            ...prev,
-            LikeCount: prev.LikeCount + 1,
-          }));
+        } catch (err: any) {
+          let msg = err.response.data.message || "Something is Wrong";
 
-          toastActions.addToWishlist();
+          notify({
+            message: msg,
+            type: "warning",
+          });
         }
       } else {
         await AddLikeProduct(product.data);
@@ -198,6 +192,32 @@ export default function CardModel({
       console.log(err);
     }
   };
+
+  const handleUnLike = async (productId: string) => {
+    if (isUser) {
+      let unlike = await RemoveLikeProduct(productId);
+
+      console.log("unlike", unlike);
+    }
+
+    setState((prev) => {
+      if (!prev.LikeData[product.id]) return prev;
+
+      const { [product.id]: _, ...rest } = prev.LikeData;
+
+      return {
+        ...prev,
+        LikeData: rest,
+      };
+    });
+
+    setUserCountData((prev) => ({
+      ...prev,
+      LikeCount: prev.LikeCount - 1,
+    }));
+  };
+
+
 
   return (
     <>
@@ -247,33 +267,6 @@ export default function CardModel({
                     <Heart
                       onClick={(e) => {
                         e.stopPropagation();
-                        RemoveLikeProduct(product.id);
-
-                        setState((prev) => {
-                          // if (!prev) return;
-                          // const isLiked = !!prev.LikeData[product.id];
-
-                          // if (isLiked) {
-                          //   const { [product.id]: _, ...rest } = prev.LikeData;
-                          //   return {
-                          //     ...prev,
-                          //     LikeData: rest,
-                          //   };
-                          // }
-                          if (!prev.LikeData[product.id]) return prev;
-
-                          const { [product.id]: _, ...rest } = prev.LikeData;
-
-                          return {
-                            ...prev,
-                            LikeData: rest,
-                          };
-                        });
-
-                        setUserCountData((prev) => ({
-                          ...prev,
-                          LikeCount: prev.LikeCount - 1,
-                        }));
                       }}
                       className="w-5 h-5 text-red-600 fill-red-600"
                     />
@@ -295,10 +288,6 @@ export default function CardModel({
 
               {/* INFO */}
               <div className="px-4 py-3 text-center space-y-1">
-                {/* <p className="text-[11px] uppercase tracking-widest text-gray-400">
-              {product.category_name}
-            </p> */}
-
                 <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
                   {product.name}
                 </h3>
@@ -307,13 +296,8 @@ export default function CardModel({
 
                 <div className="flex justify-center gap-2 items-center">
                   <span className="text-base font-bold text-gray-900">
-                    ₹{formatIndianPrice(product.sellingPrice)}
+                    ₹{PriceShowFunction(product.code, product.sellingPrice)}
                   </span>
-                  {/* {product.discount_price && (
-                    <span className="text-xs text-gray-400 line-through">
-                      ₹{formatIndianPrice(product.discount_price)}
-                    </span>
-                  )} */}
                 </div>
 
                 <div

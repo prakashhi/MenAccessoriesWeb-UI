@@ -1,19 +1,17 @@
 "use client";
 
 import { UsePanel } from "@/context/Context";
-import { getGuestCart, getUserFromStorage } from "@/context/utils";
+import { getUserFromStorage } from "@/context/utils";
 import { useEffect, useMemo, useState } from "react";
-import { Dispatch, SetStateAction } from "react";
 
-import { useRef, useCallback } from "react";
+import { useRef } from "react";
 
-import {
-  CartItem,
-  VariantSize,
-  LikeProductType,
-  ProductInfoType,
-  GuestCartItem,
-} from "@/app/(User)/Type/Types";
+import { CartItem } from "@/Type/CartType";
+import { GuestCartItem } from "@/Type/GuestType";
+
+import { LikeProductType } from "@/Type/LikeType";
+import { notify } from "@/Component/ToastComponent";
+import { Button } from "@heroui/react";
 
 interface ProductState {
   Like: boolean;
@@ -25,7 +23,6 @@ interface ProductState {
 type CartListItem = GuestCartItem | CartItem;
 type ProductStateSetter =
   | React.Dispatch<React.SetStateAction<ProductState>>
-  // | React.Dispatch<React.SetStateAction<ProductState[]>>
   | React.Dispatch<React.SetStateAction<CartListItem[]>>;
 
 interface ItemCountProps {
@@ -78,21 +75,27 @@ export default function ItemCount({
 
       setInputValue(String(Qty));
 
-      setState?.((prev: any) => {
-        const item = prev.CartData?.[cartId];
-        if (!item) return prev;
+      // setState((prev: any) => {
+      //   const item = prev.CartData?.[cartId];
+      //   if (!item) return prev;
 
-        return {
-          ...prev,
-          CartData: {
-            ...prev.CartData,
-            [cartId]: {
-              ...item,
-              quantity: Qty,
-            },
-          },
-        };
-      });
+      //   return {
+      //     ...prev,
+      //     CartData: {
+      //       ...prev.CartData,
+      //       [cartId]: {
+      //         ...item,
+      //         quantity: Qty,
+      //       },
+      //     },
+      //   };
+      // });
+
+      setState((prev: any) =>
+        prev.map((item: CartItem) =>
+          item.id === cartId ? { ...item, quantity: Qty } : item
+        )
+      );
 
       // 2️⃣ Clear previous API call
       if (debounceRef.current) {
@@ -107,10 +110,16 @@ export default function ItemCount({
           await incrementCartProduct(productId, cartId, Qty);
           // Ignore outdated responses
           if (currentVersion !== requestVersionRef.current) return;
-        } catch (err) {
-          console.error("Failed to update cart", err);
+        } catch (err: any) {
+          let msg = err.response.data.message || "Something is Wrong";
+
+          notify({
+            message: msg,
+            type: "error",
+          });
+          console.log("Failed to update cart", err);
         }
-      }, 600);
+      }, 400);
     } else {
       incrementCartProduct(productId, cartId, quantity);
     }
@@ -123,21 +132,27 @@ export default function ItemCount({
         setInputValue(String(Qty));
       }
 
-      setState?.((prev: any) => {
-        const item = prev.CartData?.[cartId];
-        if (!item) return prev;
+      // setState((prev: any) => {
+      //   const item = prev.CartData?.[cartId];
+      //   if (!item) return prev;
 
-        return {
-          ...prev,
-          CartData: {
-            ...prev.CartData,
-            [cartId]: {
-              ...item,
-              quantity: Qty,
-            },
-          },
-        };
-      });
+      //   return {
+      //     ...prev,
+      //     CartData: {
+      //       ...prev.CartData,
+      //       [cartId]: {
+      //         ...item,
+      //         quantity: Qty,
+      //       },
+      //     },
+      //   };
+      // });
+
+      setState((prev: any) =>
+        prev.map((item: CartItem) =>
+          item.id === cartId ? { ...item, quantity: Qty } : item
+        )
+      );
 
       // 2️⃣ Clear previous API call
       if (debounceRef.current) {
@@ -167,21 +182,27 @@ export default function ItemCount({
       const Qty = value;
       setInputValue(String(Qty));
 
-      setState?.((prev: any) => {
-        const item = prev.CartData?.[cartId];
-        if (!item) return prev;
+      // setState?.((prev: any) => {
+      //   const item = prev.CartData?.[cartId];
+      //   if (!item) return prev;
 
-        return {
-          ...prev,
-          CartData: {
-            ...prev.CartData,
-            [cartId]: {
-              ...item,
-              quantity: Qty,
-            },
-          },
-        };
-      });
+      //   return {
+      //     ...prev,
+      //     CartData: {
+      //       ...prev.CartData,
+      //       [cartId]: {
+      //         ...item,
+      //         quantity: Qty,
+      //       },
+      //     },
+      //   };
+      // });
+
+      setState((prev: any) =>
+        prev.map((item: CartItem) =>
+          item.id === cartId ? { ...item, quantity: Qty } : item
+        )
+      );
 
       // 2️⃣ Clear previous API call
       if (debounceRef.current) {
@@ -213,39 +234,27 @@ export default function ItemCount({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center border border-black w-fit select-none">
+      <div className="flex items-center border rounded-md border-gray-400  w-fit select-none">
         {/* MINUS */}
-        <button
-          onClick={() => handleDeCrement()}
+        <Button
+          onPress={() => handleDeCrement()}
           disabled={isMin}
           className={`w-12 h-12 ${
             isMin
               ? "opacity-40 cursor-not-allowed"
-              : "hover:bg-black cursor-pointer hover:text-white"
+              : "hover:bg-black cursor-pointer rounded-l-md hover:text-white"
           }`}
         >
           −
-        </button>
+        </Button>
 
         {/* INPUT */}
         <input
           value={inputValue}
           onChange={(e) => {
-            // if (/^\d*$/.test(e.target.value)) {
-            //   let value = e.target.value;
-
-            //   // ❌ block update if stock exceeded
-            //   if (!stockCheck(Number(value))) return;
-            //   setInputValue(value);
-
-            //   handleEnterNumberChange(Number(value));
-            // }
-
             let value = e.target.value;
 
-            // Only allow digits
             if (/^\d*$/.test(value)) {
-              // If user deletes all, reset to "1"
               if (value === "") {
                 value = "1";
               }
@@ -261,21 +270,21 @@ export default function ItemCount({
             }
           }}
           onBlur={onBlur}
-          className="w-16 h-12 text-center border-x border-black outline-none"
+          className="w-16 h-12 text-center border-x border-gray-300 outline-none"
         />
 
         {/* PLUS */}
-        <button
-          onClick={() => handleInCrement()}
+        <Button
+          onPress={() => handleInCrement()}
           disabled={isMax}
           className={`w-12 h-12 ${
             isMax
               ? "opacity-40 cursor-not-allowed"
-              : "hover:bg-black cursor-pointer hover:text-white"
+              : "hover:bg-black cursor-pointer rounded-r-md hover:text-white"
           }`}
         >
           +
-        </button>
+        </Button>
       </div>
 
       {stock === 0 ? (

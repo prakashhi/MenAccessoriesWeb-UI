@@ -16,6 +16,7 @@ import {
 import { getUserFromStorage } from "@/context/utils";
 import { useApi } from "@/app/useApi";
 import { useParams } from "next/navigation";
+import { useUserLike } from "@/context/UserLikeContext";
 
 interface RightSectionProps {
   ProductData: any[];
@@ -25,8 +26,10 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
   const [sortedProducts, setSortedProducts] = useState<any[]>([]);
   const params = useParams();
   const userData = useMemo(() => getUserFromStorage(), []);
-  const { onOpen, CartProductList, LikeProductList } = UsePanel();
+  const { onOpen, CartProductList } = UsePanel();
   const [sort, setSort] = useState("Featured");
+
+  const { LikeProductList } = useUserLike();
 
   const [state, setState] = useState<Data>({
     LikeData: {},

@@ -1,4 +1,4 @@
-import { ProductInfoType } from "@/app/(User)/Type/Types";
+import { ProductInfoType } from "@/Type/ProductType";
 
 export function getProductId(
   product: ProductInfoType | { data: ProductInfoType }

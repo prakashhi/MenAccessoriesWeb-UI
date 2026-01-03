@@ -1,20 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApi } from "@/app/useApi";
 
-import SearchDataInfo from "@/app/(User)/Component/NavBar/Component/SearchDataInfo";
+import SearchDataInfo from "@/Component/NavBar/Component/SearchDataInfo";
 import { Variants } from "framer-motion";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
-import {
-  Data,
-  ProductInfoType,
-  CartItem,
-  LikeProductType,
-} from "@/app/(User)/Type/Types";
+import { Data } from "@/Type/Types";
+import { LikeProductType } from "@/Type/LikeType";
+import { CartItem } from "@/Type/CartType";
+
 import { getUserFromStorage } from "@/context/utils";
 import { UsePanel } from "@/context/Context";
 

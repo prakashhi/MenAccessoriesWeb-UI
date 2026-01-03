@@ -2,15 +2,8 @@ import { useState } from "react";
 import { AxiosRequestConfig } from "axios";
 
 import API from "./api";
-import { notify } from "./(User)/Component/ToastComponent";
-import { showErrorOnce } from "./utils/apiErrorGuard";
+import { notify } from "@/Component/ToastComponent";
 
-interface ApiState<T> {
-  data: T | null;
-  loading: boolean;
-  error: string | null;
-  ISErrorThrowMSg?: boolean;
-}
 
 export function useApi<T = any>() {
   const [data, setData] = useState<T | null>(null);

@@ -7,10 +7,10 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import { product, Like } from "./Types/type";
+import { product, Like } from "@/Type/GuestType";
 import { useDisclosure } from "@heroui/react";
 import { useApi } from "@/app/useApi";
-import { notify, toastActions } from "@/app/(User)/Component/ToastComponent";
+import { notify, toastActions } from "@/Component/ToastComponent";
 import { getUserFromStorage, getGuestCart } from "./utils";
 
 import {
@@ -25,7 +25,7 @@ import {
   RemoveCartResponse,
   PromiseSettledResult,
   AddCartProductResponse,
-} from "@/app/(User)/Type/Types";
+} from "@/Type/Types";
 
 type PanelContextType = {
   cartProduct: product[];
@@ -52,10 +52,7 @@ type PanelContextType = {
   ) => Promise<ApiResponse<RemoveCartResponse>>;
 
   guestCart: GuestCart;
-  AddLikeProduct: (
-    Product: product,
-    variantSizeId?: string | null
-  ) => Promise<void>;
+
   RemoveLikeProduct: (
     ProductId: string
   ) => Promise<ApiResponse<RemoveCartResponse>>;
@@ -97,7 +94,6 @@ export const UsePanel = (): PanelContextType => {
     //   LikeProductList: async () => ({ data: [] }),
     //   CartProductList: async () => ({ data: [] }),
     //   AddCartProduct: async () => undefined,
-    //   AddLikeProduct: async () => undefined,
     //   AddCartProductGuest: async () => undefined,
     //   incrementCartProduct: async () => {},
     //   decrementCartProduct: async () => {},
@@ -212,10 +208,10 @@ export function SearchPanelContextProvider({
       throw new Error("User not logged in");
     }
     try {
-      let response = await callApi("post", "/cart", {
+      let response = await callApi("post", "/9rock/cart", {
         data: {
           productId: ProductId,
-          userId: user?.id,
+          nineRockUserId: process.env.NEXT_PUBLIC_USER_ID,
           variantSizeId: variantSizeId ?? null,
         },
       });
@@ -298,9 +294,9 @@ export function SearchPanelContextProvider({
       let url;
 
       if (VariantId) {
-        url = `/cart/${user?.id}/${ProductId}?variantSizeId=${VariantId}`;
+        url = `/9rock/cart/${process.env.NEXT_PUBLIC_USER_ID}/${ProductId}?variantSizeId=${VariantId}`;
       } else {
-        url = `/cart/${user?.id}/${ProductId}`;
+        url = `/9rock/cart/${process.env.NEXT_PUBLIC_USER_ID}/${ProductId} `;
       }
       let res: ApiResponse<RemoveCartResponse> = await callApi("delete", url);
       return res;
@@ -308,78 +304,78 @@ export function SearchPanelContextProvider({
   };
 
   //Like Functions
-  const AddLikeProduct = async (
-    Product: product,
-    variantSizeId?: string | null
-  ): Promise<void> => {
-    if (user == null || !user) {
-      let shouldNotify = false;
-      setGuestCart((prev) => {
-        if (prev.likeProduct[Product.id]) return prev;
+  // const AddLikeProduct = async (
+  //   Product: product,
+  //   variantSizeId?: string | null
+  // ): Promise<void> => {
+  //   if (user == null || !user) {
+  //     let shouldNotify = false;
+  //     setGuestCart((prev) => {
+  //       if (prev.likeProduct[Product.id]) return prev;
 
-        shouldNotify = true;
-        return {
-          ...prev,
-          likeProduct: {
-            ...prev.likeProduct,
-            [Product.id]: {
-              ...Product,
-              variantSizeId,
-            },
-          },
-        };
-      });
+  //       shouldNotify = true;
+  //       return {
+  //         ...prev,
+  //         likeProduct: {
+  //           ...prev.likeProduct,
+  //           [Product.id]: {
+  //             ...Product,
+  //             variantSizeId,
+  //           },
+  //         },
+  //       };
+  //     });
 
-      if (shouldNotify) {
-        toastActions.addToWishlist(`${Product.name}`);
-      }
+  //     if (shouldNotify) {
+  //       toastActions.addToWishlist(`${Product.name}`);
+  //     }
 
-      return;
-    } else {
-      if (user) {
-        let response = await callApi("post", "/like-product", {
-          data: {
-            productId: Product.id,
-            userId: user?.id,
-          },
-        });
+  //     return;
+  //   } else {
+  //     if (user) {
+  //       let response = await callApi("post", "/like-product", {
+  //         data: {
+  //           productId: Product.id,
+  //           userId: user?.id,
+  //         },
+  //       });
 
-        return response;
-      }
-    }
-  };
+  //       return response;
+  //     }
+  //   }
+  // };
 
-  const RemoveLikeProduct = async (
-    ProductId: string
-  ): Promise<ApiResponse<RemoveCartResponse>> => {
-    if (user == null || !user) {
-      setGuestCart((prev) => {
-        if (!prev || !prev.likeProduct) return prev;
+  // const RemoveLikeProduct = async (
+  //   ProductId: string
+  // ): Promise<ApiResponse<RemoveCartResponse>> => {
+  //   if (user == null || !user) {
+  //     setGuestCart((prev) => {
+  //       if (!prev || !prev.likeProduct) return prev;
 
-        if (!prev.likeProduct[ProductId]) return prev;
+  //       if (!prev.likeProduct[ProductId]) return prev;
 
-        const newItems = { ...prev.likeProduct };
-        delete newItems[ProductId];
+  //       const newItems = { ...prev.likeProduct };
+  //       delete newItems[ProductId];
 
-        return {
-          ...prev,
-          likeProduct: newItems,
-        };
-      });
+  //       return {
+  //         ...prev,
+  //         likeProduct: newItems,
+  //       };
+  //     });
 
-      return {
-        success: true,
-        data: null,
-      };
-    } else {
-      let response: ApiResponse<RemoveCartResponse> = await callApi(
-        "delete",
-        `/like-product/${id}/${ProductId}`
-      );
+  //     return {
+  //       success: true,
+  //       data: null,
+  //     };
+  //   } else {
+  //     let response: ApiResponse<RemoveCartResponse> = await callApi(
+  //       "delete",
+  //       `/like-product/${id}/${ProductId}`
+  //     );
 
-      return response;
-    }
-  };
+  //     return response;
+  //   }
+  // };
 
   const incrementCartProduct = async (
     productId: string,
@@ -407,7 +403,7 @@ export function SearchPanelContextProvider({
         };
       });
     } else {
-      await callApi("patch", `/cart/${cardId}`, {
+      await callApi("patch", `/9rock/cart/${cardId}`, {
         data: { quantity: quantity },
       });
     }
@@ -437,7 +433,7 @@ export function SearchPanelContextProvider({
         };
       });
     } else {
-      await callApi("patch", `/cart/${cardId}`, {
+      await callApi("patch", `/9rock/cart/${cardId}`, {
         data: { quantity: quantity },
       });
     }
@@ -466,16 +462,19 @@ export function SearchPanelContextProvider({
     }
   };
 
-  const LikeProductList = async (
-    userid: string
-  ): Promise<ApiResponse<LikeProductType[]>> => {
-    return await callApi("get", `/like-products/${userid}`);
-  };
+  // const LikeProductList = async (
+  //   userid: string
+  // ): Promise<ApiResponse<LikeProductType[]>> => {
+  //   return await callApi("get", `/like-products/${userid}`);
+  // };
 
   const CartProductList = async (
     userid: string
   ): Promise<ApiResponse<CartItem[]>> => {
-    return await callApi("get", `/cart/${userid}`);
+    return await callApi(
+      "get",
+      `/9rock/cart/${process.env.NEXT_PUBLIC_USER_ID}`
+    );
   };
 
   const triggerRefresh = () => {
@@ -495,9 +494,9 @@ export function SearchPanelContextProvider({
         GuestUserDataLength,
         cartProduct,
         guestCart,
-        AddLikeProduct,
-        RemoveLikeProduct,
-        LikeProductList,
+        // AddLikeProduct,
+        // RemoveLikeProduct,
+        // LikeProductList,
         CartProductList,
         incrementCartProduct,
         decrementCartProduct,

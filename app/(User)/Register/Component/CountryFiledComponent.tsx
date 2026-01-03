@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { CountryCode } from "@/app/utils/CountryCode";
-import { CountryListWithState } from "@/app/utils/CountryListWithState";
+import { CountryCode } from "@/utils/CountryCode";
+import { CountryListWithState } from "@/utils/CountryListWithState";
 
 type GridConfig = {
   country?: string;

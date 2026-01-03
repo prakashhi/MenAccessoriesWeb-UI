@@ -3,12 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { notify } from "@/app/(User)/Component/ToastComponent";
+import { notify } from "@/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
 import CountryFiled from "@/app/(User)/register/Component/CountryFiledComponent";
 import PaymentSuccessModal from "./PaymentSuccessModel";
-import { User } from "../../Type/Types";
+import { User } from "@/Type/UserDetailType";
 import API from "@/app/api";
 import { X } from "lucide-react";
 

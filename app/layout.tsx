@@ -5,6 +5,8 @@ import "./globals.css";
 import HeroProvider from "./HeroProvider";
 import { SearchPanelContextProvider } from "@/context/Context";
 
+import { UserLikeContextProvider } from "@/context/UserLikeContext";
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -43,7 +45,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <HeroProvider>
-          <SearchPanelContextProvider>{children}</SearchPanelContextProvider>
+          <SearchPanelContextProvider>
+            <UserLikeContextProvider>{children}</UserLikeContextProvider>
+          </SearchPanelContextProvider>
 
           <ToastContainer
             position="top-center"

@@ -17,6 +17,14 @@ export type OrderProductLisType = {
   deletedAt: null;
 };
 
+export type OrderType = {
+  id: string;
+  item: string;
+  status: string;
+  date?: string;
+};
+
+
 export type paymentSectionType = {
   id: string;
   transactionId: string;
@@ -74,3 +82,56 @@ export type OrderDetailType = {
     lastPaidAt: string | null;
   };
 };
+
+export type RegisterType = {
+  userName: string;
+
+  email: string;
+
+  password: string;
+
+  address: string | null;
+
+  pinCode: string | null;
+
+  contactNumber: string | null;
+
+  countryCode: string | null;
+
+  countryCodeLabel: string | null;
+
+  isSupplier: string | null;
+
+  country: string | null;
+
+  state: string | null;
+  confirmPassword: string | null;
+};
+
+export interface User {
+  id: string;
+
+  userName: string;
+  email: string;
+  role: "user" | "admin" | "supplier";
+
+  isSupplier: boolean;
+
+  contactNumber: string;
+  country: string;
+  countryCode: string;
+  countryCodeLabel: string;
+  state: string;
+  address: string;
+  pinCode: string;
+
+  profilePicture: string;
+
+  firmName: string | null;
+  firmAddress: string | null;
+  GSTIN: string | null;
+
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  deletedAt: string | null;
+}

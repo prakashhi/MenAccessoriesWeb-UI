@@ -1,5 +1,4 @@
-import { getAuthData } from "@/app/utils/localStorageUtil";
-import { product } from "../Types/type";
+import { getAuthData } from "@/utils/localStorageUtil";
 
 type CartItem = {
   code: string;

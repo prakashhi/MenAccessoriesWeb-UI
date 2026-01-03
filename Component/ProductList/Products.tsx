@@ -6,33 +6,27 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useApi } from "@/app/useApi";
 import { UsePanel } from "@/context/Context";
 import { getUserFromStorage } from "@/context/utils";
-import {
-  CartItem,
-  VariantSize,
-  LikeProductType,
-  productCategoryList,
-  ProductInfoType,
-  CategoryInfo,
-  Data,
-  GuestCart,
-  GuestCartItem,
-  GuestLikeItem,
-  ApiResponse,
-  CartProductInfo,
-} from "@/app/(User)/Type/Types";
+import { Data } from "@/Type/Types";
+
+import { productCategoryList } from "@/Type/ProductType";
+import { LikeProductType } from "@/Type/LikeType";
+
+import { CartItem } from "@/Type/CartType";
 import Image from "next/image";
-import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+import { ImageShowUtil } from "@/utils/ImageShowUtil";
 import { motion } from "framer-motion";
 
 import { useRouter } from "next/navigation";
-import { getProductId } from "@/app/utils/getProductId";
+import { getProductId } from "@/utils/getProductId";
+import { useUserLike } from "@/context/UserLikeContext";
 
 export default function Product() {
   const userData = useMemo(() => getUserFromStorage(), []);
   const { callApi } = useApi();
 
-  const { LikeProductList, CartProductList, setUserCountData, refreshKey } =
-    UsePanel();
+  const { CartProductList, setUserCountData, refreshKey } = UsePanel();
+
+  const { LikeProductList } = useUserLike();
 
   const router = useRouter();
 
@@ -89,6 +83,8 @@ export default function Product() {
       }));
     }
   }, []);
+
+   console.log(state)
 
   const observeSection = useCallback(
     (index: number) => (el: HTMLDivElement | null) => {

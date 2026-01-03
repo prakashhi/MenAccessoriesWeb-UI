@@ -2,19 +2,20 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { FiUser, FiClipboard, FiLogOut, FiChevronRight } from "react-icons/fi";
-import Nav from "../Component/NavBar/Nav";
+import Nav from "@/Component/NavBar/Nav";
 import { useApi } from "@/app/useApi";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
-import { notify } from "@/app/(User)/Component/ToastComponent";
+import { notify } from "@/Component/ToastComponent";
 import { getUserFromStorage } from "@/context/utils";
-import { User, LikeProductType, OrderType } from "@/app/(User)/Type/Types";
+import { User, OrderType } from "@/Type/UserDetailType";
+
+import { LikeProductType } from "@/Type/LikeType";
 
 import { UsePanel } from "@/context/Context";
 
 import ContentRenderer from "@/app/(User)/AccountInfo/Component/ContentRenderComponent";
-
 
 export default function AccountSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
@@ -220,4 +221,3 @@ export default function AccountSection() {
     </>
   );
 }
-

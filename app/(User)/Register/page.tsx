@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
-import { notify } from "@/app/(User)/Component/ToastComponent";
+import { notify } from "@/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
 import CountryFiled from "./Component/CountryFiledComponent";
 
-import { RegisterType } from "@/app/(User)/Type/Types";
+import { RegisterType } from "@/Type/UserDetailType";
 import API from "@/app/api";
 
 export default function RegisterPage() {

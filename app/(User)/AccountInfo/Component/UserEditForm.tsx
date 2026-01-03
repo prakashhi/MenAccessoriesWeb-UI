@@ -4,10 +4,10 @@ import { useForm } from "react-hook-form";
 
 import CountryField from "@/app/(User)/register/Component/CountryFiledComponent";
 import API from "@/app/api";
-import { notify } from "../../Component/ToastComponent";
+import { notify } from "@/Component/ToastComponent";
 import Loader from "@/public/svg/tube-spinner.svg";
 import Image from "next/image";
-import { setAuthData } from "@/app/utils/localStorageUtil";
+import { setAuthData } from "@/utils/localStorageUtil";
 import { UsePanel } from "@/context/Context";
 
 type FormValues = {

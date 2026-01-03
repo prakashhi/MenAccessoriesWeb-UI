@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+import { ImageShowUtil } from "@/utils/ImageShowUtil";
 import { Button } from "@heroui/react";
 import { Download } from "lucide-react";
 import { useApi } from "@/app/useApi";

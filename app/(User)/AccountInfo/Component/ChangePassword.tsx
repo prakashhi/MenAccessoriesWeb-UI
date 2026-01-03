@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { useApi } from "@/app/useApi";
 import Loader from "@/public/svg/tube-spinner.svg";
 import Image from "next/image";
-import { notify } from "../../Component/ToastComponent";
+import { notify } from "@/Component/ToastComponent";
 
 type FormValues = {
   oldPassword: string;

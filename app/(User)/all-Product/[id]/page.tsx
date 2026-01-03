@@ -1,40 +1,40 @@
 "use client";
 
-import Nav from "@/app/(User)/Component/NavBar/Nav";
-import Footer from "@/app/(User)/Component/Footer/Footer";
+import Nav from "@/Component/NavBar/Nav";
+import Footer from "@/Component/Footer/Footer";
 import { useParams } from "next/navigation";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@heroui/react";
 import { Heart } from "lucide-react";
 import { UsePanel } from "@/context/Context";
 import ItemCount from "@/app/(User)/Cart/component/ItemCount";
-import Star from "@/app/(User)/Component/ProductList/Star";
 import PictureGallery from "./Component/PictureGallery";
 import { useApi } from "@/app/useApi";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 import ProductDescription from "./Component/ProductDescription";
-import { formatIndianPrice } from "@/app/utils/FormatCurrency";
+import { formatIndianPrice } from "@/utils/FormatCurrency";
 
 import { AnimatePresence } from "framer-motion";
 import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
 import { MoveRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getUserFromStorage } from "@/context/utils";
-import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+
+import { CartItem } from "@/Type/CartType";
+
+import { LikeProductType } from "@/Type/LikeType";
 
 import {
-  CartItem,
-  VariantSize,
-  LikeProductType,
   ProductInfoType,
   variantDataProduct,
   productSize,
-  SizeVariant,
-} from "@/app/(User)/Type/Types";
+} from "@/Type/ProductType";
+
 import VariantSelector from "./Component/VariantsComponent";
 import SizeSelector from "./Component/SizeComponent";
-import { toastActions } from "../../Component/ToastComponent";
+import { notify, toastActions } from "@/Component/ToastComponent";
+import { useUserLike } from "@/context/UserLikeContext";
 
 interface ProductState {
   Like: boolean;
@@ -49,13 +49,13 @@ export default function ProductPage() {
   const { callApi } = useApi();
   const {
     AddCartProduct,
-    AddLikeProduct,
     guestCart,
-    LikeProductList,
     CartProductList,
     AddCartProductGuest,
     setUserCountData,
   } = UsePanel();
+
+  const { AddLikeProduct, LikeProductList } = useUserLike();
   const router = useRouter();
 
   const [product, setProduct] = useState<ProductInfoType | null>(null);
@@ -82,14 +82,6 @@ export default function ProductPage() {
 
     const loadProduct = async () => {
       try {
-        // const [product, variants] = await Promise.all([
-        //   callApi("get", `/product/${params.id}`),
-        //   callApi("get", `/variants/size/product/${params.id}`),
-        // ]);
-        // setProduct(product?.data);
-        // setSelectedVariant(variants?.data);
-
-        // RealData
         const product = await callApi("get", `/product/${params.id}`);
 
         const productData = product?.data ?? product ?? {};
@@ -150,19 +142,24 @@ export default function ProductPage() {
       try {
         // ✅ LOGGED-IN USER
         if (user) {
-          const [CartData, LikeData] = await Promise.all([
-            CartProductList(user.id),
-            LikeProductList(user.id),
+          const [CartData, LikeData] = await Promise.allSettled([
+            await CartProductList(user.id),
+            await LikeProductList(user.id),
           ]);
 
-          let likeList: LikeProductType[] = LikeData?.data ?? [];
+          console.log(CartData, LikeData);
+
+          let likeList = LikeData.status === "fulfilled" ? LikeData.value.data ?? [] : [];
           let cartList: CartItem[] = CartData?.data ?? [];
 
           if (!active) return;
 
+           console.log(likeList)
+
           const like = likeList.find((i: any) => {
             // Both productId must exist and match
             let ProductId = i.product.data ? i.product.data.id : i.product.id;
+            
             let variantId = i.product.data
               ? i.product.data.variantId
               : i.product.variantId;
@@ -229,6 +226,8 @@ export default function ProductPage() {
     };
   }, [product, user, guestCart]);
 
+  console.log("state", state);
+
   const parsedDescription =
     typeof product?.description === "string"
       ? (() => {
@@ -265,12 +264,11 @@ export default function ProductPage() {
 
       if (user) {
         res = await AddCartProduct(product.id, variantSizeId, Size);
-        toastActions.addToCart();
       } else {
         res = await AddCartProductGuest(product, variantSizeId, Size);
       }
 
-      if (res !== undefined) {
+      if (res?.success == true) {
         setState((prev) => ({
           ...prev,
           Cart: true,
@@ -281,6 +279,8 @@ export default function ProductPage() {
           CartCount: prev.CartCount + 1,
         }));
 
+        toastActions.addToCart();
+
         setTimeout(() => setAdding(false), 600);
       }
     } catch (err) {
@@ -289,22 +289,33 @@ export default function ProductPage() {
   };
 
   const addToLikeHandle = async (variantSizeId: string | null) => {
-    let res = await AddLikeProduct(product, variantSizeId);
+    if (user) {
+      try {
+        let res = await AddLikeProduct(product, variantSizeId);
 
-    if (res !== undefined) {
-      setState((prev) => ({
-        ...prev,
-        Like: true,
-      }));
+        if (res.success == true) {
+          setState((prev) => ({
+            ...prev,
+            Like: true,
+          }));
 
-      setUserCountData((prev) => ({
-        ...prev,
-        LikeCount: prev.LikeCount + 1,
-      }));
+          toastActions.addToWishlist();
+
+          setUserCountData((prev) => ({
+            ...prev,
+            LikeCount: prev.LikeCount + 1,
+          }));
+        }
+      } catch (err: any) {
+        let msg = err.response.data.message || "Something is Wrong";
+
+        notify({
+          message: msg,
+          type: "warning",
+        });
+      }
     }
   };
-
-  console.log(product);
 
   return (
     <>
@@ -379,7 +390,7 @@ export default function ProductPage() {
               onSelect={setSelectedSize}
               sizeCart={
                 user
-                  ? state.CartData?.variantSize.variantSizeName
+                  ? state.CartData?.variantSize?.variantSizeName
                   : guestCart?.items[product.id]?.size
               }
             />
@@ -389,12 +400,6 @@ export default function ProductPage() {
               ProductId={ProductId}
               onSelect={(variant) => setSelectedVariant(variant)}
             />
-            {/* DESCRIPTION */}
-            {/* <ProductDescription
-              extraInfo={extraInfo}
-              description={parsedDescription.description}
-              specifications={parsedDescription.specifications}
-            /> */}
             <div className="space-y-4 pb-6">
               <h3 className="text-xs tracking-widest uppercase text-gray-400 font-semibold">
                 Description
@@ -482,7 +487,7 @@ export default function ProductPage() {
         relative flex items-center justify-center gap-3
          py-4 rounded-none 
         text-xs font-semibold  ${
-          product.stock === 0
+          product.stock <= 0
             ? "cursor-not-allowed text-gray-400 tracking-[0.15em]  bg-gray-100"
             : "cursor-pointer tracking-[0.25em]  bg-black text-white"
         } 
@@ -490,7 +495,7 @@ export default function ProductPage() {
       `}
                   >
                     <AnimatePresence mode="wait">
-                      {product.stock === 0 && state.Cart == false ? (
+                      {product.stock <= 0 && state.Cart == false ? (
                         <motion.span
                           initial={{ y: 10, opacity: 0 }}
                           animate={{ y: 0, opacity: 1 }}

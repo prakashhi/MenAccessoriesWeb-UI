@@ -1,7 +1,7 @@
 "use client";
 
-import Nav from "../Component/NavBar/Nav";
-import Footer from "../Component/Footer/Footer";
+import Nav from "@/Component/NavBar/Nav";
+import Footer from "@/Component/Footer/Footer";
 import Image from "next/image";
 import { Button, image } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import ItemCount from "./component/ItemCount";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserFromStorage } from "@/context/utils";
-import { formatIndianPrice } from "@/app/utils/FormatCurrency";
+import { formatIndianPrice, PriceShowFunction } from "@/utils/FormatCurrency";
 import PaymentSuccessModal from "./component/PaymentSuccessModel";
 import PaymentFailedModal from "./component/PaymentFailedModel";
 import GuestUserPaymentForm from "./component/GuestUserFill";
@@ -19,14 +19,18 @@ import CartInfoModal from "./component/CartInfoModel";
 import { FiShoppingBag } from "react-icons/fi";
 
 import { useRouter } from "next/navigation";
-import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
-import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+import EmptyDataModel from "@/Component/CommonComponet/EmptyDataModel";
+import { ImageShowUtil } from "@/utils/ImageShowUtil";
 
-import { CartItem, ProductInfoType, User } from "@/app/(User)/Type/Types";
+import { CartItem } from "@/Type/CartType";
+import { ProductInfoType } from "@/Type/ProductType";
+
+import { User } from "@/Type/UserDetailType";
 import { useApi } from "@/app/useApi";
 import { PaymentModeSelector } from "./component/PaymentMethodSelect";
 
-import { toastActions } from "../Component/ToastComponent";
+import { toastActions } from "@/Component/ToastComponent";
+import { PriceTable } from "./component/PriceTable";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
 
@@ -82,8 +86,6 @@ export default function Page() {
     };
     CartList();
   }, [user]);
-
-  console.log(cartListData);
 
   useEffect(() => {
     if (user) return;
@@ -167,7 +169,7 @@ export default function Page() {
   //   if (user) {
   //     return cartListData.reduce(
   //       (sum: number, item: any) =>
-  //         sum + Number(item.product.productPrice) * Number(item.quantity),
+  //         sum + Number(item.product?.productPrice) * 10 * Number(item.quantity),
   //       0
   //     );
   //   } else {
@@ -177,23 +179,7 @@ export default function Page() {
   //       0
   //     );
   //   }
-  // }, [cartListData]);
-
-  const total: number = useMemo(() => {
-    if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
-
-    return cartListData.reduce((sum: number, item: any) => {
-      const stock = user ? item.product?.stock : item.stock;
-
-      if (!stock || stock === 0) return sum; // ❌ exclude out-of-stock
-
-      const price = user
-        ? Number(item.product.productPrice)
-        : Number(item.sellingPrice);
-
-      return sum + price * Number(item.quantity);
-    }, 0);
-  }, [cartListData, user]);
+  // }, [cartListData, user]);
 
   const TotalQty: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
@@ -203,6 +189,23 @@ export default function Page() {
       0
     );
   }, [cartListData]);
+
+  const total: number = useMemo(() => {
+    if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
+
+    return cartListData.reduce((sum: number, item: any) => {
+      const stock = user ? item.product?.stock : item.stock;
+
+      if (!stock || stock === 0) return sum; // ❌ exclude out-of-stock
+
+      const price =
+        user && item?.product?.productPrice
+          ? Number(item.product?.productPrice) * 10
+          : Number(item.sellingPrice);
+
+      return sum + price * Number(item.quantity);
+    }, 0);
+  }, [cartListData, user]);
 
   const ShippingTaxFunction: number = useMemo(() => {
     let Total = total + ShippingCharge + (total + ShippingCharge) * (3 / 100);
@@ -263,7 +266,7 @@ export default function Page() {
     if (user) {
       let response = await RemoveCartProduct(
         item.product.productId,
-        item.variantSize.variantSizeId
+        item.variantSize?.variantSizeId
       );
 
       if (response.success == true) {
@@ -284,6 +287,8 @@ export default function Page() {
       RemoveCartProduct(item.id);
     }
   };
+
+  console.log(cartListData);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
@@ -322,33 +327,34 @@ export default function Page() {
                       <motion.div
                         key={item.id}
                         layout
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        transition={{ duration: 0.2 }}
                         className="
-              flex flex-col sm:flex-row
-              gap-5
-              p-5 sm:p-6
-              rounded-2xl
-              bg-white
-              shadow-[0_10px_30px_rgba(0,0,0,0.04)]
-              hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)]
-              transition-shadow
-            "
+    grid
+    grid-cols-1
+    sm:grid-cols-[112px_1fr]
+    gap-4
+    p-4 sm:p-5
+    bg-white
+     border border-gray-50
+    rounded-xl
+    shadow-sm
+    items-center
+  "
                       >
                         {/* IMAGE */}
                         <div
                           className="
-                relative
-                w-full h-44 sm:w-28 sm:h-28
-                rounded-xl
-                overflow-hidden
-                bg-[#F2F2F2]
-                shrink-0
-                cursor-pointer
-                group
-              "
+      relative
+      w-full h-40
+      sm:w-28 sm:h-28
+      rounded-lg
+      overflow-hidden
+      bg-neutral-100
+      cursor-pointer
+    "
                           onClick={() =>
                             router.push(
                               `/all-Product/${
@@ -358,33 +364,32 @@ export default function Page() {
                           }
                         >
                           <Image
-                            alt={item.name ?? "Product image"}
+                            alt={item.name || "Product"}
+                            fill
+                            sizes="(max-width:640px) 100vw, 112px"
                             src={
                               ImageShowUtil(
                                 user ? item.product?.productImage : item?.image
                               ) || "/images/placeholder.webp"
                             }
-                            fill
-                            sizes="112px"
-                            className="
-                  object-cover
-                  transition-transform duration-500
-                  group-hover:scale-110
-                "
+                            className="object-cover"
                           />
                         </div>
 
-                        {/* INFO */}
-                        <div className="flex-1 flex flex-col justify-between gap-3">
-                          <div>
-                            <h3 className="text-sm sm:text-base font-medium tracking-wide text-neutral-900">
-                              {user ? item.product.productName : item.name}
+                        {/* CONTENT */}
+                        <div className="flex flex-col justify-between gap-1">
+                          {/* TITLE */}
+                          <div className="flex flex-col gap-1">
+                            <h3 className="text-sm font-medium text-neutral-900 line-clamp-2">
+                              {user
+                                ? item.product.productName.trim() !== ""
+                                  ? item.product.productName
+                                  : item.product.categoryName
+                                : item.name}
                             </h3>
-                            <h6 className="text-gray-400 text-[10px]">
+                            <p className="text-xs text-neutral-400">
                               {user ? item.product.categoryName : item.cate}
-                            </h6>
-
-                            {/* OPTIONAL: variant / size */}
+                            </p>
                             {item.size && (
                               <p className="text-xs text-neutral-500 mt-1">
                                 Size: {item.size}
@@ -392,50 +397,56 @@ export default function Page() {
                             )}
                           </div>
 
-                          <div className="flex flex-col gap-1">
-                            <ItemCount
-                              productId={
-                                user ? item.product.productId : item.id
-                              }
-                              quantity={item.quantity}
-                              stock={user ? item.product.stock : item.stock}
-                              cartId={user ? item.id : undefined}
-                              setState={user ? setCartListData : undefined}
-                            />
-                            <div>
-                              <button
-                                onClick={() => handleRemove(item)}
-                                className="
-                    text-[11px] cursor-pointer
-                    tracking-widest
-                    uppercase
-                    text-neutral-400
-                    hover:text-neutral-900
-                    
-                  "
-                              >
-                                Remove
-                              </button>
+                          <div
+                            className="
+    grid
+    grid-cols-1
+    gap-3
+    sm:grid-cols-[auto_1fr]
+    sm:items-center
+  "
+                          >
+                            {/* LEFT: QTY CONTROL */}
+                            <div className="sm:justify-self-start">
+                              <ItemCount
+                                productId={
+                                  user ? item.product.productId : item.id
+                                }
+                                quantity={item.quantity}
+                                stock={user ? item.product.stock : item.stock}
+                                cartId={user ? item.id : undefined}
+                                setState={user ? setCartListData : undefined}
+                              />
                             </div>
+
+                            <PriceTable item={item} user={user} />
                           </div>
+
+                          {/* REMOVE */}
+                          <button
+                            onClick={() => handleRemove(item)}
+                            className="text-[11px] cursor-pointer uppercase tracking-widest text-neutral-400 hover:text-neutral-900 w-fit"
+                          >
+                            Remove
+                          </button>
                         </div>
 
-                        {/* PRICE */}
-                        <div
-                          className="
-                text-sm sm:text-base
-                font-semibold
-                text-neutral-900
-                sm:self-center
-                sm:text-right
-              "
-                        >
+                        {/* DESKTOP TOTAL */}
+                        {/* <div className="hidden sm:flex items-center justify-end font-semibold text-neutral-900">
                           ₹{" "}
                           {user
-                            ? formatIndianPrice(item.product.productPrice)
-                            : formatIndianPrice(item.sellingPrice)}
+                            ? formatIndianPrice(
+                                Number(item.product.productPrice) *
+                                  10 *
+                                  item.quantity
+                              )
+                            : PriceShowFunction(
+                                item.code,
+                                item.sellingPrice,
+                                item.quantity
+                              )}
                           .00
-                        </div>
+                        </div> */}
                       </motion.div>
                     ))}
                 </motion.div>
@@ -477,6 +488,7 @@ export default function Page() {
                     {Math.floor(
                       ((total + ShippingCharge) * TaxPercentage) / 100
                     )}
+                    .00
                     {/* ({`${TaxPercentage}%`}) */}
                   </span>
                 </div>

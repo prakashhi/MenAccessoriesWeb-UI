@@ -5,7 +5,7 @@ import { Heart, User, ShoppingBag, Search } from "lucide-react";
 import { UsePanel } from "@/context/Context";
 import { motion } from "framer-motion";
 
-import SearchInput from "@/app/(User)/Component/NavBar/Component/SearchInput";
+import SearchInput from "@/Component/NavBar/Component/SearchInput";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getUserFromStorage } from "@/context/utils";
@@ -22,6 +22,7 @@ export default function Nav() {
 
   const { callApi } = useApi();
   const user = useMemo(() => getUserFromStorage(), []);
+
   const [isMerging, setIsMerging] = useState(false);
 
   const [state, setState] = useState<length>({
@@ -39,6 +40,8 @@ export default function Nav() {
       CartProductLength: userCountData.CartCount,
     }));
   };
+
+  console.log();
 
   const MergeLogic = async () => {
     if (!user?.id) return;

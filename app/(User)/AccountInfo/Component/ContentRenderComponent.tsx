@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import { OrderDetailType } from "@/app/(User)/Type/UserDetailtype";
+import { OrderDetailType } from "@/app/(User)/Type/UserDetailType";
 import UserEditForm from "@/app/(User)/AccountInfo/Component/UserEditForm";
 import { Pencil } from "lucide-react";
 import ChangePassword from "@/app/(User)/AccountInfo/Component/ChangePassword";
@@ -26,7 +26,9 @@ export default function ContentRenderer({ keyname, user, onLogout }: any) {
   const [editOpen, setEditOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
-  const [selectOrderDetail, setSelectOrderDetail] = useState<OrderDetailType>({});
+  const [selectOrderDetail, setSelectOrderDetail] = useState<OrderDetailType>(
+    {}
+  );
 
   const router = useRouter();
   /* ---------------- INFO ---------------- */

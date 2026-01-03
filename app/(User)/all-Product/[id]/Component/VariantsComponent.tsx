@@ -1,10 +1,10 @@
 "use client";
 
-import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
+import { ImageShowUtil } from "@/utils/ImageShowUtil";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-import { VariantSize, variantDataProduct } from "@/app/(User)/Type/Types";
+import { variantDataProduct } from "@/Type/ProductType";
 
 type Variant = {
   id: string;

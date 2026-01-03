@@ -1,41 +1,20 @@
-// import axios from "axios";
-// import { showErrorOnce } from "./utils/apiErrorGuard";
-// import { getAuthData } from "./utils/localStorageUtil";
-
-// const Token = JSON.parse(getAuthData("Token"));
-
-// const API = axios.create({
-//   baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL, // your backend URL
-//   headers: {
-//     "Content-Type": "application/json",
-//     // Authorization: `Bearer ${Token}`,
-//     Authorization: `Bearer ${process.env.NEXT_PUBLIC_TOKEN}`,
-//   },
-//   // withCredentials: true,
-// });
-
-// export default API;
-
 import axios from "axios";
-import { showErrorOnce } from "./utils/apiErrorGuard";
-import { getAuthData } from "./utils/localStorageUtil";
 
-const token = getAuthData("Token");
+import { getAuthData } from "@/utils/localStorageUtil";
 
 const API = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
-  // withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-console.log("token", token);
-
-// 🔐 Request Interceptor
 API.interceptors.request.use(
   (config) => {
     config.headers = config.headers || {};
-    const authToken = JSON.parse(token);
 
-    //const authToken = token && JSON.parse(token);
+    const token = getAuthData("Token");
+    const authToken = JSON.parse(token);
 
     if (authToken) {
       config.headers.Authorization = `Bearer ${authToken}`;
@@ -45,9 +24,8 @@ API.interceptors.request.use(
       return config;
     }
 
-    // ✅ IMPORTANT: Detect FormData
     if (config.data instanceof FormData) {
-      delete config.headers["Content-Type"]; // let axios set it
+      delete config.headers["Content-Type"];
     } else {
       config.headers["Content-Type"] = "application/json";
     }
@@ -57,11 +35,9 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ❗ Response Error Guard
 API.interceptors.response.use(
   (res) => res,
   (error) => {
-    // showErrorOnce(error, "Something is Wrong");
     return Promise.reject(error);
   }
 );

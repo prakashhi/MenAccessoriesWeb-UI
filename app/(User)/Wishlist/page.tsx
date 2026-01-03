@@ -1,29 +1,30 @@
 "use client";
 
-import Nav from "../Component/NavBar/Nav";
-import Footer from "../Component/Footer/Footer";
+import Nav from "@/Component/NavBar/Nav";
+import Footer from "@/Component/Footer/Footer";
 import { UsePanel } from "@/context/Context";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserFromStorage } from "@/context/utils";
-import { ImageShowUtil } from "@/app/utils/ImageShowUtil";
-import { formatIndianPrice } from "@/app/utils/FormatCurrency";
+import { ImageShowUtil } from "@/utils/ImageShowUtil";
+import { PriceShowFunction } from "@/utils/FormatCurrency";
 import { FiHeart, FiX } from "react-icons/fi";
 import { useEffect, useMemo, useState } from "react";
-import EmptyDataModel from "../Component/CommonComponet/EmptyDataModel";
+import EmptyDataModel from "@/Component/CommonComponet/EmptyDataModel";
 import Loader from "@/public/svg/tube-spinner.svg";
 
 import {
-  GuestLikeItem,
-  LikeProductType,
-  ProductInfoType,
   UserLikeItem,
-} from "@/app/(User)/Type/Types";
+} from "@/Type/Types";
+
+import { ProductInfoType } from "@/Type/ProductType";
+import {  LikeProductType} from "@/Type/LikeType"
+import {GuestLikeItem} from "@/Type/GuestType"
 
 import { useRouter } from "next/navigation";
 import { useApi } from "@/app/useApi";
-import { notify, toastActions } from "../Component/ToastComponent";
-import { getProductId } from "@/app/utils/getProductId";
+import { notify, toastActions } from "@/Component/ToastComponent";
+import { getProductId } from "@/utils/getProductId";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
@@ -293,48 +294,13 @@ export default function Page() {
                       {/* PRICE */}
                       <div>
                         <p className="text-xl font-light text-gray-900">
-                          ₹{formatIndianPrice(item.product.sellingPrice)}
+                          ₹
+                          {PriceShowFunction(
+                            item.product.code,
+                            item.product.sellingPrice
+                          )}
                         </p>
                       </div>
-
-                      {/* VARIANTS */}
-                      {/* {(item.product?.variants || item.variants) && (
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <div className="flex items-center gap-2">
-                            <span>Color</span>
-                            <div className="flex gap-1">
-                              {(user
-                                ? item.product.variants?.colors
-                                : item.variants?.colors
-                              )
-                                ?.slice(0, 3)
-                                .map((color: string, i: number) => (
-                                  <span
-                                    key={i}
-                                    className="w-3.5 h-3.5 rounded-full border border-gray-200"
-                                    style={{ backgroundColor: color }}
-                                  />
-                                ))}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-1">
-                            {(user
-                              ? item.product.variants?.sizes
-                              : item.variants?.sizes
-                            )
-                              ?.slice(0, 2)
-                              .map((size: string, i: number) => (
-                                <span
-                                  key={i}
-                                  className="px-2 py-0.5 border border-gray-200 text-xs"
-                                >
-                                  {size}
-                                </span>
-                              ))}
-                          </div>
-                        </div>
-                      )} */}
 
                       {/* ACTIONS */}
                       <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
@@ -358,22 +324,6 @@ export default function Page() {
                             "Add to Cart"
                           )}
                         </button>
-
-                        {/* <span
-                          className={`text-xs text-center py-1 ${
-                            (user ? item.product.stock : item.stock) > 0
-                              ? "text-green-700"
-                              : "text-red-700"
-                          }`}
-                        >
-                          {(user
-                            ? item.product.data
-                              ? item.product.data.stock
-                              : item.product.stock
-                            : item.stock) > 0
-                            ? "In Stock"
-                            : "Out of Stock"}
-                        </span> */}
                       </div>
                     </div>
                   </motion.div>
