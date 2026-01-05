@@ -14,6 +14,8 @@ import { CartItem } from "@/Type/CartType";
 
 import { getUserFromStorage } from "@/context/utils";
 import { UsePanel } from "@/context/Context";
+import { useUserLike } from "@/context/UserLikeContext";
+import { useUserCart } from "@/context/UserCartContext";
 
 const pageFade: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -57,13 +59,6 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
   const [searchData, setSearchData] = useState<any[]>([]);
   const [searchWord, setSearchWord] = useState("");
 
-  const { onOpen, CartProductList, LikeProductList } = UsePanel();
-
-  const [state, setState] = useState<Data>({
-    LikeData: {},
-    CartData: {},
-  });
-
   const { callApi } = useApi();
 
   const SearchProduct = async (words: string) => {
@@ -77,8 +72,6 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
     setSearchData(res);
   };
 
-  /* ------------------ EFFECTS ------------------ */
-
   useEffect(() => {
     const delay = setTimeout(() => {
       SearchProduct(searchWord);
@@ -86,41 +79,6 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
 
     return () => clearTimeout(delay);
   }, [searchWord]);
-
-  useEffect(() => {
-    const MetaData = async () => {
-      if (userData) {
-        const [cart, like] = await Promise.all([
-          CartProductList(userData.id),
-          LikeProductList(userData.id),
-        ]);
-
-        console.log("category, like", cart, like);
-
-        let categoryData = cart.success === true && cart.data;
-        let likeData = like.success === true && like.data;
-
-        const cartMap: Record<string, CartItem> = {};
-        Array.isArray(categoryData) &&
-          categoryData.forEach((item: CartItem) => {
-            cartMap[item.product.productId] = item;
-          });
-
-        const likeMap: Record<string, LikeProductType> = {};
-        Array.isArray(likeData) &&
-          likeData.forEach((item: LikeProductType) => {
-            likeMap[item.product.id] = item;
-          });
-
-        setState((prev) => ({
-          ...prev,
-          LikeData: likeMap,
-          CartData: cartMap,
-        }));
-      }
-    };
-    MetaData();
-  }, []);
 
   return (
     <>

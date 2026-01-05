@@ -11,3 +11,14 @@ export function getProductId(
   // Otherwise, assume product is ProductInfoType and return id
   return (product as ProductInfoType).id;
 }
+
+export function getProduct(
+  product: ProductInfoType | { data: ProductInfoType }
+): ProductInfoType {
+  if ("data" in product) {
+    return product.data;
+  }
+
+  // TS now knows this is ProductInfoType
+  return product;
+}

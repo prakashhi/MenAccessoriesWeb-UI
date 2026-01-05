@@ -7,11 +7,11 @@ import OptionComponent from "./OptionComponent";
 import { UsePanel } from "@/context/Context";
 import axios from "axios";
 
-import { ProductInfoType } from "@/app/(User)/Type/Types";
+import { ProductInfoType } from "@/Type/ProductType";
 import { useApi } from "@/app/useApi";
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { notify } from "@/app/(User)/Component/ToastComponent";
+import { notify } from "@/Component/ToastComponent";
 
 export type StateMobileDrawer = {
   malarialId: string | null;

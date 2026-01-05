@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@heroui/react";
 import { Heart } from "lucide-react";
 import { UsePanel } from "@/context/Context";
-import ItemCount from "@/app/(User)/Cart/component/ItemCount";
+import ItemCount from "@/app/(User)/cart/component/ItemCount";
 import PictureGallery from "./Component/PictureGallery";
 import { useApi } from "@/app/useApi";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -35,6 +35,8 @@ import VariantSelector from "./Component/VariantsComponent";
 import SizeSelector from "./Component/SizeComponent";
 import { notify, toastActions } from "@/Component/ToastComponent";
 import { useUserLike } from "@/context/UserLikeContext";
+import { useUserCart } from "@/context/UserCartContext";
+import { useGuestUser } from "@/context/GuestUserContext";
 
 interface ProductState {
   Like: boolean;
@@ -47,17 +49,15 @@ export default function ProductPage() {
   const user = useMemo(() => getUserFromStorage(), []);
   const params = useParams();
   const { callApi } = useApi();
-  const {
-    AddCartProduct,
-    guestCart,
-    CartProductList,
-    AddCartProductGuest,
-    setUserCountData,
-  } = UsePanel();
+  const { setUserCountData } = UsePanel();
 
   const { AddLikeProduct, LikeProductList } = useUserLike();
-  const router = useRouter();
+  const { CartProductList, AddCartProduct } = useUserCart();
 
+  const { AddCartProductGuest, guestCart, AddGuestLikeProduct } =
+    useGuestUser();
+
+  const router = useRouter();
   const [product, setProduct] = useState<ProductInfoType | null>(null);
   const [variants, setVariants] = useState<variantDataProduct[]>([]);
   const [size, setSizeData] = useState<productSize[] | null>(null);
@@ -143,23 +143,25 @@ export default function ProductPage() {
         // ✅ LOGGED-IN USER
         if (user) {
           const [CartData, LikeData] = await Promise.allSettled([
-            await CartProductList(user.id),
-            await LikeProductList(user.id),
+            CartProductList(user.id),
+            LikeProductList(user.id),
           ]);
 
-          console.log(CartData, LikeData);
+          console.log("ALl", CartData, LikeData);
 
-          let likeList = LikeData.status === "fulfilled" ? LikeData.value.data ?? [] : [];
-          let cartList: CartItem[] = CartData?.data ?? [];
+          let likeList =
+            LikeData.status === "fulfilled" ? LikeData.value.data ?? [] : [];
+          let cartList =
+            CartData.status === "fulfilled" ? CartData?.value.data ?? [] : [];
 
           if (!active) return;
 
-           console.log(likeList)
+          console.log(likeList);
 
           const like = likeList.find((i: any) => {
             // Both productId must exist and match
             let ProductId = i.product.data ? i.product.data.id : i.product.id;
-            
+
             let variantId = i.product.data
               ? i.product.data.variantId
               : i.product.variantId;
@@ -226,8 +228,6 @@ export default function ProductPage() {
     };
   }, [product, user, guestCart]);
 
-  console.log("state", state);
-
   const parsedDescription =
     typeof product?.description === "string"
       ? (() => {
@@ -256,32 +256,38 @@ export default function ProductPage() {
 
   const addToCartHandle = async (
     variantSizeId: string | null,
-    Size: string | null
+    Size: string | null,
+    variantSizeStock: number | null
   ) => {
     setAdding(true);
     try {
-      let res;
-
       if (user) {
-        res = await AddCartProduct(product.id, variantSizeId, Size);
+        try {
+          let res = await AddCartProduct(product.id, variantSizeId);
+
+          if (res.success == true) {
+            setState((prev) => ({
+              ...prev,
+              Cart: true,
+            }));
+
+            setUserCountData((prev) => ({
+              ...prev,
+              CartCount: prev.CartCount + 1,
+            }));
+
+            toastActions.addToCart();
+
+            setTimeout(() => setAdding(false), 600);
+          }
+        } catch (err: any) {
+          notify({
+            message: err.message,
+            type: "warning",
+          });
+        }
       } else {
-        res = await AddCartProductGuest(product, variantSizeId, Size);
-      }
-
-      if (res?.success == true) {
-        setState((prev) => ({
-          ...prev,
-          Cart: true,
-        }));
-
-        setUserCountData((prev) => ({
-          ...prev,
-          CartCount: prev.CartCount + 1,
-        }));
-
-        toastActions.addToCart();
-
-        setTimeout(() => setAdding(false), 600);
+        AddCartProductGuest(product, variantSizeId, Size, variantSizeStock);
       }
     } catch (err) {
       console.log(err);
@@ -292,15 +298,12 @@ export default function ProductPage() {
     if (user) {
       try {
         let res = await AddLikeProduct(product, variantSizeId);
-
         if (res.success == true) {
           setState((prev) => ({
             ...prev,
             Like: true,
           }));
-
           toastActions.addToWishlist();
-
           setUserCountData((prev) => ({
             ...prev,
             LikeCount: prev.LikeCount + 1,
@@ -314,7 +317,27 @@ export default function ProductPage() {
           type: "warning",
         });
       }
+    } else {
+      AddGuestLikeProduct(product, variantSizeId);
     }
+  };
+
+  const changeStateQuantity = (cartId: string, newQuantity: number) => {
+    setState((prev) => {
+      if (!prev.CartData) return prev;
+      if (prev.CartData.id !== cartId) return prev;
+
+      const stock = prev.CartData.product.stock;
+      const quantity = Math.max(1, Math.min(newQuantity, stock));
+
+      return {
+        ...prev,
+        CartData: {
+          ...prev.CartData,
+          quantity,
+        },
+      };
+    });
   };
 
   return (
@@ -463,6 +486,12 @@ export default function ProductPage() {
                   }
                   stock={product.stock}
                   setState={user && setState}
+                  VariantStock={
+                    user
+                      ? state.CartData?.variantSize?.variantSizeStock ?? null
+                      : selectedSize?.stock ?? null
+                  }
+                  stateChangeQuantity={changeStateQuantity}
                 />
               </div>
             )}
@@ -476,7 +505,8 @@ export default function ProductPage() {
                       product.stock > 0 &&
                       addToCartHandle(
                         selectedSize?.id ?? null,
-                        selectedSize?.size ?? null
+                        selectedSize?.size ?? null,
+                        selectedSize?.stock ?? null
                       )
                     }
                     initial={{ opacity: 0.9 }}
@@ -547,7 +577,7 @@ export default function ProductPage() {
                       },
                     }}
                     onAnimationComplete={(variant) => {
-                      if (variant === "exit") router.push("/Cart");
+                      if (variant === "exit") router.push("/cart");
                     }}
                     className="
     group relative flex items-center cursor-pointer justify-center gap-3
@@ -597,7 +627,7 @@ export default function ProductPage() {
                 <Button
                   startContent={<Heart size={16} />}
                   onPress={() => {
-                    router.push("/Wishlist");
+                    router.push("/wishlist");
                   }}
                   className="
                   border border-black py-4 rounded-none

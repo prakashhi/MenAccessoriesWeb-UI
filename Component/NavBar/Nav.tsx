@@ -11,6 +11,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getUserFromStorage } from "@/context/utils";
 import { useApi } from "@/app/useApi";
 import { notify } from "../ToastComponent";
+import { useGuestUser } from "@/context/GuestUserContext";
+import { useUserCart } from "@/context/UserCartContext";
+import { useUserLike } from "@/context/UserLikeContext";
 
 type length = {
   likeProductLength: number;
@@ -18,7 +21,12 @@ type length = {
 };
 
 export default function Nav() {
-  const { GuestUserDataLength, userCountData, triggerRefresh } = UsePanel();
+  const { triggerRefresh, userCountData } = UsePanel();
+
+  const { GuestUserDataLength } = useGuestUser();
+
+  const { AddCartProduct } = useUserCart();
+  const { AddLikeProduct } = useUserLike();
 
   const { callApi } = useApi();
   const user = useMemo(() => getUserFromStorage(), []);
@@ -40,8 +48,6 @@ export default function Nav() {
       CartProductLength: userCountData.CartCount,
     }));
   };
-
-  console.log();
 
   const MergeLogic = async () => {
     if (!user?.id) return;
@@ -71,19 +77,20 @@ export default function Nav() {
     try {
       // ---- CART MERGE ----
       const cartResults = await Promise.allSettled(
-        cartItems.map((item: any) =>
-          callApi(
-            "post",
-            "/cart",
-            {
-              data: {
-                productId: item.id,
-                userId: user.id,
-                variantSizeId: item.variantSizeId ?? null,
-              },
-            },
-            true
-          )
+        cartItems.map(
+          (item: any) => AddCartProduct(item.id, item.variantSizeId)
+          // callApi(
+          //   "post",
+          //   "/cart",
+          //   {
+          //     data: {
+          //       productId: item.id,
+          //       userId: user.id,
+          //       variantSizeId: item.variantSizeId ?? null,
+          //     },
+          //   },
+          //   true
+          // )
         )
       );
 
@@ -100,18 +107,20 @@ export default function Nav() {
 
       // ---- WISHLIST MERGE ----
       const likeResults = await Promise.allSettled(
-        likeItems.map((item: any) =>
-          callApi(
-            "post",
-            "/like-product",
-            {
-              data: {
-                productId: item.id,
-                userId: user.id,
-              },
-            },
-            true
-          )
+        likeItems.map(
+          (item: any) => AddLikeProduct(item)
+
+          // callApi(
+          //   "post",
+          //   "/like-product",
+          //   {
+          //     data: {
+          //       productId: item.id,
+          //       userId: user.id,
+          //     },
+          //   },
+          //   true
+          // )
         )
       );
 
@@ -228,7 +237,7 @@ export default function Nav() {
             </motion.div>
           )}
 
-          <Link className="relative" href="/Wishlist">
+          <Link className="relative" href="/wishlist">
             {state.likeProductLength > 0 && (
               <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
                 {state.likeProductLength}
@@ -240,14 +249,14 @@ export default function Nav() {
             />
           </Link>
 
-          <Link href={"/AccountInfo"}>
+          <Link href={"/accountInfo"}>
             <User
               size={20}
               className="text-gray-700 hover:text-black transition-colors cursor-pointer"
             />
           </Link>
 
-          <Link className="relative" href="/Cart">
+          <Link className="relative" href="/cart">
             {state.CartProductLength > 0 && (
               <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
                 {state.CartProductLength}

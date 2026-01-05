@@ -11,18 +11,10 @@ import { setAuthData } from "@/utils/localStorageUtil";
 import { UsePanel } from "@/context/Context";
 
 type FormValues = {
-  userName: string;
+  userFirstName: string;
+  userLastName: string;
+  contactNumber: string;
   email: string;
-  contactNumber?: string;
-  address?: string;
-  state?: string;
-  countryCode: string;
-  country?: string;
-  countryCodeLabel: string;
-  pinCode?: string;
-  firmName?: string;
-  GSTIN?: string;
-  firmAddress?: string;
 };
 
 export default function UserEditForm({
@@ -40,18 +32,10 @@ export default function UserEditForm({
     formState: { errors, isSubmitting, isDirty },
   } = useForm<FormValues>({
     defaultValues: {
-      userName: user.info.userName,
+      userFirstName: user.info.userFirstName,
+      userLastName: user.info.userLastName,
       email: user.info.email,
       contactNumber: user.info.contactNumber,
-      address: user.info.address,
-      state: user.info.state,
-      country: user.info.country,
-      countryCode: user.info.countryCode,
-      countryCodeLabel: user.info.countryCodeLabel,
-      pinCode: user.info.pinCode,
-      firmName: user.info.firmName,
-      GSTIN: user.info.GSTIN,
-      firmAddress: user.info.firmAddress,
     },
   });
 
@@ -113,16 +97,30 @@ export default function UserEditForm({
       >
         {" "}
         <div>
-          <label className="text-sm text-gray-500">Full name</label>
+          <label className="text-sm text-gray-500">First name</label>
           <input
             type="text"
             className="profile-input"
             placeholder="John Doe"
-            {...register("userName", { required: "Name is required" })}
+            {...register("userFirstName", { required: "Name is required" })}
           />
-          {errors.userName && (
+          {errors.userFirstName && (
             <p className="text-xs text-red-500 mt-1">
-              {errors.userName.message}
+              {errors.userFirstName.message}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="text-sm text-gray-500">Last name</label>
+          <input
+            type="text"
+            className="profile-input"
+            placeholder="John Doe"
+            {...register("userLastName", { required: "Name is required" })}
+          />
+          {errors.userLastName && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.userLastName.message}
             </p>
           )}
         </div>
@@ -160,7 +158,7 @@ export default function UserEditForm({
           )}
         </div>
         {/* PIN CODE */}
-        <div>
+        {/* <div>
           <label className="text-sm text-gray-500">Pin Code</label>
           <input
             {...register("pinCode", {
@@ -176,7 +174,7 @@ export default function UserEditForm({
               {errors.pinCode.message}
             </p>
           )}
-        </div>
+        </div> */}
         {/* ADDRESS */}
         <div className="sm:col-span-2">
           <label className="text-sm text-gray-500">Address</label>
@@ -222,32 +220,6 @@ export default function UserEditForm({
           </button>
         </div>
       </form>
-
-      {/* FULL NAME */}
-
-      {/* BUSINESS INFO */}
-      {/* {user.isSupplier && (
-        <>
-          <div>
-            <label className="text-sm text-gray-500">Firm Name</label>
-            <input {...register("firmName")} className="profile-input" />
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-500">GSTIN</label>
-            <input {...register("GSTIN")} className="profile-input" />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className="text-sm text-gray-500">Firm Address</label>
-            <textarea
-              rows={3}
-              {...register("firmAddress")}
-              className="profile-input"
-            />
-          </div>
-        </>
-      )} */}
     </>
   );
 }

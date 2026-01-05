@@ -20,10 +20,9 @@ import { LikeProductType } from "@/Type/LikeType";
 export type UserLikeContextType = {
   AddLikeProduct: (
     Product: ProductInfoType,
-    variantSizeId?: string | null
   ) => Promise<ApiResponse<AddLikeResponse>>;
 
-  RemoveLikeProduct: (userid: string) => Promise<APiNoDataREsponse>;
+  RemoveLikeProduct: (ProductId: string) => Promise<APiNoDataREsponse>;
 
   LikeProductList: (userid: string) => Promise<ApiResponse<LikeProductType[]>>;
 };
@@ -62,34 +61,46 @@ export function UserLikeContextProvider({ children }: { children: ReactNode }) {
 
   const AddLikeProduct = async (
     Product: ProductInfoType,
-    variantSizeId?: string | null
   ): Promise<ApiResponse<AddLikeResponse>> => {
-    let response = await callApi("post", "/9rock/likes", {
-      data: {
-        productId: Product.id,
-        userId: process.env.NEXT_PUBLIC_USER_ID,
-        //userId: user?.id,
-      },
-    });
-
-    return response;
+    try {
+      return await callApi("post", "/9rock/likes", {
+        data: {
+          productId: Product.id,
+          userId: user?.id,
+        },
+      });
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Failed to add like",
+        status: error?.response?.status,
+      };
+    }
   };
 
   const RemoveLikeProduct = async (
     ProductId: string
   ): Promise<APiNoDataREsponse> => {
-    let response: ApiResponse<APiNoDataREsponse> = await callApi(
-      "delete",
-      `/9rock/likes/${process.env.NEXT_PUBLIC_USER_ID}/${ProductId}`
-    );
-
-    return response;
+    try {
+      return await callApi("delete", `/9rock/likes/${user?.id}/${ProductId}`);
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Failed to remove like",
+        status: error?.response?.status,
+      };
+    }
   };
 
   const LikeProductList = async (
     userid: string
   ): Promise<ApiResponse<LikeProductType[]>> => {
-    return await callApi("get", `/like-products/${userid}`);
+    try {
+      return await callApi("get", `/9rock/likes/${userid}`);
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
   };
 
   return (

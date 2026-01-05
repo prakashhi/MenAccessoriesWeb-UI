@@ -251,7 +251,7 @@ export const notify = ({
         <button
           onClick={() => {
             // Navigate to cart or close toast
-            window.location.href = "/Cart";
+            window.location.href = "/cart";
           }}
           className="text-xs tracking-widest  uppercase border border-charcoal px-3 py-1.5 
                    hover:bg-charcoal hover:text-white hover:bg-black transition-all duration-300 

@@ -16,8 +16,6 @@ type Props = {
   watch: any;
   setValue: any;
   errors?: any;
-
-  /** Tailwind grid control */
   grid?: GridConfig;
 };
 
@@ -32,29 +30,39 @@ export default function CountryStateField({
 }: Props) {
   const countryName = watch("country");
 
-  const countryObj = useMemo(() => {
-    return CountryListWithState.find((c) => c.name === countryName);
-  }, [countryName]);
+  const countryObj = useMemo(
+    () => CountryListWithState.find((c) => c.name === countryName),
+    [countryName]
+  );
 
   useEffect(() => {
-    if (!countryObj) return;
+    if (!countryObj) {
+      setValue("state", "");
+      setValue("countryCode", "");
+      return;
+    }
 
     const extra = countryCodeMap.get(countryObj.iso2);
 
-    setValue("countryCode", extra?.dial_code || "", {
-      shouldDirty: true,
-    });
-    setValue("countryCodeLabel", extra?.code || "", {
-      shouldDirty: true,
-    });
+    setValue("countryCode", extra?.dial_code || "", { shouldDirty: true });
+    setValue("countryCodeLabel", extra?.code || "", { shouldDirty: true });
+    setValue("state", "", { shouldDirty: true });
   }, [countryObj, setValue]);
 
   const states = countryObj?.states || [];
 
+  const layout = {
+    country: "col-span-12 md:col-span-6",
+    code: "col-span-12 md:col-span-6",
+    state: "col-span-12 md:col-span-6",
+    pinCode: "col-span-12 md:col-span-6",
+    ...grid,
+  };
+
   return (
     <div className="grid grid-cols-12 gap-4">
-      {/* COUNTRY */}
-      <div className={grid.country || "col-span-12 sm:col-span-6"}>
+      {/* Country */}
+      <div className={layout.country}>
         <label className="text-sm font-medium">Country</label>
         <select {...register("country")} className="profile-input">
           <option value="">Select Country</option>
@@ -62,19 +70,18 @@ export default function CountryStateField({
             const extra = countryCodeMap.get(c.iso2);
             return (
               <option key={c.iso2} value={c.name}>
-                {extra?.emoji && `${extra.emoji} `}
-                {c.name}
+                {extra?.emoji && `${extra.emoji} `} {c.name}
               </option>
             );
           })}
         </select>
         {errors?.country && (
-          <p className="text-red-500 text-sm">{errors.country.message}</p>
+          <p className="text-xs text-red-500 mt-1">{errors.country.message}</p>
         )}
       </div>
 
-      {/* COUNTRY CODE */}
-      <div className={grid.code || "col-span-12 sm:col-span-6"}>
+      {/* Country Code */}
+      <div className={layout.code}>
         <label className="text-sm font-medium">Country Code</label>
         <input
           readOnly
@@ -83,16 +90,16 @@ export default function CountryStateField({
         />
       </div>
 
-      {/* STATE */}
-      <div className={grid.state || "col-span-12 sm:col-span-6"}>
+      {/* State */}
+      <div className={layout.state}>
         <label className="text-sm font-medium">State</label>
         <select
           {...register("state")}
           disabled={!states.length}
-          className="profile-input"
+          className="profile-input disabled:opacity-60"
         >
           <option value="">
-            {states.length ? "Select State" : "No states"}
+            {states.length ? "Select State" : "No states available"}
           </option>
           {states.map((s) => (
             <option key={s.state_code} value={s.name}>
@@ -102,8 +109,9 @@ export default function CountryStateField({
         </select>
       </div>
 
-      <div className={grid.code || "col-span-12 sm:col-span-6"}>
-        <label className="text-sm text-gray-500">Pin Code</label>
+      {/* Pin Code */}
+      <div className={layout.pinCode}>
+        <label className="text-sm font-medium">Pin Code</label>
         <input
           {...register("pinCode", {
             pattern: {
@@ -113,20 +121,10 @@ export default function CountryStateField({
           })}
           className="profile-input"
         />
-        {/* {errors.pinCode && (
+        {errors?.pinCode && (
           <p className="text-xs text-red-500 mt-1">{errors.pinCode.message}</p>
-        )} */}
+        )}
       </div>
-
-      {/* COUNTRY LABEL */}
-      {/* <div className={grid.label || "col-span-12 sm:col-span-6"}>
-        <label className="text-sm font-medium">Country Label</label>
-        <input
-          readOnly
-          {...register("countryCodeLabel")}
-          className="profile-input "
-        />
-      </div> */}
     </div>
   );
 }

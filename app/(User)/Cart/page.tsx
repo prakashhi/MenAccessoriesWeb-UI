@@ -29,8 +29,11 @@ import { User } from "@/Type/UserDetailType";
 import { useApi } from "@/app/useApi";
 import { PaymentModeSelector } from "./component/PaymentMethodSelect";
 
-import { toastActions } from "@/Component/ToastComponent";
+import { notify, toastActions } from "@/Component/ToastComponent";
 import { PriceTable } from "./component/PriceTable";
+import { useUserCart } from "@/context/UserCartContext";
+import { useGuestUser } from "@/context/GuestUserContext";
+import CartProductShowModel from "./component/CartProductShowModel";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
 
@@ -48,8 +51,11 @@ export default function Page() {
 
   console.log(user);
 
-  const { RemoveCartProduct, CartProductList, guestCart, setUserCountData } =
-    UsePanel();
+  const { setUserCountData } = UsePanel();
+
+  const { CartProductList, RemoveCartProduct } = useUserCart();
+
+  const { guestCart, RemoveGuestCartProduct } = useGuestUser();
 
   const [openModel, setOpenModel] = useState<modelTypes>({
     FillForm: false,
@@ -262,33 +268,7 @@ export default function Page() {
     }
   };
 
-  const handleRemove = async (item: any) => {
-    if (user) {
-      let response = await RemoveCartProduct(
-        item.product.productId,
-        item.variantSize?.variantSizeId
-      );
-
-      if (response.success == true) {
-        setCartListData((prev) =>
-          prev.filter(
-            (p: any) => p.product.productId !== item.product.productId
-          )
-        );
-
-        setUserCountData((prev) => ({
-          ...prev,
-          CartCount: prev.CartCount - 1,
-        }));
-
-        toastActions.removeFromWishlist();
-      }
-    } else {
-      RemoveCartProduct(item.id);
-    }
-  };
-
-  console.log(cartListData);
+  console.log("cartListData", cartListData);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
@@ -323,131 +303,14 @@ export default function Page() {
                   className="space-y-4"
                 >
                   {cartListData &&
-                    cartListData.map((item: any) => (
-                      <motion.div
-                        key={item.id}
-                        layout
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="
-    grid
-    grid-cols-1
-    sm:grid-cols-[112px_1fr]
-    gap-4
-    p-4 sm:p-5
-    bg-white
-     border border-gray-50
-    rounded-xl
-    shadow-sm
-    items-center
-  "
-                      >
-                        {/* IMAGE */}
-                        <div
-                          className="
-      relative
-      w-full h-40
-      sm:w-28 sm:h-28
-      rounded-lg
-      overflow-hidden
-      bg-neutral-100
-      cursor-pointer
-    "
-                          onClick={() =>
-                            router.push(
-                              `/all-Product/${
-                                user ? item.product.productId : item.id
-                              }`
-                            )
-                          }
-                        >
-                          <Image
-                            alt={item.name || "Product"}
-                            fill
-                            sizes="(max-width:640px) 100vw, 112px"
-                            src={
-                              ImageShowUtil(
-                                user ? item.product?.productImage : item?.image
-                              ) || "/images/placeholder.webp"
-                            }
-                            className="object-cover"
-                          />
-                        </div>
-
-                        {/* CONTENT */}
-                        <div className="flex flex-col justify-between gap-1">
-                          {/* TITLE */}
-                          <div className="flex flex-col gap-1">
-                            <h3 className="text-sm font-medium text-neutral-900 line-clamp-2">
-                              {user
-                                ? item.product.productName.trim() !== ""
-                                  ? item.product.productName
-                                  : item.product.categoryName
-                                : item.name}
-                            </h3>
-                            <p className="text-xs text-neutral-400">
-                              {user ? item.product.categoryName : item.cate}
-                            </p>
-                            {item.size && (
-                              <p className="text-xs text-neutral-500 mt-1">
-                                Size: {item.size}
-                              </p>
-                            )}
-                          </div>
-
-                          <div
-                            className="
-    grid
-    grid-cols-1
-    gap-3
-    sm:grid-cols-[auto_1fr]
-    sm:items-center
-  "
-                          >
-                            {/* LEFT: QTY CONTROL */}
-                            <div className="sm:justify-self-start">
-                              <ItemCount
-                                productId={
-                                  user ? item.product.productId : item.id
-                                }
-                                quantity={item.quantity}
-                                stock={user ? item.product.stock : item.stock}
-                                cartId={user ? item.id : undefined}
-                                setState={user ? setCartListData : undefined}
-                              />
-                            </div>
-
-                            <PriceTable item={item} user={user} />
-                          </div>
-
-                          {/* REMOVE */}
-                          <button
-                            onClick={() => handleRemove(item)}
-                            className="text-[11px] cursor-pointer uppercase tracking-widest text-neutral-400 hover:text-neutral-900 w-fit"
-                          >
-                            Remove
-                          </button>
-                        </div>
-
-                        {/* DESKTOP TOTAL */}
-                        {/* <div className="hidden sm:flex items-center justify-end font-semibold text-neutral-900">
-                          ₹{" "}
-                          {user
-                            ? formatIndianPrice(
-                                Number(item.product.productPrice) *
-                                  10 *
-                                  item.quantity
-                              )
-                            : PriceShowFunction(
-                                item.code,
-                                item.sellingPrice,
-                                item.quantity
-                              )}
-                          .00
-                        </div> */}
-                      </motion.div>
+                    cartListData.map((item: any, index: number) => (
+                      <CartProductShowModel
+                        key={index}
+                        item={item}
+                        index={index}
+                        user={user}
+                        setCartListData={setCartListData}
+                      />
                     ))}
                 </motion.div>
               ) : (

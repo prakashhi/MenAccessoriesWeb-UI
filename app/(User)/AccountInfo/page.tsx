@@ -9,29 +9,38 @@ import { motion } from "framer-motion";
 
 import { notify } from "@/Component/ToastComponent";
 import { getUserFromStorage } from "@/context/utils";
-import { User, OrderType } from "@/Type/UserDetailType";
+import {
+  User,
+  OrderType,
+  UserGetDetailType,
+  OrderProductLisType,
+} from "@/Type/UserDetailType";
 
 import { LikeProductType } from "@/Type/LikeType";
 
 import { UsePanel } from "@/context/Context";
 
-import ContentRenderer from "@/app/(User)/AccountInfo/Component/ContentRenderComponent";
+import ContentRenderer from "@/app/(User)/accountInfo/Component/ContentRenderComponent";
+import { useUserCart } from "@/context/UserCartContext";
+import { useUserLike } from "@/context/UserLikeContext";
 
 export default function AccountSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
   const [active, setActive] = useState<string>("info");
 
-  const { UserRefreshKey } = UsePanel();
+  const { UserRefreshKey, GetUserData, GetUserOrderList, GetAllUserAddress } =
+    UsePanel();
 
   const { callApi } = useApi();
+
+  const { LikeProductList } = useUserLike();
 
   const router = useRouter();
 
   const [user, setUserData] = useState({
-    info: {} as User | null,
-    orders: [] as OrderType[],
-    wishlist: [] as LikeProductType[],
-    OrderList: [],
+    info: {} as UserGetDetailType | null,
+    OrderList: [] as OrderProductLisType[] | [],
+    addersList: [],
   });
 
   // Logout handler (sample)
@@ -75,20 +84,25 @@ export default function AccountSection() {
 
     const GetProfileData = async () => {
       try {
-        let [profileData, likeProductData, OrderList] = await Promise.all([
-          callApi("get", `/user/${userId}`),
-          callApi("get", `/like-products/${userId}`),
-          callApi("get", `/sales/customer/${userId}`),
+        let [profileData, OrderList, address] = await Promise.all([
+          GetUserData(userId),
+          GetUserOrderList(userId),
+          GetAllUserAddress(userId),
         ]);
 
         if (!mounted) return;
 
-        setUserData((prev) => ({
-          ...prev,
-          info: profileData?.data,
-          wishlist: likeProductData?.data,
-          OrderList: OrderList.data,
-        }));
+        console.log(profileData, OrderList, address);
+
+        let ProfileData = profileData.success == true && profileData.data;
+        let OrderData = OrderList.success == true && OrderList.data;
+        let AddressData = address.success == true && address.data;
+
+        setUserData({
+          info: ProfileData,
+          OrderList: OrderData,
+          addersList: AddressData,
+        });
       } catch (err) {
         console.log(err);
       }
@@ -122,7 +136,8 @@ export default function AccountSection() {
             <nav className="hidden lg:block lg:w-72 border-r border-gray-100 p-6">
               <div className="mb-6">
                 <div className="text-lg font-semibold">
-                  {user?.info?.userName ?? null}
+                  {user?.info?.userFirstName ?? null}{" "}
+                  {user?.info?.userLastName ?? null}
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
                   {user?.info?.email ?? null}

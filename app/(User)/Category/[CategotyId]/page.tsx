@@ -1,15 +1,15 @@
 "use client";
 
-import Nav from "@/app/(User)/Component/NavBar/Nav";
+import Nav from "@/Component/NavBar/Nav";
 import { useParams } from "next/navigation";
 // import { LeftBar } from "./Components/LeftBar";
 import RightSection from "./Components/RightSectionProduct";
-import Footer from "@/app/(User)/Component/Footer/Footer";
+import Footer from "@/Component/Footer/Footer";
 import MobileFilterDrawer from "./Components/MobileFilterDrawer";
 import { useApi } from "@/app/useApi";
 import { useCallback, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Data, ProductInfoType } from "@/app/(User)/Type/Types";
+import { Data, ProductInfoType } from "@/Type/ProductType";
 
 export default function Page() {
   const params = useParams();

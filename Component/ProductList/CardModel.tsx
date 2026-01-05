@@ -19,6 +19,8 @@ import { getUserFromStorage } from "@/context/utils";
 import { notify, toastActions } from "../ToastComponent";
 import axios from "axios";
 import { useUserLike } from "@/context/UserLikeContext";
+import { useGuestUser } from "@/context/GuestUserContext";
+import { useUserCart } from "@/context/UserCartContext";
 
 export default function CardModel({
   DataObj,
@@ -39,17 +41,16 @@ export default function CardModel({
 
   const user = useMemo(() => getUserFromStorage(), []);
 
-  const {
-    AddCartProduct,
-    guestCart,
-    AddCartProductGuest,
+  const { setUserCountData } = UsePanel();
 
-    setUserCountData,
-  } = UsePanel();
+  const { AddCartProduct } = useUserCart();
 
-  const { RemoveLikeProduct } = useUserLike();
+  const { AddCartProductGuest, guestCart } = useGuestUser();
 
-  const { AddLikeProduct } = useUserLike();
+  const { RemoveLikeProduct, AddLikeProduct } = useUserLike();
+
+  const { RemoveGuestLikeProduct, AddGuestLikeProduct } = useGuestUser();
+
   const router = useRouter();
 
   if (DataObj?.length === 0) {
@@ -62,59 +63,45 @@ export default function CardModel({
 
   const handleAddToCart = async (productId: string) => {
     try {
-      let product = await callApi("get", `/product/${productId}`);
+      let product: ProductInfoType = await callApi(
+        "get",
+        `/product/${productId}`
+      );
 
       if (isUser == true) {
-        try {
-          let response = await callApi("post", "/9rock/cart", {
-            data: {
-              productId: productId,
-              nineRockUserId: process.env.NEXT_PUBLIC_USER_ID,
-              variantSizeId: product.variantSizeId ?? null,
-            },
-          });
+        let response = await AddCartProduct(productId, product.variantId);
 
-          if (response !== undefined) {
-            setState((prev) => {
-              const prevItem = prev.CartData[productId];
-              return {
-                ...prev,
-                CartData: {
-                  ...prev.CartData,
-                  [productId]: {
-                    id: productId,
-                    product: product,
-                    variantSize: prevItem?.variantSize ?? product.size ?? null, // optional
-                    quantity: (prevItem?.quantity ?? 0) + 1,
-                  },
-                },
-              };
-            });
-
-            setUserCountData((prev) => ({
+        if (response.success == true) {
+          setState((prev: any) => {
+            const prevItem = prev.CartData[productId];
+            return {
               ...prev,
-              CartCount: prev.CartCount + 1,
-            }));
-
-            toastActions.addToCart();
-          }
-
-          return response;
-        } catch (err) {
-          let message;
-
-          if (axios.isAxiosError(err)) {
-            message = err?.response?.data.message || "Something is Wrong!";
-          }
-
-          notify({
-            message: message,
-            type: "error",
+              CartData: {
+                ...prev.CartData,
+                [productId]: {
+                  id: productId,
+                  product: product,
+                  variantSize: prevItem?.variantSize ?? product.size ?? null, // optional
+                  quantity: (prevItem?.quantity ?? 0) + 1,
+                },
+              },
+            };
           });
-          console.log(err);
+
+          setUserCountData((prev) => ({
+            ...prev,
+            CartCount: prev.CartCount + 1,
+          }));
+
+          toastActions.addToCart();
+        } else {
+          notify({
+            message: response.message,
+            type: "warning",
+          });
         }
       } else {
-        await AddCartProductGuest(product.data);
+        AddCartProductGuest(product);
       }
     } catch (err) {
       console.log(err);
@@ -154,13 +141,8 @@ export default function CardModel({
       let product = await callApi("get", `/product/${productId}`);
 
       if (isUser) {
-        console.log(isUser);
-
         try {
           let res = await AddLikeProduct(product.data);
-
-          console.log("like", res);
-
           if (res.success == true) {
             const isLiked = Boolean(Data.LikeData[productId]);
 
@@ -178,15 +160,13 @@ export default function CardModel({
             toastActions.addToWishlist();
           }
         } catch (err: any) {
-          let msg = err.response.data.message || "Something is Wrong";
-
           notify({
-            message: msg,
+            message: err.message || "Something wrong",
             type: "warning",
           });
         }
       } else {
-        await AddLikeProduct(product.data);
+        AddGuestLikeProduct(product, null);
       }
     } catch (err) {
       console.log(err);
@@ -195,29 +175,37 @@ export default function CardModel({
 
   const handleUnLike = async (productId: string) => {
     if (isUser) {
-      let unlike = await RemoveLikeProduct(productId);
+      try {
+        let res = await RemoveLikeProduct(productId);
 
-      console.log("unlike", unlike);
+        if (res.success == true) {
+          setState((prev) => {
+            if (!prev.LikeData[productId]) return prev;
+
+            const { [productId]: _, ...rest } = prev.LikeData;
+
+            return {
+              ...prev,
+              LikeData: rest,
+            };
+          });
+
+          setUserCountData((prev) => ({
+            ...prev,
+            LikeCount: prev.LikeCount - 1,
+          }));
+        }
+      } catch (err: any) {
+        notify({
+          message: err.message,
+          type: "warning",
+        });
+      }
+    } else {
+      RemoveGuestLikeProduct(productId);
+      toastActions.removeFromWishlist();
     }
-
-    setState((prev) => {
-      if (!prev.LikeData[product.id]) return prev;
-
-      const { [product.id]: _, ...rest } = prev.LikeData;
-
-      return {
-        ...prev,
-        LikeData: rest,
-      };
-    });
-
-    setUserCountData((prev) => ({
-      ...prev,
-      LikeCount: prev.LikeCount - 1,
-    }));
   };
-
-
 
   return (
     <>
@@ -267,6 +255,7 @@ export default function CardModel({
                     <Heart
                       onClick={(e) => {
                         e.stopPropagation();
+                        handleUnLike(product.id);
                       }}
                       className="w-5 h-5 text-red-600 fill-red-600"
                     />
@@ -316,7 +305,7 @@ export default function CardModel({
                       if (!iscart) {
                         handleAddToCart(product.id);
                       } else {
-                        router.push("/Cart");
+                        router.push("/cart");
                       }
                     }}
                     className="

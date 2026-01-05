@@ -12,6 +12,8 @@ import { GuestCartItem } from "@/Type/GuestType";
 import { LikeProductType } from "@/Type/LikeType";
 import { notify } from "@/Component/ToastComponent";
 import { Button } from "@heroui/react";
+import { useGuestUser } from "@/context/GuestUserContext";
+import { useUserCart } from "@/context/UserCartContext";
 
 interface ProductState {
   Like: boolean;
@@ -31,6 +33,8 @@ interface ItemCountProps {
   stock: number;
   cartId: string;
   setState?: ProductStateSetter;
+  VariantStock: number;
+  stateChangeQuantity: (cardId: string, quantity: number) => void;
 }
 
 export default function ItemCount({
@@ -39,12 +43,22 @@ export default function ItemCount({
   stock,
   cartId,
   setState,
+  VariantStock,
+  stateChangeQuantity,
 }: ItemCountProps) {
   const user = useMemo(() => getUserFromStorage(), []);
 
+  let IsStock: number = VariantStock == null ? stock : VariantStock;
+
+  const {
+    incrementGuestCartProduct,
+    decrementGuestCartProduct,
+    setCartProductQty,
+  } = useGuestUser();
+
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const { incrementCartProduct, decrementCartProduct, setCartProductQty } =
-    UsePanel();
+
+  const { incrementCartProduct, decrementCartProduct } = useUserCart();
 
   const [inputValue, setInputValue] = useState(String(quantity));
 
@@ -54,7 +68,7 @@ export default function ItemCount({
   }, [quantity]);
 
   const isMin = Number(inputValue) <= 1;
-  const isMax = Number(inputValue) >= stock || stock === 0;
+  const isMax = Number(inputValue) >= IsStock || IsStock === 0;
 
   const onBlur = () => {
     const num = Number(inputValue);
@@ -62,7 +76,7 @@ export default function ItemCount({
   };
 
   const stockCheck = (Qty: number) => {
-    if (Qty > stock) {
+    if (Qty > IsStock) {
       return false;
     }
     return true;
@@ -71,47 +85,29 @@ export default function ItemCount({
 
   const handleInCrement = async () => {
     if (user && setState) {
-      const Qty = Math.max(1, Math.min(Number(inputValue) + 1, stock));
-
+      let previousQty = Number(inputValue);
+      const Qty = Math.max(1, Math.min(Number(inputValue) + 1, IsStock));
       setInputValue(String(Qty));
 
-      // setState((prev: any) => {
-      //   const item = prev.CartData?.[cartId];
-      //   if (!item) return prev;
-
-      //   return {
-      //     ...prev,
-      //     CartData: {
-      //       ...prev.CartData,
-      //       [cartId]: {
-      //         ...item,
-      //         quantity: Qty,
-      //       },
-      //     },
-      //   };
-      // });
-
-      setState((prev: any) =>
-        prev.map((item: CartItem) =>
-          item.id === cartId ? { ...item, quantity: Qty } : item
-        )
-      );
-
-      // 2️⃣ Clear previous API call
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
       }
 
       // 3️⃣ Increase version
       const currentVersion = ++requestVersionRef.current;
-
+      stateChangeQuantity(cartId, Qty);
       debounceRef.current = setTimeout(async () => {
         try {
-          await incrementCartProduct(productId, cartId, Qty);
+          let res = await incrementCartProduct(cartId, Qty);
+
+          if (res.success !== true) {
+            stateChangeQuantity(cartId, previousQty);
+          }
+
           // Ignore outdated responses
           if (currentVersion !== requestVersionRef.current) return;
         } catch (err: any) {
-          let msg = err.response.data.message || "Something is Wrong";
+          let msg = err?.response?.data?.message || "Something is Wrong";
 
           notify({
             message: msg,
@@ -121,38 +117,17 @@ export default function ItemCount({
         }
       }, 400);
     } else {
-      incrementCartProduct(productId, cartId, quantity);
+      incrementGuestCartProduct(productId);
     }
   };
 
   const handleDeCrement = async () => {
     if (user && setState) {
-      const Qty = Math.max(1, Math.min(Number(inputValue) - 1, stock));
+      let previousQty = Number(inputValue);
+      const Qty = Math.max(1, Math.min(Number(inputValue) - 1, IsStock));
       if (Qty >= 1) {
         setInputValue(String(Qty));
       }
-
-      // setState((prev: any) => {
-      //   const item = prev.CartData?.[cartId];
-      //   if (!item) return prev;
-
-      //   return {
-      //     ...prev,
-      //     CartData: {
-      //       ...prev.CartData,
-      //       [cartId]: {
-      //         ...item,
-      //         quantity: Qty,
-      //       },
-      //     },
-      //   };
-      // });
-
-      setState((prev: any) =>
-        prev.map((item: CartItem) =>
-          item.id === cartId ? { ...item, quantity: Qty } : item
-        )
-      );
 
       // 2️⃣ Clear previous API call
       if (debounceRef.current) {
@@ -161,10 +136,14 @@ export default function ItemCount({
 
       // 3️⃣ Increase version
       const currentVersion = ++requestVersionRef.current;
-
+      stateChangeQuantity(cartId, Qty);
       debounceRef.current = setTimeout(async () => {
         try {
-          await decrementCartProduct(productId, cartId, Qty);
+          let res = await decrementCartProduct(cartId, Qty);
+
+          if (res.success !== true) {
+            stateChangeQuantity(cartId, previousQty);
+          }
 
           // Ignore outdated responses
           if (currentVersion !== requestVersionRef.current) return;
@@ -173,7 +152,7 @@ export default function ItemCount({
         }
       }, 600);
     } else {
-      decrementCartProduct(productId, cartId, Number(quantity));
+      decrementGuestCartProduct(productId);
     }
   };
 
@@ -182,28 +161,6 @@ export default function ItemCount({
       const Qty = value;
       setInputValue(String(Qty));
 
-      // setState?.((prev: any) => {
-      //   const item = prev.CartData?.[cartId];
-      //   if (!item) return prev;
-
-      //   return {
-      //     ...prev,
-      //     CartData: {
-      //       ...prev.CartData,
-      //       [cartId]: {
-      //         ...item,
-      //         quantity: Qty,
-      //       },
-      //     },
-      //   };
-      // });
-
-      setState((prev: any) =>
-        prev.map((item: CartItem) =>
-          item.id === cartId ? { ...item, quantity: Qty } : item
-        )
-      );
-
       // 2️⃣ Clear previous API call
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
@@ -211,10 +168,11 @@ export default function ItemCount({
 
       // 3️⃣ Increase version
       const currentVersion = ++requestVersionRef.current;
+      stateChangeQuantity(cartId, Qty);
 
       debounceRef.current = setTimeout(async () => {
         try {
-          await incrementCartProduct(productId, cartId, Qty);
+          let res = await incrementCartProduct(cartId, Qty);
 
           // Ignore outdated responses
           if (currentVersion !== requestVersionRef.current) return;
@@ -223,12 +181,12 @@ export default function ItemCount({
         }
       }, 600);
     } else {
-      setState?.((prev: any) => {
-        // if (!prev || !Array.isArray(prev)) return []; // fallback to empty array
-        return prev.map((item: any) =>
-          item.id === cartId ? { ...item, quantity: Number(value) } : item
-        );
-      });
+      stateChangeQuantity(cartId, Number(value));
+      // setState?.((prev: any) => {
+      //   return prev.map((item: any) =>
+      //     item.id === cartId ? { ...item, quantity: Number(value) } : item
+      //   );
+      // });
     }
   };
 
@@ -261,8 +219,8 @@ export default function ItemCount({
 
               // Ensure value does not exceed stock
               const num = Number(value);
-              if (num > stock) {
-                value = String(stock);
+              if (num > IsStock) {
+                value = String(IsStock);
               }
 
               setInputValue(value);
@@ -287,10 +245,12 @@ export default function ItemCount({
         </Button>
       </div>
 
-      {stock === 0 ? (
+      {IsStock === 0 ? (
         <span className="text-xs text-red-500">Out of stock</span>
       ) : (
-        <span className="text-[11px] text-gray-500">Max {stock} per order</span>
+        <span className="text-[11px] text-gray-500">
+          Max {IsStock} per order
+        </span>
       )}
     </div>
   );

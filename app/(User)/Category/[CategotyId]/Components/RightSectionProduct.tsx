@@ -1,22 +1,22 @@
 "use client";
 
-import CardModel from "@/app/(User)/Component/ProductList/CardModel";
+import CardModel from "@/Component/ProductList/CardModel";
 import { motion } from "framer-motion";
 import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useState } from "react";
 import EmptyTableComponent from "./EmptyTableComponents";
 import { FiFilter, FiChevronDown } from "react-icons/fi";
 
-import {
-  Data,
-  ProductInfoType,
-  CartItem,
-  LikeProductType,
-} from "@/app/(User)/Type/Types";
+import { Data } from "@/Type/Types";
+
+import { CartItem } from "@/Type/CartType";
+
+import { LikeProductType } from "@/Type/LikeType";
 import { getUserFromStorage } from "@/context/utils";
 import { useApi } from "@/app/useApi";
 import { useParams } from "next/navigation";
 import { useUserLike } from "@/context/UserLikeContext";
+import { useUserCart } from "@/context/UserCartContext";
 
 interface RightSectionProps {
   ProductData: any[];
@@ -26,7 +26,10 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
   const [sortedProducts, setSortedProducts] = useState<any[]>([]);
   const params = useParams();
   const userData = useMemo(() => getUserFromStorage(), []);
-  const { onOpen, CartProductList } = UsePanel();
+  const { onOpen } = UsePanel();
+
+  const { CartProductList } = useUserCart();
+
   const [sort, setSort] = useState("Featured");
 
   const { LikeProductList } = useUserLike();
@@ -95,13 +98,14 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
   useEffect(() => {
     const MetaData = async () => {
       if (userData) {
-        const [category, like] = await Promise.all([
+        const [category, like] = await Promise.allSettled([
           CartProductList(userData.id),
           LikeProductList(userData.id),
         ]);
 
-        let cartData: CartItem[] = category.data ?? [];
-        let likeData: LikeProductType[] = like.data ?? [];
+        let cartData =
+          category.status === "fulfilled" ? category.value.data ?? [] : [];
+        let likeData = like.status === "fulfilled" ? like.value.data ?? [] : [];
 
         const cartMap: Record<string, CartItem> = {};
         cartData.forEach((item: CartItem) => {

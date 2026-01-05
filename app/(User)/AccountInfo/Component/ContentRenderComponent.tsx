@@ -2,10 +2,10 @@ import { useState } from "react";
 
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import { OrderDetailType } from "@/app/(User)/Type/UserDetailType";
-import UserEditForm from "@/app/(User)/AccountInfo/Component/UserEditForm";
+import { OrderDetailType } from "@/Type/UserDetailType";
+import UserEditForm from "@/app/(User)/accountInfo/Component/UserEditForm";
 import { Pencil } from "lucide-react";
-import ChangePassword from "@/app/(User)/AccountInfo/Component/ChangePassword";
+import ChangePassword from "@/app/(User)/accountInfo/Component/ChangePassword";
 import {
   FiUser,
   FiHeart,
@@ -16,9 +16,11 @@ import {
   FiMapPin,
   FiPhone,
 } from "react-icons/fi";
-import OrderDetailModel from "./OrderDetailModel";
+import OrderDetailModel from "@/app/(User)/accountInfo/Component/OrderDetailModel";
 
-import OrderListComponent from "./OrderListComponent";
+import OrderListComponent from "@/app/(User)/accountInfo/Component/OrderListComponent";
+
+import { FiPlusCircle } from "react-icons/fi";
 
 type IconType = "📭";
 
@@ -63,7 +65,7 @@ export default function ContentRenderer({ keyname, user, onLogout }: any) {
               <label className="text-sm text-gray-500">Full name</label>
               <div className="mt-1 text-gray-900 flex items-center gap-2">
                 <FiUser className="text-gray-400" />
-                {user.info?.userName}
+                {user.info.userFirstName} {user.info.userLastName}
               </div>
             </div>
 
@@ -82,7 +84,7 @@ export default function ContentRenderer({ keyname, user, onLogout }: any) {
               <div className="mt-1 text-gray-900 flex items-center gap-2">
                 <FiPhone className="text-gray-400" />
                 {user.info?.contactNumber
-                  ? `${user.info.countryCode} ${user.info.contactNumber}`
+                  ? ` ${user.info.contactNumber}`
                   : "N/A"}
               </div>
             </div>
@@ -94,11 +96,30 @@ export default function ContentRenderer({ keyname, user, onLogout }: any) {
               <div className="mt-1 flex items-start gap-2 text-gray-900 bg-gray-50 rounded-md p-3">
                 <FiMapPin className="text-gray-400 mt-1 shrink-0" />
                 <p className="text-sm leading-relaxed">
-                  {user?.info?.address?.trim() ? user.info.address : "N/A"}
+                  {user.addersList.length <= 0 && "No address added yet."}
+                  {/* {user?.info?.address?.trim() ? user.info.address : "N/A"}
                   {user?.info?.state && `, ${user.info.state}`}
                   {user?.info?.country && `, ${user.info.country}`}
-                  {user?.info?.pinCode && ` - ${user.info.pinCode}`}
+                  {user?.info?.pinCode && ` - ${user.info.pinCode}`} */}
                 </p>
+              </div>
+              {/* Add Address CTA */}
+
+              <div className="py-2">
+                <Button
+                  type="button"
+                  onPress={() => openAddressModal()} // your handler
+                  className="
+      flex w-fit items-center gap-2 rounded-md
+      border border-dashed border-gray-300
+      px-3 py-2 text-sm text-gray-600
+      transition hover:border-gray-400 hover:bg-gray-100
+      focus:outline-none focus:ring-2 focus:ring-gray-300
+    "
+                >
+                  <FiPlusCircle className="text-base" />
+                  <span>Add address</span>
+                </Button>
               </div>
             </div>
 

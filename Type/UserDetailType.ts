@@ -24,7 +24,6 @@ export type OrderType = {
   date?: string;
 };
 
-
 export type paymentSectionType = {
   id: string;
   transactionId: string;
@@ -135,3 +134,22 @@ export interface User {
   updatedAt: string; // ISO date string
   deletedAt: string | null;
 }
+
+export type UserGetDetailType = {
+  id: string;
+  userFirstName: string;
+  userLastName: string;
+  jwtToken: string;
+  contactNumber: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+export type EditUserObjType = {
+  userFirstName: string;
+  userLastName: string;
+  contactNumber: string;
+  email: string;
+};

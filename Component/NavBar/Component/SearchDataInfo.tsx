@@ -32,7 +32,7 @@ export default function SearchComponents({ Data }: { Data: any }) {
               {Data.categories.map((cat: any) => (
                 <motion.div
                   key={cat.id}
-                  onClick={() => router.push(`/Category/${cat.id}`)}
+                  onClick={() => router.push(`/category/${cat.id}`)}
                   whileHover={{ scale: 1.05 }}
                   className="flex shrink-0 items-center gap-5 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 cursor-pointer hover:bg-gray-100 transition"
                 >

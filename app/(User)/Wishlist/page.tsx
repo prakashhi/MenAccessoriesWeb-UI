@@ -13,29 +13,30 @@ import { useEffect, useMemo, useState } from "react";
 import EmptyDataModel from "@/Component/CommonComponet/EmptyDataModel";
 import Loader from "@/public/svg/tube-spinner.svg";
 
-import {
-  UserLikeItem,
-} from "@/Type/Types";
+import { UserLikeItem } from "@/Type/Types";
 
 import { ProductInfoType } from "@/Type/ProductType";
-import {  LikeProductType} from "@/Type/LikeType"
-import {GuestLikeItem} from "@/Type/GuestType"
+import { LikeProductType } from "@/Type/LikeType";
+import { GuestLikeItem } from "@/Type/GuestType";
 
 import { useRouter } from "next/navigation";
 import { useApi } from "@/app/useApi";
 import { notify, toastActions } from "@/Component/ToastComponent";
 import { getProductId } from "@/utils/getProductId";
+import { useUserLike } from "@/context/UserLikeContext";
+import { useUserCart } from "@/context/UserCartContext";
+import { useGuestUser } from "@/context/GuestUserContext";
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
-  const {
-    AddCartProduct,
-    RemoveLikeProduct,
-    LikeProductList,
-    guestCart,
-    setUserCountData,
-    AddCartProductGuest,
-  } = UsePanel();
+  const { setUserCountData } = UsePanel();
+
+  const { LikeProductList, RemoveLikeProduct } = useUserLike();
+
+  const { AddCartProduct } = useUserCart();
+
+  const { AddCartProductGuest, guestCart, RemoveGuestLikeProduct } =
+    useGuestUser();
 
   const { callApi } = useApi();
 
@@ -109,58 +110,52 @@ export default function Page() {
   type HandleCart = GuestLikeItem | UserLikeItem;
 
   const addToCartHandle = async (item: HandleCart) => {
+    console.log("user", user);
     if (user) {
+      let User = item as UserLikeItem;
+      let ProductID = User.product.id;
+
       try {
-        let User = item as UserLikeItem;
-        let ProductID = User.product.id;
-
-        let response = await AddCartProduct(ProductID);
-
-        console.log("response", response);
-
+        let response = await AddCartProduct(ProductID, User.product.variantId);
         if (response.success == true) {
-          toastActions.addToCart();
+          let res = await RemoveLikeProduct(ProductID);
 
+          if (res.success == true) {
+            setUserCountData((prev) => ({
+              ...prev,
+              LikeCount: prev.LikeCount - 1,
+              CartCount: prev.CartCount + 1,
+            }));
+
+            setLikeProductList((prev) =>
+              prev.filter((p) => p.product.id !== ProductID)
+            );
+            toastActions.addToCart();
+          }
+        }
+      } catch (err: any) {
+        let res = await RemoveLikeProduct(ProductID);
+
+        if (res.success == true) {
           setUserCountData((prev) => ({
             ...prev,
             LikeCount: prev.LikeCount - 1,
-            CartCount: prev.CartCount + 1,
           }));
-
-          await callApi("delete", `/like-product/${user.id}/${ProductID}`);
-
-          setLikeProductList((prev) =>
-            prev.filter((p) => p.product.id !== ProductID)
-          );
-        } else {
-          const msg = response.message || "Something went wrong!";
-
-          setUserCountData((prev) => ({
-            ...prev,
-            LikeCount: prev.LikeCount - 1,
-          }));
-
-          let res = await callApi(
-            "delete",
-            `/like-product/${user.id}/${ProductID}`
-          );
 
           setLikeProductList((prev) =>
             prev.filter((p) => p.product.id !== ProductID)
           );
 
           notify({
-            message: msg,
+            message: err.message,
             type: "warning",
           });
         }
-      } catch (err: any) {
-        console.log(err);
       }
     } else {
       let guest = item as LikeProductType;
-      await AddCartProductGuest(guest.product);
-      await RemoveLikeProduct(guest.product.id);
+      AddCartProductGuest(guest.product);
+      RemoveGuestLikeProduct(guest.product.id);
     }
   };
 
@@ -168,25 +163,29 @@ export default function Page() {
     if (user) {
       let User = item as UserLikeItem;
       let productId = getProductId(User.product);
-      let res = await RemoveLikeProduct(productId);
+      try {
+        let res = await RemoveLikeProduct(productId);
 
-      if (res.success == true) {
-        setLikeProductList((prev) =>
-          prev.filter((p) => p.product.id !== productId)
-        );
-        setUserCountData((prev) => ({
-          ...prev,
-          LikeCount: prev.LikeCount - 1,
-        }));
-        toastActions.removeFromWishlist();
+        if (res.success == true) {
+          setLikeProductList((prev) =>
+            prev.filter((p) => p.product.id !== productId)
+          );
+          setUserCountData((prev) => ({
+            ...prev,
+            LikeCount: prev.LikeCount - 1,
+          }));
+          toastActions.removeFromWishlist();
+        }
+      } catch (err: any) {
+        notify({
+          message: err?.message,
+          type: "warning",
+        });
       }
     } else {
       let GuestLike = item as LikeProductType;
-      let res = await RemoveLikeProduct(GuestLike.product.id);
-
-      if (res.success == true) {
-        toastActions.removeFromWishlist();
-      }
+      RemoveGuestLikeProduct(GuestLike.product.id);
+      toastActions.removeFromWishlist();
     }
   };
 
@@ -306,7 +305,7 @@ export default function Page() {
                       <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
                         <button
                           onClick={() => {
-                            item.product.stock > 0 && addToCartHandle(item);
+                            addToCartHandle(item);
                           }}
                           className={`w-full py-2.5 border ${
                             item.product.stock === 0
@@ -318,8 +317,6 @@ export default function Page() {
                         >
                           {loading ? (
                             <Image alt={item.name ?? "Loading"} src={Loader} />
-                          ) : item.product.stock === 0 ? (
-                            " Out of Stock"
                           ) : (
                             "Add to Cart"
                           )}

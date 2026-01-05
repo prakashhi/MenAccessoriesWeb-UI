@@ -3,12 +3,14 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import HeroProvider from "./HeroProvider";
-import { SearchPanelContextProvider } from "@/context/Context";
+import { UserContextProvider } from "@/context/Context";
 
 import { UserLikeContextProvider } from "@/context/UserLikeContext";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { UserCartContextProvider } from "@/context/UserCartContext";
+import { GuestUserContextProvider } from "@/context//GuestUserContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,9 +47,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <HeroProvider>
-          <SearchPanelContextProvider>
-            <UserLikeContextProvider>{children}</UserLikeContextProvider>
-          </SearchPanelContextProvider>
+          <UserContextProvider>
+            <UserLikeContextProvider>
+              <UserCartContextProvider>
+                <GuestUserContextProvider>{children}</GuestUserContextProvider>
+              </UserCartContextProvider>
+            </UserLikeContextProvider>
+          </UserContextProvider>
 
           <ToastContainer
             position="top-center"

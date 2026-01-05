@@ -19,14 +19,18 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { getProductId } from "@/utils/getProductId";
 import { useUserLike } from "@/context/UserLikeContext";
+import { useUserCart } from "@/context/UserCartContext";
 
 export default function Product() {
   const userData = useMemo(() => getUserFromStorage(), []);
+
   const { callApi } = useApi();
 
-  const { CartProductList, setUserCountData, refreshKey } = UsePanel();
+  const { setUserCountData, refreshKey } = UsePanel();
 
   const { LikeProductList } = useUserLike();
+
+  const { CartProductList } = useUserCart();
 
   const router = useRouter();
 
@@ -48,11 +52,11 @@ export default function Product() {
 
     if (userData) {
       const [cart, like] = await Promise.allSettled([
-        await CartProductList(userData.id),
-        await LikeProductList(userData.id),
+        CartProductList(userData.id),
+        LikeProductList(userData.id),
       ]);
 
-      console.log("likeCart", like, cart);
+  
       const LikeData = like.status == "fulfilled" ? like.value?.data ?? [] : [];
       const CartData = cart.status == "fulfilled" ? cart.value?.data ?? [] : [];
 
@@ -84,7 +88,7 @@ export default function Product() {
     }
   }, []);
 
-   console.log(state)
+  // console.log(state);
 
   const observeSection = useCallback(
     (index: number) => (el: HTMLDivElement | null) => {
@@ -162,7 +166,7 @@ export default function Product() {
               </div>
 
               <Link
-                href={`/Category/${categoryItem.id}`}
+                href={`/category/${categoryItem.id}`}
                 className="
                 inline-flex items-center justify-center
                 px-6 py-2.5
@@ -184,7 +188,7 @@ export default function Product() {
                 {/* CATEGORY IMAGE */}
                 <div
                   onClick={() => {
-                    router.replace(`/Category/${categoryItem.id}`);
+                    router.replace(`/category/${categoryItem.id}`);
                   }}
                   className="group relative items-center
                     w-full lg:w-[300px] xl:w-[340px]
