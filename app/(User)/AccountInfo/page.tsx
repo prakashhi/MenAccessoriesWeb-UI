@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { FiUser, FiClipboard, FiLogOut, FiChevronRight } from "react-icons/fi";
+import {
+  FiUser,
+  FiClipboard,
+  FiLogOut,
+  FiChevronRight,
+  FiMapPin,
+} from "react-icons/fi";
 import Nav from "@/Component/NavBar/Nav";
 import { useApi } from "@/app/useApi";
 import { useRouter } from "next/navigation";
@@ -14,6 +20,7 @@ import {
   OrderType,
   UserGetDetailType,
   OrderProductLisType,
+  UserAddressListType,
 } from "@/Type/UserDetailType";
 
 import { LikeProductType } from "@/Type/LikeType";
@@ -23,6 +30,8 @@ import { UsePanel } from "@/context/Context";
 import ContentRenderer from "@/app/(User)/accountInfo/Component/ContentRenderComponent";
 import { useUserCart } from "@/context/UserCartContext";
 import { useUserLike } from "@/context/UserLikeContext";
+
+import { accountInfoStateType } from "@/Type/Types";
 
 export default function AccountSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
@@ -37,9 +46,9 @@ export default function AccountSection() {
 
   const router = useRouter();
 
-  const [user, setUserData] = useState({
-    info: {} as UserGetDetailType | null,
-    OrderList: [] as OrderProductLisType[] | [],
+  const [user, setUserData] = useState<any>({
+    info: null,
+    OrderList: [],
     addersList: [],
   });
 
@@ -57,6 +66,11 @@ export default function AccountSection() {
   const menu = [
     { key: "info", label: "Personal Information", icon: <FiUser size={18} /> },
     { key: "orders", label: "My Orders", icon: <FiClipboard size={18} /> },
+    {
+      key: "Addresses",
+      label: "Addresses",
+      icon: <FiMapPin className="mt-1 shrink-0" />,
+    },
     {
       key: "logout",
       label: "Logout",
@@ -113,8 +127,6 @@ export default function AccountSection() {
       mounted = false;
     };
   }, [UserRefreshKey]);
-
-  console.log(user);
 
   return (
     <>

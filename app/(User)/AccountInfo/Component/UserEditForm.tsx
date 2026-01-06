@@ -176,14 +176,14 @@ export default function UserEditForm({
           )}
         </div> */}
         {/* ADDRESS */}
-        <div className="sm:col-span-2">
+        {/* <div className="sm:col-span-2">
           <label className="text-sm text-gray-500">Address</label>
           <textarea
             rows={3}
             {...register("address")}
             className="profile-input"
           />
-        </div>
+        </div> */}
         <div className="sm:col-span-2">
           <CountryField
             register={register}

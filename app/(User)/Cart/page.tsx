@@ -243,25 +243,35 @@ export default function Page() {
       if (!user || !user.id) {
         router.push("/login");
       } else {
-        let res = await callApi("get", `/user/${user.id}`);
+        let res = await callApi(
+          "get",
+          `/9rock/users/4d2a0f6d-6808-480d-b78d-91852f8ac2e6`
+        );
         let isCheck = userDataCheck(res.data);
 
-        if (isCheck.length > 0) {
-          setFields(isCheck);
-          setOpenModel((prev) => ({
-            ...prev,
-            FillForm: true,
-            PaymentMethodModel: false,
-            PaymentSuccessModel: false,
-            PaymentFailModel: false,
-          }));
-        } else {
-          setOpenModel((prev) => ({
-            ...prev,
-            PaymentMethodModel: true,
-            // PaymentFailModel: true,
-          }));
-        }
+        // if (isCheck.length > 0) {
+        //   setFields(isCheck);
+        //   setOpenModel((prev) => ({
+        //     ...prev,
+        //     FillForm: true,
+        //     PaymentMethodModel: false,
+        //     PaymentSuccessModel: false,
+        //     PaymentFailModel: false,
+        //   }));
+        // } else {
+        //   setOpenModel((prev) => ({
+        //     ...prev,
+        //     PaymentMethodModel: true,
+        //     // PaymentFailModel: true,
+        //   }));
+
+        // }
+
+        setOpenModel((prev) => ({
+          ...prev,
+          PaymentMethodModel: true,
+          // PaymentFailModel: true,
+        }));
       }
     } catch (err) {
       console.log(err);
@@ -348,7 +358,7 @@ export default function Page() {
                   <span>Tax</span>
                   <span className="font-semibold text-sm">
                     ₹
-                    {Math.floor(
+                    {Math.ceil(
                       ((total + ShippingCharge) * TaxPercentage) / 100
                     )}
                     .00

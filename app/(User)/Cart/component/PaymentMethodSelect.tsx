@@ -81,7 +81,7 @@ export function PaymentModeSelector({
       const productsList: ProductsListAPi[] = List.reduce((acc, val) => {
         const { product, quantity, variantSize } = val;
         if (!product || quantity <= 0) return acc;
-        const price = Number(product.productPrice);
+        const price = Number(product.productPrice)   * 10;
         acc.push({
           productId: product.productId,
           productName: product.productName,
@@ -92,7 +92,7 @@ export function PaymentModeSelector({
           quantity,
           price,
           totalPrice: quantity * price,
-          variantSize: variantSize.variantSizeId ?? null,
+          variantSize: variantSize?.variantSizeId ?? null,
         });
 
         return acc;
@@ -107,10 +107,10 @@ export function PaymentModeSelector({
               salesDate: date,
               invoiceId: generateOrderId("INVOICE"),
               orderId: generateOrderId("ORD"),
-              totalPrice: Math.floor(PaymentAmount),
+              totalPrice: Math.ceil(PaymentAmount),
               totalQuantity: TotalQty,
               totalDiscount: 0,
-              totalTax: Math.floor(((TotalPrice + shipping) * tax) / 100),
+              totalTax: Math.ceil(((TotalPrice + shipping) * tax) / 100),
               shippingFee: shipping,
               salesStatus: "PENDING",
               source: "OFFLINE",
@@ -119,8 +119,8 @@ export function PaymentModeSelector({
             payments: {
               transactionId: generateOrderId("TRAN"),
               paymentMethod: "CASH",
-              // paymentStatus: "PENDING",
-              paymentAmount: Math.floor(PaymentAmount),
+              paymentStatus: "PENDING",
+              paymentAmount: Math.ceil(PaymentAmount),
               razorpayOrderId: null,
               razorpayPaymentId: null,
               razorpaySignature: null,
@@ -128,15 +128,15 @@ export function PaymentModeSelector({
             },
             customer: {
               customerType: "RETAIL_CUSTOMER",
-              customerName: user.userName,
-              customerEmail: user.email,
-              customerPhone: user.contactNumber,
-              customerAddress: user.address,
-              customerState: user.state,
-              customerPinCode: user.pinCode,
-              customerCountry: user.country,
-              customerCountryCode: user.countryCode,
-              customerId: user.id,
+              customerName: "Prakash",
+              customerEmail: "p@gmail.com",
+              customerPhone: "4322543",
+              customerAddress: "dferew",
+              customerState: "gujrata",
+              customerPinCode: "434",
+              customerCountry: "inida",
+              customerCountryCode: "+91",
+              customerId: null,
               customerGSTIN: null,
               customerGSTAddress: null,
             },

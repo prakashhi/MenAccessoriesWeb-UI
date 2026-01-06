@@ -10,6 +10,7 @@ import { useApi } from "@/app/useApi";
 import { useCallback, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Data, ProductInfoType } from "@/Type/ProductType";
+import axios from "axios";
 
 export default function Page() {
   const params = useParams();
@@ -18,10 +19,19 @@ export default function Page() {
   const [data, setData] = useState<ProductInfoType[]>([]);
 
   const getData = useCallback(async () => {
-    const res = await callApi(
-      "get",
-      `/product-category-list?id=${params.CategotyId}&limit=100&offset=0`
-    );
+    // const res = await axios.get('http//localhost:3005/9rock/get-products', {
+    //   params : {
+    //     categoryIds : ["a5834d51-f02b-468c-912f-050e1d3fa6e1"]
+    //   }
+    // })/
+
+    const res = await callApi("get" , "/9rock/get-products", {
+        params : {
+        categoryIds : [`${process.env.NEXT_PUBLIC_MENS_CAT_ID}`]
+      }
+    })
+
+     console.log("res",res)
     setData(res.data);
   }, []);
 

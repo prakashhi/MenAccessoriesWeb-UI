@@ -1,6 +1,9 @@
 import { LikeProductType } from "./LikeType";
 import { CartItem } from "./CartType";
 
+import { UserGetDetailType, UserAddressListType } from "./UserDetailType";
+import { OrderProductLisType, OrderDetailType } from "./UserDetailType";
+
 export type Data = {
   CartData: Record<string, CartItem>;
   LikeData: Record<string, LikeProductType>;
@@ -27,4 +30,10 @@ export type PromiseSettledResult<T> =
 export type CountStateType = {
   LikeCount: number;
   CartCount: number;
+};
+
+export type accountInfoStateType = {
+  info: UserGetDetailType | null;
+  OrderList: OrderDetailType[];
+  AddressList: UserAddressListType[];
 };

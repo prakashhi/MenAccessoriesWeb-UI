@@ -153,3 +153,35 @@ export type EditUserObjType = {
   contactNumber: string;
   email: string;
 };
+
+export type UserAddressListType = {
+  id: string;
+  ninerockUserId: string;
+  idkUserId: string | null;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  pinCode: string;
+  country: string;
+  countryCode: string;
+  contactNumber: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+};
+
+export type CreateAddressPostObjType = {
+  // ninerockUserId: string;
+  idkUserId?: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  pinCode: string;
+  country: string;
+  countryCode: string;
+  contactNumber: string;
+  email: string;
+};
