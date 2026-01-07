@@ -2,46 +2,30 @@ import { useState } from "react";
 
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import {
-  OrderDetailType,
-  UserAddressListType,
-  UserGetDetailType,
-} from "@/Type/UserDetailType";
+import { OrderDetailType, UserAddressListType } from "@/Type/UserDetailType";
 import UserEditForm from "@/app/(User)/accountInfo/Component/UserEditForm";
 import { Pencil } from "lucide-react";
-import ChangePassword from "@/app/(User)/accountInfo/Component/ChangePassword";
-import {
-  FiUser,
-  FiHeart,
-  FiClipboard,
-  FiLogOut,
-  FiChevronRight,
-  FiMail,
-  FiMapPin,
-  FiPhone,
-} from "react-icons/fi";
+import { FiUser, FiMail, FiPhone } from "react-icons/fi";
 import OrderDetailModel from "@/app/(User)/accountInfo/Component/OrderDetailModel";
 
 import OrderListComponent from "@/app/(User)/accountInfo/Component/OrderListComponent";
-
-import { FiPlusCircle } from "react-icons/fi";
 import AddressShowProfileModel from "./addressShowProfileModel";
 
-import AddressShowEditModel from "./AddressShowEditModel";
 import { useForm } from "react-hook-form";
 import CreateEditConfigAddressForm from "./CreateEditConfigAddressForm";
+import { UsePanel } from "@/context/Context";
 
 type IconType = "📭";
 
 export default function ContentRenderer({
   keyname,
-  user,
   onLogout,
 }: {
   keyname: string;
-  user: any;
   onLogout: () => void;
 }) {
+  const { userDataContext } = UsePanel();
+  const user = userDataContext;
   const {
     register,
     watch,
@@ -60,7 +44,9 @@ export default function ContentRenderer({
   const [isOpen, setIsOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
 
-  const [editAddressData, setEditAddressData] = useState<UserAddressListType>();
+  const [editAddressData, setEditAddressData] = useState<UserAddressListType>(
+    {}
+  );
   const [selectOrderDetail, setSelectOrderDetail] = useState<OrderDetailType>(
     {}
   );
@@ -69,15 +55,13 @@ export default function ContentRenderer({
     AddressDetailEdit: false,
   });
 
-  console.log(editAddressData);
-
   const router = useRouter();
   /* ---------------- INFO ---------------- */
   if (keyname === "info") {
     return (
       <>
         {modelState.EditAddressModel == false && (
-          <section>
+          <section className="flex flex-col gap-5">
             <div className="flex flex-col gap-3 lg:mb-5 mb-6 lg:items-center  sm:flex-row sm:items-center sm:justify-between">
               <h3 className="text-xl font-semibold ">
                 {editOpen == true
@@ -99,8 +83,8 @@ export default function ContentRenderer({
 
             {editOpen == true ? (
               <UserEditForm user={user} onClose={() => setEditOpen(false)} />
-            ) : isOpen == false ? (
-              <div className="grid sm:grid-cols-2 gap-4">
+            ) : (
+              <div className="grid sm:grid-cols-2 justify-center-safe gap-4">
                 {/* NAME */}
                 <div>
                   <label className="text-sm text-gray-500">Full name</label>
@@ -130,16 +114,6 @@ export default function ContentRenderer({
                   </div>
                 </div>
 
-                {/* <AddressShowProfileModel
-                  openCreateAddressModel={() =>
-                    setModelState((prev) => ({
-                      ...prev,
-                      EditAddressModel: true,
-                    }))
-                  }
-                  user={user}
-                /> */}
-
                 {/* CREATED AT */}
                 <div className="w-full">
                   <label className="text-sm text-gray-500">Joined On</label>
@@ -150,30 +124,10 @@ export default function ContentRenderer({
                     </div>
                   </div>
                 </div>
-                <div className="pt-5">
-                  <span
-                    className="underline text-sm text-blue-700 cursor-pointer"
-                    onClick={() => setIsOpen((prev) => !prev)}
-                  >
-                    Change Password
-                  </span>
-                </div>
               </div>
-            ) : (
-              <ChangePassword onClose={() => setIsOpen(false)} />
             )}
           </section>
         )}
-
-        {/* {modelState.EditAddressModel == true && (
-          <CreateEditConfigAddressForm
-            userData={user.info}
-            onClose={() =>
-              setModelState((prev) => ({ ...prev, EditAddressModel: false }))
-            }
-            typeOperation={"Create"}
-          />
-        )} */}
       </>
     );
   }
@@ -223,13 +177,17 @@ export default function ContentRenderer({
                 }))
               }
               setEditAddressData={(value) => setEditAddressData(value)}
-              user={user}
+              openEditAddressModel={() =>
+                setModelState((prev) => ({
+                  ...prev,
+                  AddressDetailEdit: true,
+                }))
+              }
             />
           )}
 
         {modelState.EditAddressModel == true && (
           <CreateEditConfigAddressForm
-            userData={user.info}
             onClose={() =>
               setModelState((prev) => ({ ...prev, EditAddressModel: false }))
             }
@@ -239,11 +197,11 @@ export default function ContentRenderer({
 
         {modelState.AddressDetailEdit === true && (
           <CreateEditConfigAddressForm
-            userData={editAddressData}
+            EditAddersData={editAddressData}
             onClose={() =>
-              setModelState((prev) => ({ ...prev, EditAddressModel: false }))
+              setModelState((prev) => ({ ...prev, AddressDetailEdit: false }))
             }
-            typeOperation={"Create"}
+            typeOperation={"Edit"}
           />
         )}
       </>

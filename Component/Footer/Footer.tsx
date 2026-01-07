@@ -1,4 +1,3 @@
-
 import SocialIcons from "./IconsComponet";
 import ContactComponent from "./ContectComponet";
 export default function Footer() {
@@ -48,21 +47,21 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-3">Support</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>
+              {/* <li>
                 <a href="#" className="hover:text-black transition">
                   FAQs
                 </a>
-              </li>
+              </li> */}
               <li>
-                <a href="#" className="hover:text-black transition">
+                <a href="/accountInfo" className="hover:text-black transition">
                   Order Tracking
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a href="#" className="hover:text-black transition">
                   Shipping & Returns
                 </a>
-              </li>
+              </li> */}
               <li>
                 <a href="#" className="hover:text-black transition">
                   Contact Us

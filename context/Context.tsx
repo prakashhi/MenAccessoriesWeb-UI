@@ -67,7 +67,8 @@ export type UserContextType = {
   ) => Promise<ApiResponse<UserAddressListType>>;
 
   EditUserAddress: (
-    addressId: string
+    addressId: string,
+    EditAddressObj: CreateAddressPostObjType
   ) => Promise<ApiResponse<APiNoDataREsponse>>;
 
   DeleteAddressProfile: (
@@ -90,6 +91,7 @@ export const UsePanel = (): UserContextType => {
 };
 
 export function UserContextProvider({ children }: { children: ReactNode }) {
+  const userData = getUserFromStorage();
   const { callApi, loading } = useApi();
   const [mounted, setMounted] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -160,6 +162,25 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  //ProductRelated Function
+  const catalogProducts = async () => {
+    try {
+      await callApi("get", `/rockroar/catalog`);
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
+  };
+
+  // const MenCategoryList = () =>
+  // {
+  //   try{
+
+  //   }
+  // }
+
   //Address Functions
   const GetAllUserAddress = async (
     userid: string
@@ -191,10 +212,13 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   const EditUserAddress = async (
-    addressId: string
+    addressId: string,
+    EditAddressObj: CreateAddressPostObjType
   ): Promise<ApiResponse<APiNoDataREsponse>> => {
     try {
-      return await callApi("put", `/9rock/users/address/${addressId}`);
+      return await callApi("put", `/9rock/users/address/${addressId}`, {
+        data: EditAddressObj,
+      });
     } catch (error: any) {
       throw {
         message: error?.response?.data?.message || "Something is wrong",
@@ -220,35 +244,9 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  const UserDetailsGlobalFunction = async (userId: string) => {
-    try {
-      let [profileData, OrderList, address] = await Promise.all([
-        GetUserData(userId),
-        GetUserOrderList(userId),
-        GetAllUserAddress(userId),
-      ]);
-
-      if (!mounted) return;
-
-      console.log(profileData, OrderList, address);
-
-      let ProfileData =
-        profileData.success && profileData.data ? profileData.data : null;
-      let OrderData = OrderList.success && OrderList.data ? OrderList.data : [];
-      let AddressData = address.success && address.data ? address.data : [];
-
-      setUserDataContext({
-        info: ProfileData,
-        OrderList: OrderData,
-        AddressList: AddressData,
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
     if (!mounted) return;
+
     const userData = getUserFromStorage();
 
     const LoadCountData = async () => {
@@ -278,13 +276,45 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
           LikeCount: likeCount,
           CartCount: cartCount,
         }));
-
-        await UserDetailsGlobalFunction(userData.id);
       }
     };
 
     LoadCountData();
-  }, [mounted]);
+  }, [mounted, refreshKey, UserRefreshKey]);
+
+  useEffect(() => {
+    const UserDetailsGlobalFunction = async (userId: string) => {
+      try {
+        let [profileData, OrderList, address] = await Promise.all([
+          GetUserData(userId),
+          GetUserOrderList(userId),
+          GetAllUserAddress(userId),
+        ]);
+
+        if (!mounted) return;
+
+        console.log(profileData, OrderList, address);
+
+        let ProfileData =
+          profileData.success && profileData.data ? profileData.data : null;
+        let OrderData =
+          OrderList.success && OrderList.data ? OrderList.data : [];
+        let AddressData = address.success && address.data ? address.data : [];
+
+        setUserDataContext({
+          info: ProfileData,
+          OrderList: OrderData,
+          AddressList: AddressData,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (userData) {
+      UserDetailsGlobalFunction(userData.id);
+    }
+  }, [mounted, UserRefreshKey]);
 
   return (
     <UserContext.Provider

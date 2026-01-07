@@ -5,21 +5,21 @@ import Link from "next/link";
 
 export default function SocialIcons() {
   const icons = [
-    {
-      Icon: Facebook,
-      label: "Facebook",
-      link: "https://www.facebook.com/9rockamd/",
-    },
+    // {
+    //   Icon: Facebook,
+    //   label: "Facebook",
+    //   link: "https://www.facebook.com/9rockamd/",
+    // },
     {
       Icon: Instagram,
       label: "Instagram",
-      link: "https://www.instagram.com/9rockstudio/",
+      link: "https://www.instagram.com/9rockroars/",
     },
-    {
-      Icon: Linkedin,
-      label: "LinkedIn",
-      link: "https://www.linkedin.com/company/9rock/about/",
-    },
+    // {
+    //   Icon: Linkedin,
+    //   label: "LinkedIn",
+    //   link: "https://www.linkedin.com/company/9rock/about/",
+    // },
     {
       Icon: MessageCircle,
       label: "WhatsApp",

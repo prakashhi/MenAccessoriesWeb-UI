@@ -12,7 +12,6 @@ import PictureGallery from "./Component/PictureGallery";
 import { useApi } from "@/app/useApi";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-import ProductDescription from "./Component/ProductDescription";
 import { formatIndianPrice } from "@/utils/FormatCurrency";
 
 import { AnimatePresence } from "framer-motion";

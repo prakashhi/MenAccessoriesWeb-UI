@@ -25,26 +25,6 @@ export default function OptionComponent({
     ],
   });
 
-  // useEffect(() => {
-  //   const getFilterData = async () => {
-  //     const [subCategoryRes, materialRes] = await Promise.all([
-  //       // callApi(
-  //       //   "get",
-  //       //   `/product/subcategories?id=cfe77101-77f5-4811-9cdc-186ba9af9279&page=1&limit=100`
-  //       // ),
-  //       callApi("get", `/material-list?page=1&limit=10`),
-  //     ]);
-
-  //     // setState((prev) => ({
-  //     //   ...prev,
-  //     //   subCategories: subCategoryRes?.data,
-  //     //   materials: materialRes?.data,
-  //     // }));
-  //   };
-
-  //   getFilterData();
-  // }, []);
-
   const toggle = (index: number) => {
     setOpen((prev) => ({ ...prev, [index]: !prev[index] }));
   };

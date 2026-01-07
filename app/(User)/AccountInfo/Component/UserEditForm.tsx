@@ -2,13 +2,14 @@
 
 import { useForm } from "react-hook-form";
 
-import CountryField from "@/app/(User)/register/Component/CountryFiledComponent";
 import API from "@/app/api";
 import { notify } from "@/Component/ToastComponent";
 import Loader from "@/public/svg/tube-spinner.svg";
 import Image from "next/image";
 import { setAuthData } from "@/utils/localStorageUtil";
 import { UsePanel } from "@/context/Context";
+import { useMemo } from "react";
+import { getUserFromStorage } from "@/context/utils";
 
 type FormValues = {
   userFirstName: string;
@@ -39,7 +40,11 @@ export default function UserEditForm({
     },
   });
 
-  const { UserTrigger } = UsePanel();
+  getUserFromStorage;
+
+  const userData = useMemo(() => getUserFromStorage(), []);
+
+  const { UserTrigger, EditUserDetail, userDataContext } = UsePanel();
 
   const onSubmit = async (data: FormValues) => {
     if (!isDirty) {
@@ -49,32 +54,23 @@ export default function UserEditForm({
       });
       return;
     }
-    const formData = new FormData();
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (!value) return;
-      if (key === "profileImage") {
-        formData.append(key, value[0]);
-      } else {
-        formData.append(key, value as string);
-      }
-    });
 
     try {
-      let res = await API.patch(`/user/${user.info.id}`, formData);
+      let res = await EditUserDetail(userData.id, data);
 
-      if (res.status == 200) {
+      console.log("res", res);
+      if (res.success == true) {
         notify({
           message: "User Edited Successfully",
           type: "success",
         });
 
-        localStorage.removeItem("UserData");
-        setAuthData(
-          "UserData",
-          JSON.stringify(res.data.data),
-          24 * 60 * 60 * 1000
-        );
+        // localStorage.removeItem("UserData");
+        // setAuthData(
+        //   "UserData",
+        //   JSON.stringify(res.data.data),
+        //   24 * 60 * 60 * 1000
+        // );
         //localStorage.setItem("UserData", JSON.stringify(res.data.data));
         UserTrigger();
         onClose();
@@ -156,46 +152,6 @@ export default function UserEditForm({
               {errors.contactNumber.message}
             </p>
           )}
-        </div>
-        {/* PIN CODE */}
-        {/* <div>
-          <label className="text-sm text-gray-500">Pin Code</label>
-          <input
-            {...register("pinCode", {
-              pattern: {
-                value: /^[A-Za-z0-9\s-]{3,10}$/,
-                message: "Enter valid postal / zip code",
-              },
-            })}
-            className="profile-input"
-          />
-          {errors.pinCode && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.pinCode.message}
-            </p>
-          )}
-        </div> */}
-        {/* ADDRESS */}
-        {/* <div className="sm:col-span-2">
-          <label className="text-sm text-gray-500">Address</label>
-          <textarea
-            rows={3}
-            {...register("address")}
-            className="profile-input"
-          />
-        </div> */}
-        <div className="sm:col-span-2">
-          <CountryField
-            register={register}
-            watch={watch}
-            setValue={setValue}
-            grid={{
-              country: "col-span-6",
-              state: "col-span-6",
-              code: "col-span-6",
-              label: "col-span-6",
-            }}
-          />
         </div>
         {/* ACTION BUTTONS */}
         <div className="sm:col-span-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6">

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { notify } from "@/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
-import CountryFiled from "@/app/(User)/register/Component/CountryFiledComponent";
+
 import PaymentSuccessModal from "./PaymentSuccessModel";
 import { User } from "@/Type/UserDetailType";
 import API from "@/app/api";

@@ -1,6 +1,6 @@
 "use client";
 
-import { SizeVariant } from "@/app/(User)/Type/Types";
+import { SizeVariant } from "@/Type/ProductType";
 type Props = {
   sizes: SizeVariant[] | null;
   selectedId?: string;

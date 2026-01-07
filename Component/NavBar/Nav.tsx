@@ -14,14 +14,34 @@ import { notify } from "../ToastComponent";
 import { useGuestUser } from "@/context/GuestUserContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { useUserLike } from "@/context/UserLikeContext";
+import MobileNumberLogin from "../CommonComponet/LoginModel/login";
+import { Button } from "@heroui/react";
+import OTPModal from "../CommonComponet/LoginModel/OTPFill";
+import UserCreateForm from "../CommonComponet/UserCreateFrom/UserCreateForm";
 
 type length = {
   likeProductLength: number;
   CartProductLength: number;
 };
 
+export type mobileConfigType = {
+  mobileNumber: string;
+  CountryCode: string;
+};
+
 export default function Nav() {
-  const { triggerRefresh, userCountData } = UsePanel();
+  const { triggerRefresh, userCountData, userDataContext } = UsePanel();
+
+  const [stateModel, setStateModel] = useState({
+    LoginModel: false,
+    OTPFillModel: false,
+    UserCreateModel: false,
+  });
+
+  const [mobileConfig, setMobileConfig] = useState<mobileConfigType>({
+    mobileNumber: "",
+    CountryCode: "",
+  });
 
   const { GuestUserDataLength } = useGuestUser();
 
@@ -201,74 +221,119 @@ export default function Nav() {
   const shouldHide = isMobile && searchOpen;
 
   return (
-    <nav className="w-full sticky top-0 z-50 bg-white shadow-md">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-3  py-4">
-        {/* Logo */}
+    <>
+      <nav className="w-full sticky top-0 z-50 bg-white shadow-md">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-3  py-4">
+          {/* Logo */}
 
-        <div className={`${shouldHide ? "hidden" : ""} flex-1`}>
-          <Link
-            href="/"
-            className="lg:text-4xl text-medium font-serif tracking-widest text-black cursor-pointer"
-          >
-            RockRoars
-          </Link>
-        </div>
-
-        {/* Icons */}
-        <div className="flex items-center gap-4">
-          {searchOpen ? (
-            <SearchInput onClose={() => setSearchOpen(false)} />
-          ) : (
-            <motion.div
-              key="search-icon"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{
-                duration: 0.3,
-                ease: [0.22, 1, 0.36, 1],
-              }}
+          <div className={`${shouldHide ? "hidden" : ""} flex-1`}>
+            <Link
+              href="/"
+              className="lg:text-4xl text-medium font-serif tracking-widest text-black cursor-pointer"
             >
-              <Search
-                onClick={() => setSearchOpen(true)}
+              RockRoars
+            </Link>
+          </div>
+
+          {/* Icons */}
+          <div className="flex items-center gap-4">
+            {searchOpen ? (
+              <SearchInput onClose={() => setSearchOpen(false)} />
+            ) : (
+              <motion.div
+                key="search-icon"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{
+                  duration: 0.3,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                <Search
+                  onClick={() => setSearchOpen(true)}
+                  size={20}
+                  className="text-gray-700 cursor-pointer hover:text-black transition-colors"
+                />
+              </motion.div>
+            )}
+
+            <Link className="relative" href="/wishlist">
+              {state.likeProductLength > 0 && (
+                <div className="absolute -top-1 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] flex justify-center items-center">
+                  {state.likeProductLength}
+                </div>
+              )}
+              <Heart
                 size={20}
-                className="text-gray-700 cursor-pointer hover:text-black transition-colors"
+                className="text-gray-700 hover:text-red-500 transition-colors"
               />
-            </motion.div>
-          )}
+            </Link>
 
-          <Link className="relative" href="/wishlist">
-            {state.likeProductLength > 0 && (
-              <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
-                {state.likeProductLength}
-              </div>
+            {userDataContext.info ? (
+              <Link href={"/accountInfo"}>
+                <User
+                  size={20}
+                  className="text-gray-700 hover:text-black transition-colors cursor-pointer"
+                />
+              </Link>
+            ) : (
+              <button
+                onClick={() =>
+                  setStateModel((prev) => ({ ...prev, LoginModel: true }))
+                }
+                className="flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-gray-700 hover:text-black transition-colors"
+              >
+                Login
+              </button>
             )}
-            <Heart
-              size={20}
-              className="text-gray-700 hover:text-red-500 transition-colors"
-            />
-          </Link>
 
-          <Link href={"/accountInfo"}>
-            <User
-              size={20}
-              className="text-gray-700 hover:text-black transition-colors cursor-pointer"
-            />
-          </Link>
-
-          <Link className="relative" href="/cart">
-            {state.CartProductLength > 0 && (
-              <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
-                {state.CartProductLength}
-              </div>
-            )}
-            <ShoppingBag
-              size={20}
-              className="text-gray-700 hover:text-black transition-colors"
-            />
-          </Link>
+            <Link className="relative" href="/cart">
+              {state.CartProductLength > 0 && (
+                <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
+                  {state.CartProductLength}
+                </div>
+              )}
+              <ShoppingBag
+                size={20}
+                className="text-gray-700 hover:text-black transition-colors"
+              />
+            </Link>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {stateModel.LoginModel == true && (
+        <MobileNumberLogin
+          open={stateModel.LoginModel}
+          onClose={() =>
+            setStateModel((prev) => ({ ...prev, LoginModel: false }))
+          }
+          onConfirm={(mobile, code) => {
+            setMobileConfig((prev) => ({
+              ...prev,
+              mobileNumber: mobile,
+              CountryCode: code,
+            }));
+            setStateModel((prev) => ({ ...prev, OTPFillModel: true }));
+          }}
+        />
+      )}
+
+      {stateModel.OTPFillModel === true && (
+        <OTPModal
+          open={stateModel.OTPFillModel}
+          mobileData={mobileConfig}
+          onClose={() =>
+            setStateModel((prev) => ({ ...prev, OTPFillModel: false }))
+          }
+          onIfUserCreate={() =>
+            setStateModel((prev) => ({ ...prev, UserCreateModel: true }))
+          }
+        />
+      )}
+
+      {stateModel.UserCreateModel == true && <UserCreateForm />}
+    </>
   );
 }

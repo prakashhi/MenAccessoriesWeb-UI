@@ -9,59 +9,29 @@ import {
   FiMapPin,
 } from "react-icons/fi";
 import Nav from "@/Component/NavBar/Nav";
-import { useApi } from "@/app/useApi";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 import { notify } from "@/Component/ToastComponent";
 import { getUserFromStorage } from "@/context/utils";
-import {
-  User,
-  OrderType,
-  UserGetDetailType,
-  OrderProductLisType,
-  UserAddressListType,
-} from "@/Type/UserDetailType";
-
-import { LikeProductType } from "@/Type/LikeType";
 
 import { UsePanel } from "@/context/Context";
 
 import ContentRenderer from "@/app/(User)/accountInfo/Component/ContentRenderComponent";
-import { useUserCart } from "@/context/UserCartContext";
-import { useUserLike } from "@/context/UserLikeContext";
-
-import { accountInfoStateType } from "@/Type/Types";
+import DesktopContentRenderComponent from "./Component/DesktopContentRenderComponent";
 
 export default function AccountSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
   const [active, setActive] = useState<string>("info");
 
-  const { UserRefreshKey, GetUserData, GetUserOrderList, GetAllUserAddress } =
+  const { UserRefreshKey, userDataContext, UserTrigger, triggerRefresh } =
     UsePanel();
 
-  const { callApi } = useApi();
+  const [open, setOpen] = useState<{ [k: string]: boolean }>({ info: true });
 
-  const { LikeProductList } = useUserLike();
+  const user = userDataContext;
 
   const router = useRouter();
-
-  const [user, setUserData] = useState<any>({
-    info: null,
-    OrderList: [],
-    addersList: [],
-  });
-
-  // Logout handler (sample)
-  const handleLogout = async () => {
-    localStorage.clear();
-    notify({
-      message: "Log Out Successfully",
-      type: "info",
-    });
-
-    router.replace("/login");
-  };
 
   const menu = [
     { key: "info", label: "Personal Information", icon: <FiUser size={18} /> },
@@ -79,7 +49,18 @@ export default function AccountSection() {
     },
   ];
 
-  const [open, setOpen] = useState<{ [k: string]: boolean }>({ info: true });
+  // Logout handler (sample)
+  const handleLogout = async () => {
+    localStorage.clear();
+    notify({
+      message: "Log Out Successfully",
+      type: "info",
+    });
+
+    router.replace("/");
+    UserTrigger();
+    triggerRefresh();
+  };
 
   const toggle = (key: string) => {
     setOpen((p) => ({ ...p, [key]: !p[key] }));
@@ -95,34 +76,6 @@ export default function AccountSection() {
     }
 
     let mounted = true;
-
-    const GetProfileData = async () => {
-      try {
-        let [profileData, OrderList, address] = await Promise.all([
-          GetUserData(userId),
-          GetUserOrderList(userId),
-          GetAllUserAddress(userId),
-        ]);
-
-        if (!mounted) return;
-
-        console.log(profileData, OrderList, address);
-
-        let ProfileData = profileData.success == true && profileData.data;
-        let OrderData = OrderList.success == true && OrderList.data;
-        let AddressData = address.success == true && address.data;
-
-        setUserData({
-          info: ProfileData,
-          OrderList: OrderData,
-          addersList: AddressData,
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    GetProfileData();
-
     return () => {
       mounted = false;
     };
@@ -222,7 +175,6 @@ export default function AccountSection() {
                       <div className="p-4 border-t border-gray-100">
                         <ContentRenderer
                           keyname={m.key}
-                          user={user}
                           onLogout={handleLogout}
                         />
                       </div>
@@ -231,16 +183,10 @@ export default function AccountSection() {
                 ))}
               </div>
 
-              {/* Desktop-only content area */}
-              <div className="hidden lg:block">
-                <div className="mb-6">
-                  <ContentRenderer
-                    keyname={active}
-                    user={user}
-                    onLogout={handleLogout}
-                  />
-                </div>
-              </div>
+              <DesktopContentRenderComponent
+                active={active}
+                handleLogout={handleLogout}
+              />
             </div>
           </div>
         </div>

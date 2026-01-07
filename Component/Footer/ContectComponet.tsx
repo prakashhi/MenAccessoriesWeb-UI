@@ -1,7 +1,6 @@
 import { MapPin, Phone, Mail } from "lucide-react";
 import Link from "next/link";
 
-
 export default function ContactComponent() {
   return (
     <div className="max-w-sm">
@@ -19,7 +18,11 @@ export default function ContactComponent() {
       <ul className="space-y-4 text-[13px] text-gray-600 leading-relaxed">
         {/* ADDRESS */}
         <li className="flex gap-3 items-start">
-          <MapPin size={16} strokeWidth={1.4} className="mt-0.5 text-gray-400" />
+          <MapPin
+            size={16}
+            strokeWidth={1.4}
+            className="mt-0.5 text-gray-400"
+          />
           <span>
             Vasupujya Bungalows, 1, Opp. Bagyashree Apartments,
             <br />

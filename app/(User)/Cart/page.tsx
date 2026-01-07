@@ -2,12 +2,10 @@
 
 import Nav from "@/Component/NavBar/Nav";
 import Footer from "@/Component/Footer/Footer";
-import Image from "next/image";
 import { Button, image } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useState } from "react";
 
-import ItemCount from "./component/ItemCount";
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserFromStorage } from "@/context/utils";
 import { formatIndianPrice, PriceShowFunction } from "@/utils/FormatCurrency";
@@ -20,7 +18,6 @@ import { FiShoppingBag } from "react-icons/fi";
 
 import { useRouter } from "next/navigation";
 import EmptyDataModel from "@/Component/CommonComponet/EmptyDataModel";
-import { ImageShowUtil } from "@/utils/ImageShowUtil";
 
 import { CartItem } from "@/Type/CartType";
 import { ProductInfoType } from "@/Type/ProductType";
@@ -168,24 +165,6 @@ export default function Page() {
       },
     ],
   };
-
-  // const total: number = useMemo(() => {
-  //   if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
-
-  //   if (user) {
-  //     return cartListData.reduce(
-  //       (sum: number, item: any) =>
-  //         sum + Number(item.product?.productPrice) * 10 * Number(item.quantity),
-  //       0
-  //     );
-  //   } else {
-  //     return cartListData.reduce(
-  //       (sum: number, item: any) =>
-  //         sum + Number(item.sellingPrice) * item.quantity,
-  //       0
-  //     );
-  //   }
-  // }, [cartListData, user]);
 
   const TotalQty: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;

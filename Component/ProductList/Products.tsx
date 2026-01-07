@@ -56,7 +56,6 @@ export default function Product() {
         LikeProductList(userData.id),
       ]);
 
-  
       const LikeData = like.status == "fulfilled" ? like.value?.data ?? [] : [];
       const CartData = cart.status == "fulfilled" ? cart.value?.data ?? [] : [];
 
@@ -87,8 +86,6 @@ export default function Product() {
       }));
     }
   }, []);
-
-  // console.log(state);
 
   const observeSection = useCallback(
     (index: number) => (el: HTMLDivElement | null) => {

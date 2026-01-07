@@ -173,7 +173,7 @@ export type UserAddressListType = {
 };
 
 export type CreateAddressPostObjType = {
-  // ninerockUserId: string;
+  ninerockUserId?: string;
   idkUserId?: string;
   addressLine1: string;
   addressLine2: string;

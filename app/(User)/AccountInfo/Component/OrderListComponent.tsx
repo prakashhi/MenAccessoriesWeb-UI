@@ -1,4 +1,4 @@
-import { OrderDetailType } from "@/app/(User)/Type/UserDetailtype";
+import { OrderDetailType } from "@/Type/UserDetailType";
 
 export default function OrderListComponent({
   Data,

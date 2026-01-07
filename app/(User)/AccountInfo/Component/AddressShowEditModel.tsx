@@ -6,7 +6,7 @@ import { CountryListWithState } from "@/utils/CountryListWithState";
 import { ArrowLeft } from "lucide-react";
 import Loader from "@/public/svg/tube-spinner.svg";
 import Image from "next/image";
-import { Button } from "@heroui/react";
+import { Button, Select } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
 
 import { FormValueAddressCreate } from "./CreateEditConfigAddressForm";
@@ -24,6 +24,7 @@ type GridConfig = {
 type Props = {
   register: any;
   watch: any;
+  isDirty: any;
   setValue: any;
   errors?: any;
   grid?: GridConfig;
@@ -31,6 +32,7 @@ type Props = {
   typeOperation: "Create" | "Edit";
   isSubmitting: any;
   handleSubmit: any;
+  EditAddressId: string;
 };
 
 const countryCodeMap = new Map(CountryCode.map((c) => [c.code, c]));
@@ -39,14 +41,17 @@ export default function AddressShowEditModel({
   register,
   watch,
   setValue,
+  isDirty,
   errors,
   grid = {},
   typeOperation,
   onClose,
   isSubmitting,
   handleSubmit,
+  EditAddressId,
 }: Props) {
-  const { CreateUserAddress, UserTrigger } = UsePanel();
+  const { CreateUserAddress, UserTrigger, userDataContext, EditUserAddress } =
+    UsePanel();
   const userData = useMemo(() => getUserFromStorage(), []);
   const countryName = watch("country");
 
@@ -64,9 +69,8 @@ export default function AddressShowEditModel({
 
     const extra = countryCodeMap.get(countryObj.iso2);
 
-    setValue("countryCode", extra?.dial_code || "", { shouldDirty: true });
-    setValue("countryCodeLabel", extra?.code || "", { shouldDirty: true });
-    setValue("state", "", { shouldDirty: true });
+    setValue("countryCode", extra?.dial_code || "", { shouldDirty: false });
+    //  setValue("state", "", { shouldDirty: false });
   }, [countryObj, setValue]);
 
   const states = countryObj?.states || [];
@@ -79,13 +83,12 @@ export default function AddressShowEditModel({
     ...grid,
   };
 
+  console.log(watch("state"), "isDirty", isDirty);
+
   const onSubmit = async (value: FormValueAddressCreate) => {
     if (typeOperation === "Create") {
-      console.log(value);
-
       try {
         let res = await CreateUserAddress(value, userData.id);
-        console.log("res", res);
         if (res.success == true) {
           notify({
             message: "Address Created Successfully",
@@ -101,24 +104,55 @@ export default function AddressShowEditModel({
           type: "warning",
         });
       }
+    } else {
+      if (isDirty == false) {
+        notify({
+          message: "You haven’t made any changes",
+          type: "info",
+        });
+      } else {
+        try {
+          let res = await EditUserAddress(EditAddressId, value);
+          if (res.success == true) {
+            console.log("res", res);
+
+            notify({
+              message: "Address has been updated successfully",
+              type: "success",
+            });
+
+            UserTrigger();
+            onClose();
+          }
+        } catch (err: any) {
+          notify({
+            message: err.message,
+            type: "warning",
+          });
+        }
+      }
     }
   };
 
   return (
     <>
-      {typeOperation == "Create" && (
+      {typeOperation == "Create" ? (
         <div className="flex gap-5 flex-col">
           <h3 className="text-xl font-semibold ">Add Address</h3>
-
-          <button
-            onClick={onClose}
-            className="flex w-20 items-center pb-3 cursor-pointer gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600"
-          >
-            <ArrowLeft size={18} />
-            Back
-          </button>
+        </div>
+      ) : (
+        <div className="flex gap-5 flex-col">
+          <h3 className="text-xl font-semibold ">Edit Address</h3>
         </div>
       )}
+
+      <button
+        onClick={onClose}
+        className="flex w-20 items-center py-3 cursor-pointer gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600"
+      >
+        <ArrowLeft size={18} />
+        Back
+      </button>
 
       <div className="grid grid-cols-12 gap-4">
         {/* Email */}
@@ -148,7 +182,7 @@ export default function AddressShowEditModel({
           </label>
           <input
             {...register("contactNumber", {
-              required: "Contact-Number required",
+              required: "Contact Number required",
               pattern: {
                 value: /^[6-9][0-9]{9}$/,
                 message: "Enter valid Mobile No",
@@ -292,7 +326,30 @@ export default function AddressShowEditModel({
         </div>
       </div>
 
-      {typeOperation == "Create" && (
+      {typeOperation == "Create" ? (
+        <div className="sm:col-span-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6">
+          <Button
+            onPress={onClose}
+            type="button"
+            className="w-full cursor-pointer sm:w-auto px-4 py-2 border rounded-md text-sm"
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            onPress={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
+            className="w-full sm:w-auto px-4 py-2 cursor-pointer bg-black text-white rounded-md text-sm"
+          >
+            {isSubmitting ? (
+              <Image width={20} height={20} alt="Loading" src={Loader} />
+            ) : (
+              "Add Address"
+            )}
+          </Button>
+        </div>
+      ) : (
         <div className="sm:col-span-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6">
           <Button
             onPress={onClose}

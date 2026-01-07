@@ -2,15 +2,14 @@
 
 import Nav from "@/Component/NavBar/Nav";
 import { useParams } from "next/navigation";
-// import { LeftBar } from "./Components/LeftBar";
 import RightSection from "./Components/RightSectionProduct";
 import Footer from "@/Component/Footer/Footer";
 import MobileFilterDrawer from "./Components/MobileFilterDrawer";
 import { useApi } from "@/app/useApi";
 import { useCallback, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Data, ProductInfoType } from "@/Type/ProductType";
-import axios from "axios";
+import { ProductInfoType } from "@/Type/ProductType";
+
 
 export default function Page() {
   const params = useParams();
@@ -25,13 +24,13 @@ export default function Page() {
     //   }
     // })/
 
-    const res = await callApi("get" , "/9rock/get-products", {
-        params : {
-        categoryIds : [`${process.env.NEXT_PUBLIC_MENS_CAT_ID}`]
-      }
-    })
+    const res = await callApi("get", "/9rock/get-products", {
+      params: {
+        categoryIds: [`${process.env.NEXT_PUBLIC_MENS_CAT_ID}`],
+      },
+    });
 
-     console.log("res",res)
+    console.log("res", res);
     setData(res.data);
   }, []);
 
@@ -86,20 +85,6 @@ export default function Page() {
             }}
             className=""
           >
-            {/* LEFT BAR */}
-            {/* <motion.div
-              variants={{
-                hidden: { opacity: 0, x: -20 },
-                show: { opacity: 1, x: 0 },
-              }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="hidden lg:block"
-            >
-              <LeftBar />
-            </motion.div> */}
-
-            {/* RIGHT SECTION */}
-
             <motion.div
               variants={{
                 hidden: { opacity: 0, y: 20 },
