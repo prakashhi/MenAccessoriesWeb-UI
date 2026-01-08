@@ -12,7 +12,6 @@ import { X, Shield, Smartphone, RefreshCw, Lock } from "lucide-react";
 import { notify } from "@/Component/ToastComponent";
 
 import { mobileConfigType } from "@/Component/NavBar/Nav";
-import { setAuthData } from "@/utils/localStorageUtil";
 import { UsePanel } from "@/context/Context";
 import { UserLoginCredential } from "./utilFunction.ts";
 type OTPModalProps = {
@@ -46,7 +45,7 @@ export default function OTPModal({
   // Resend OTP timer countdown
   useEffect(() => {
     if (!open) return;
-    setResendTimer(30);
+    setResendTimer(60);
     const timer = setInterval(() => {
       setResendTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
@@ -150,6 +149,10 @@ export default function OTPModal({
         onIfUserCreate();
         onClose();
       }
+      notify({
+        message: "OTP is not valid",
+        type: "error",
+      });
     } catch (err: any) {
       notify({
         message: err.message,
@@ -164,7 +167,7 @@ export default function OTPModal({
     if (resendTimer > 0) return;
     setOtp(Array(OTP_LENGTH).fill(""));
     inputsRef.current[0]?.focus();
-    setResendTimer(30);
+    setResendTimer(60);
     setIsAutoRead(false);
     console.log("Resending OTP...");
   };
@@ -317,7 +320,7 @@ export default function OTPModal({
                   <X size={14} />
                   Clear
                 </button>
-                <button
+                {/* <button
                   type="button"
                   onClick={() =>
                     navigator.clipboard.readText().then((text) => {
@@ -337,7 +340,7 @@ export default function OTPModal({
                 >
                   <Shield size={14} />
                   Paste OTP
-                </button>
+                </button> */}
               </div>
             </div>
 

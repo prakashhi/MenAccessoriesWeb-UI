@@ -302,6 +302,7 @@ export default function Nav() {
       {stateModel.UserCreateModel == true && (
         <UserCreateForm
           open={stateModel.UserCreateModel}
+          mobileNumber={mobileConfig.mobileNumber}
           onClose={() =>
             setStateModel((prev) => ({
               ...prev,

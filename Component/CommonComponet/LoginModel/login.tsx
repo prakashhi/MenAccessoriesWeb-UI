@@ -194,7 +194,6 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
             </h1>
           </div>
 
-          
           <div>
             <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base mt-2">
               Enter your mobile number to continue
@@ -312,11 +311,6 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
               <div className="flex items-center gap-2 text-red-500 text-sm">
                 <X size={14} />
                 <p>{errors.contactNumber.message}</p>
-              </div>
-            ) : inputValue && validatePhoneNumber(inputValue) === true ? (
-              <div className="flex items-center gap-2 text-green-500 text-sm">
-                <Shield size={14} />
-                <p>Valid phone number for {selectedCountry.name}</p>
               </div>
             ) : null}
           </div>

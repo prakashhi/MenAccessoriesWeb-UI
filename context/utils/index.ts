@@ -1,7 +1,6 @@
 import { getAuthData } from "@/utils/localStorageUtil";
 import { GuestCart } from "@/Type/GuestType";
 
-
 type CartItem = {
   code: string;
   id: string;

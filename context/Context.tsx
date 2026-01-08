@@ -57,6 +57,10 @@ export type UserContextType = {
     userid: string
   ) => Promise<ApiResponse<UserAddressListType[]>>;
 
+  CreateUser: (
+    userDataObj: EditUserObjType
+  ) => Promise<ApiResponse<UserGetDetailType>>;
+
   EditUserDetail: (
     userid: string,
     editDataObj: EditUserObjType
@@ -125,6 +129,21 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
   //User Functions
 
+  const CreateUser = async (
+    userDataObj: EditUserObjType
+  ): Promise<ApiResponse<UserGetDetailType>> => {
+    try {
+      return await callApi("post", `/9rock/users/create-user`, {
+        data: userDataObj,
+      });
+    } catch (error: any) {
+      console.log(error);
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
+  };
 
   const GetUserData = async (
     userid: string
@@ -255,6 +274,8 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
     const userData = getUserFromStorage();
 
+    
+
     setUser(userData);
 
     const LoadCountData = async () => {
@@ -318,7 +339,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     if (userData) {
       UserDetailsGlobalFunction(userData.id);
     }
-  }, [mounted, refreshKey,UserRefreshKey, user?.id]);
+  }, [mounted, refreshKey, UserRefreshKey, user?.id]);
 
   return (
     <UserContext.Provider
@@ -336,6 +357,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         UserRefreshKey,
         userCountData,
 
+        CreateUser,
         GetUserData,
         GetUserOrderList,
         GetAllUserAddress,
