@@ -19,13 +19,23 @@ import { UsePanel } from "@/context/Context";
 
 import ContentRenderer from "@/app/(User)/accountInfo/Component/ContentRenderComponent";
 import DesktopContentRenderComponent from "./Component/DesktopContentRenderComponent";
+import { useGuestUser } from "@/context/GuestUserContext";
 
 export default function AccountSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
   const [active, setActive] = useState<string>("info");
 
-  const { UserRefreshKey, userDataContext, UserTrigger, triggerRefresh } =
-    UsePanel();
+  const {
+    UserRefreshKey,
+    userDataContext,
+    UserTrigger,
+    triggerRefresh,
+    setUserDataContext,
+    setUserCountData,
+    setUser,
+  } = UsePanel();
+
+  const { guestTriggerRefresh, guestDataClear } = useGuestUser();
 
   const [open, setOpen] = useState<{ [k: string]: boolean }>({ info: true });
 
@@ -51,14 +61,27 @@ export default function AccountSection() {
 
   // Logout handler (sample)
   const handleLogout = async () => {
-    localStorage.clear();
+    localStorage.removeItem("UserData");
+    localStorage.removeItem("Token");
+    localStorage.removeItem("GuestUserData");
+    localStorage.removeItem("guest_cart_merged");
+    localStorage.removeItem("guest_cart_merge_in_progress");
     notify({
       message: "Log Out Successfully",
       type: "info",
     });
+    setUser(null);
+    setUserDataContext({
+      info: null,
+      OrderList: [],
+      AddressList: [],
+    });
 
+    setUserCountData({ LikeCount: 0, CartCount: 0 });
+
+    guestDataClear();
     router.replace("/");
-    UserTrigger();
+    guestTriggerRefresh();
     triggerRefresh();
   };
 

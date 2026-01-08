@@ -58,7 +58,6 @@ export default function UserEditForm({
     try {
       let res = await EditUserDetail(userData.id, data);
 
-      console.log("res", res);
       if (res.success == true) {
         notify({
           message: "User Edited Successfully",

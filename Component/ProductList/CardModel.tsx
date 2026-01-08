@@ -39,8 +39,6 @@ export default function CardModel({
 
   const { callApi } = useApi();
 
-  const user = useMemo(() => getUserFromStorage(), []);
-
   const { setUserCountData } = UsePanel();
 
   const { AddCartProduct } = useUserCart();

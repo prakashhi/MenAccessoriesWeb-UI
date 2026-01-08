@@ -110,7 +110,6 @@ export default function Page() {
   type HandleCart = GuestLikeItem | UserLikeItem;
 
   const addToCartHandle = async (item: HandleCart) => {
-    console.log("user", user);
     if (user) {
       let User = item as UserLikeItem;
       let ProductID = User.product.id;
@@ -189,7 +188,6 @@ export default function Page() {
     }
   };
 
-  console.log("likeProductList", likeProductList);
 
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">

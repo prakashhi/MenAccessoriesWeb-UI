@@ -146,16 +146,12 @@ export default function ProductPage() {
             LikeProductList(user.id),
           ]);
 
-          console.log("ALl", CartData, LikeData);
-
           let likeList =
             LikeData.status === "fulfilled" ? LikeData.value.data ?? [] : [];
           let cartList =
             CartData.status === "fulfilled" ? CartData?.value.data ?? [] : [];
 
           if (!active) return;
-
-          console.log(likeList);
 
           const like = likeList.find((i: any) => {
             // Both productId must exist and match

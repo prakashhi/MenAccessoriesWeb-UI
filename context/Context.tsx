@@ -42,11 +42,12 @@ export type UserContextType = {
   UserTrigger: () => void;
   UserRefreshKey: number;
 
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  setUser: React.Dispatch<React.SetStateAction<UserGetDetailType | null>>;
   triggerRefresh: () => void;
   loading: boolean;
   refreshKey: number;
 
+  user: UserGetDetailType | null;
   isOpen: boolean;
   onOpen: () => void;
   onOpenChange: () => void;
@@ -76,6 +77,9 @@ export type UserContextType = {
   ) => Promise<ApiResponse<APiNoDataREsponse>>;
 
   userDataContext: accountInfoStateType;
+  setUserDataContext: React.Dispatch<
+    React.SetStateAction<accountInfoStateType>
+  >;
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -95,7 +99,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const { callApi, loading } = useApi();
   const [mounted, setMounted] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserGetDetailType | null>(null);
 
   const [userDataContext, setUserDataContext] = useState<accountInfoStateType>({
     info: null,
@@ -120,6 +124,8 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   //User Functions
+
+
   const GetUserData = async (
     userid: string
   ): Promise<ApiResponse<UserGetDetailType>> => {
@@ -165,7 +171,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   //ProductRelated Function
   const catalogProducts = async () => {
     try {
-      await callApi("get", `/rockroar/catalog`);
+      return await callApi("get", `/rockroar/catalog`);
     } catch (error: any) {
       throw {
         message: error?.response?.data?.message || "Something is wrong",
@@ -249,10 +255,10 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
     const userData = getUserFromStorage();
 
-    const LoadCountData = async () => {
-      if (userData) {
-        setUser(userData);
+    setUser(userData);
 
+    const LoadCountData = async () => {
+      if (user?.id) {
         const [Like, Cart]: [
           PromiseSettledResult<ApiResponse<LikeProductType[]>>,
           PromiseSettledResult<ApiResponse<CartItem[]>>
@@ -280,7 +286,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     };
 
     LoadCountData();
-  }, [mounted, refreshKey, UserRefreshKey]);
+  }, [mounted, user?.id, refreshKey]);
 
   useEffect(() => {
     const UserDetailsGlobalFunction = async (userId: string) => {
@@ -292,8 +298,6 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         ]);
 
         if (!mounted) return;
-
-        console.log(profileData, OrderList, address);
 
         let ProfileData =
           profileData.success && profileData.data ? profileData.data : null;
@@ -314,7 +318,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     if (userData) {
       UserDetailsGlobalFunction(userData.id);
     }
-  }, [mounted, UserRefreshKey]);
+  }, [mounted, refreshKey,UserRefreshKey, user?.id]);
 
   return (
     <UserContext.Provider
@@ -323,6 +327,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         triggerRefresh,
         UserTrigger,
         setUser,
+        user,
         onOpen,
         isOpen,
         loading,
@@ -341,6 +346,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         DeleteAddressProfile,
 
         userDataContext,
+        setUserDataContext,
       }}
     >
       {children}

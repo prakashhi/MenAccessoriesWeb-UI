@@ -8,14 +8,11 @@ import { motion } from "framer-motion";
 import SearchInput from "@/Component/NavBar/Component/SearchInput";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getUserFromStorage } from "@/context/utils";
-import { useApi } from "@/app/useApi";
 import { notify } from "../ToastComponent";
 import { useGuestUser } from "@/context/GuestUserContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { useUserLike } from "@/context/UserLikeContext";
 import MobileNumberLogin from "../CommonComponet/LoginModel/login";
-import { Button } from "@heroui/react";
 import OTPModal from "../CommonComponet/LoginModel/OTPFill";
 import UserCreateForm from "../CommonComponet/UserCreateFrom/UserCreateForm";
 
@@ -30,7 +27,7 @@ export type mobileConfigType = {
 };
 
 export default function Nav() {
-  const { triggerRefresh, userCountData, userDataContext } = UsePanel();
+  const { triggerRefresh, userCountData, userDataContext, user } = UsePanel();
 
   const [stateModel, setStateModel] = useState({
     LoginModel: false,
@@ -43,13 +40,10 @@ export default function Nav() {
     CountryCode: "",
   });
 
-  const { GuestUserDataLength } = useGuestUser();
+  const { GuestUserDataLength, guestCart } = useGuestUser();
 
   const { AddCartProduct } = useUserCart();
   const { AddLikeProduct } = useUserLike();
-
-  const { callApi } = useApi();
-  const user = useMemo(() => getUserFromStorage(), []);
 
   const [isMerging, setIsMerging] = useState(false);
 
@@ -60,14 +54,6 @@ export default function Nav() {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
-  const CountLikeCartFun = async () => {
-    setState((prev) => ({
-      ...prev,
-      likeProductLength: userCountData.LikeCount,
-      CartProductLength: userCountData.CartCount,
-    }));
-  };
 
   const MergeLogic = async () => {
     if (!user?.id) return;
@@ -97,20 +83,8 @@ export default function Nav() {
     try {
       // ---- CART MERGE ----
       const cartResults = await Promise.allSettled(
-        cartItems.map(
-          (item: any) => AddCartProduct(item.id, item.variantSizeId)
-          // callApi(
-          //   "post",
-          //   "/cart",
-          //   {
-          //     data: {
-          //       productId: item.id,
-          //       userId: user.id,
-          //       variantSizeId: item.variantSizeId ?? null,
-          //     },
-          //   },
-          //   true
-          // )
+        cartItems.map((item: any) =>
+          AddCartProduct(item.id, item.variantSizeId)
         )
       );
 
@@ -118,8 +92,7 @@ export default function Nav() {
         const item = cartItems[index];
         if (
           res.status === "rejected" &&
-          res.reason?.response?.data?.message !==
-            "Error: Cart item already exists"
+          res.reason?.message !== "Error: Cart item already exists"
         ) {
           failedCart.push(item);
         }
@@ -127,29 +100,14 @@ export default function Nav() {
 
       // ---- WISHLIST MERGE ----
       const likeResults = await Promise.allSettled(
-        likeItems.map(
-          (item: any) => AddLikeProduct(item)
-
-          // callApi(
-          //   "post",
-          //   "/like-product",
-          //   {
-          //     data: {
-          //       productId: item.id,
-          //       userId: user.id,
-          //     },
-          //   },
-          //   true
-          // )
-        )
+        likeItems.map((item: any) => AddLikeProduct(item))
       );
 
       likeResults.forEach((res, index) => {
         const item = likeItems[index];
         if (
           res.status === "rejected" &&
-          res.reason?.response?.data?.message !==
-            "Error: Like product already exists"
+          res.reason?.message !== "Error: Like product already exists"
         ) {
           failedLikes.push(item);
         }
@@ -189,15 +147,22 @@ export default function Nav() {
 
   useEffect(() => {
     const LengthData = async () => {
-      if (!user) {
+      if (!user?.id) {
         setState({
-          likeProductLength: GuestUserDataLength.Like,
-          CartProductLength: GuestUserDataLength.Cart,
+          likeProductLength: GuestUserDataLength.Like ?? 0,
+          CartProductLength: GuestUserDataLength.Cart ?? 0,
         });
         return;
       } else {
-        await MergeLogic();
-        await CountLikeCartFun();
+        if (user) {
+          await MergeLogic();
+
+          setState((prev) => ({
+            ...prev,
+            likeProductLength: userCountData?.LikeCount,
+            CartProductLength: userCountData?.CartCount,
+          }));
+        }
       }
     };
 
@@ -217,8 +182,9 @@ export default function Nav() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Hide logo only on mobile when searchOpen
   const shouldHide = isMobile && searchOpen;
+
+  console.log("userCountData", guestCart, GuestUserDataLength);
 
   return (
     <>
@@ -270,7 +236,7 @@ export default function Nav() {
               />
             </Link>
 
-            {userDataContext.info ? (
+            {userDataContext.info !== null ? (
               <Link href={"/accountInfo"}>
                 <User
                   size={20}
@@ -333,7 +299,17 @@ export default function Nav() {
         />
       )}
 
-      {stateModel.UserCreateModel == true && <UserCreateForm />}
+      {stateModel.UserCreateModel == true && (
+        <UserCreateForm
+          open={stateModel.UserCreateModel}
+          onClose={() =>
+            setStateModel((prev) => ({
+              ...prev,
+              UserCreateModel: false,
+            }))
+          }
+        />
+      )}
     </>
   );
 }

@@ -83,8 +83,6 @@ export default function AddressShowEditModel({
     ...grid,
   };
 
-  console.log(watch("state"), "isDirty", isDirty);
-
   const onSubmit = async (value: FormValueAddressCreate) => {
     if (typeOperation === "Create") {
       try {
@@ -114,8 +112,6 @@ export default function AddressShowEditModel({
         try {
           let res = await EditUserAddress(EditAddressId, value);
           if (res.success == true) {
-            console.log("res", res);
-
             notify({
               message: "Address has been updated successfully",
               type: "success",

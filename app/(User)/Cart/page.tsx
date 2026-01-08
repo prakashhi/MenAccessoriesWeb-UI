@@ -25,9 +25,6 @@ import { ProductInfoType } from "@/Type/ProductType";
 import { User } from "@/Type/UserDetailType";
 import { useApi } from "@/app/useApi";
 import { PaymentModeSelector } from "./component/PaymentMethodSelect";
-
-import { notify, toastActions } from "@/Component/ToastComponent";
-import { PriceTable } from "./component/PriceTable";
 import { useUserCart } from "@/context/UserCartContext";
 import { useGuestUser } from "@/context/GuestUserContext";
 import CartProductShowModel from "./component/CartProductShowModel";
@@ -46,7 +43,6 @@ type modelTypes = {
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
 
-  console.log(user);
 
   const { setUserCountData } = UsePanel();
 
@@ -257,8 +253,6 @@ export default function Page() {
     }
   };
 
-  console.log("cartListData", cartListData);
-
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
       <Nav />
@@ -282,7 +276,7 @@ export default function Page() {
   overflow-y-auto 
   max-h-[70vh]
   sm:max-h-none
-  my-4"
+  "
           >
             <AnimatePresence>
               {cartListData.length > 0 ? (

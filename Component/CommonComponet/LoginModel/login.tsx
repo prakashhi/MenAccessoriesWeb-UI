@@ -103,56 +103,15 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
     // Remove all non-digit characters including spaces
     const rawValue = value.replace(/\D/g, "");
 
-    // Limit to maximum 15 digits (considering international numbers)
-    if (rawValue.length > 15) {
-      return;
-    }
-
     // Update raw value for form
     setInputValue(rawValue);
     setValue("contactNumber", rawValue, { shouldValidate: true });
 
-    // Format for display based on country
-    const formattedValue = formatPhoneNumber(rawValue, selectedCountry.code);
-    setDisplayValue(formattedValue);
+    setDisplayValue(rawValue);
 
     // Trigger validation if we have errors
     if (errors.contactNumber && rawValue.length > 0) {
       clearErrors("contactNumber");
-    }
-  };
-
-  // Format phone number based on country
-  const formatPhoneNumber = (rawValue: string, countryCode: string): string => {
-    if (!rawValue) return "";
-
-    // Different formatting patterns for different countries
-    switch (countryCode) {
-      case "US":
-      case "CA":
-        if (rawValue.length <= 3) return rawValue;
-        if (rawValue.length <= 6)
-          return `${rawValue.slice(0, 3)} ${rawValue.slice(3)}`;
-        return `${rawValue.slice(0, 3)} ${rawValue.slice(
-          3,
-          6
-        )} ${rawValue.slice(6, 10)}`;
-
-      case "GB":
-        if (rawValue.length <= 5) return rawValue;
-        if (rawValue.length <= 10)
-          return `${rawValue.slice(0, 5)} ${rawValue.slice(5)}`;
-        return `${rawValue.slice(0, 5)} ${rawValue.slice(5, 10)}`;
-
-      case "IN":
-      default:
-        if (rawValue.length <= 3) return rawValue;
-        if (rawValue.length <= 6)
-          return `${rawValue.slice(0, 3)} ${rawValue.slice(3)}`;
-        return `${rawValue.slice(0, 3)} ${rawValue.slice(
-          3,
-          6
-        )} ${rawValue.slice(6, 10)}`;
     }
   };
 
@@ -164,8 +123,7 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
 
     // Re-format the current number with new country pattern
     if (inputValue) {
-      const formattedValue = formatPhoneNumber(inputValue, country.code);
-      setDisplayValue(formattedValue);
+      setDisplayValue(inputValue);
     }
 
     // Focus back on input
@@ -175,30 +133,6 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
   // Validation based on selected country
   const validatePhoneNumber = (value: string) => {
     if (!value) return "Phone number is required";
-
-    // Different validation for different countries
-    switch (selectedCountry.code) {
-      case "IN":
-        if (!/^[6-9][0-9]{9}$/.test(value)) {
-          return "Enter a valid 10-digit mobile number starting with 6-9";
-        }
-        break;
-      case "US":
-      case "CA":
-        if (!/^[2-9][0-9]{9}$/.test(value)) {
-          return "Enter a valid 10-digit phone number";
-        }
-        break;
-      case "GB":
-        if (!/^[1-9][0-9]{9,10}$/.test(value)) {
-          return "Enter a valid UK phone number";
-        }
-        break;
-      default:
-        if (value.length < 5 || value.length > 15) {
-          return `Enter a valid phone number (${selectedCountry.name})`;
-        }
-    }
     return true;
   };
 
@@ -252,16 +186,16 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
         </button>
 
         {/* Header */}
-        <div className="text-center space-y-4 mb-8">
-          <div className="flex justify-center">
-            <div className="p-3 rounded-2xl bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
-              <Smartphone className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
-              Welcome Back
+        <div className="text-center space-y-4 mb-5  ">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-serif tracking-widest text-black">
+              {" "}
+              RockRoars
             </h1>
+          </div>
+
+          
+          <div>
             <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base mt-2">
               Enter your mobile number to continue
             </p>
@@ -277,10 +211,6 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
                 <Smartphone size={16} />
                 Phone Number
               </label>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {inputValue.length}/
-                {selectedCountry.code === "IN" ? "10" : "15"}
-              </span>
             </div>
 
             <div className="flex gap-2">
@@ -372,7 +302,7 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
                   type="hidden"
                   {...register("contactNumber", {
                     required: "Phone number is required",
-                    validate: validatePhoneNumber,
+                    // validate: validatePhoneNumber,
                   })}
                 />
               </div>
@@ -403,7 +333,7 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
             className="
               w-full
               py-4
-              bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600
+              bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600
               hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700
               text-white font-semibold text-base
               rounded-2xl shadow-lg shadow-blue-500/25 dark:shadow-blue-500/15

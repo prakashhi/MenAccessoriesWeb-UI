@@ -22,11 +22,10 @@ import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 
 export default function Product() {
-  const userData = useMemo(() => getUserFromStorage(), []);
+  const { setUserCountData, refreshKey, user } = UsePanel();
+  const userData = useMemo(() => getUserFromStorage(), [user]);
 
   const { callApi } = useApi();
-
-  const { setUserCountData, refreshKey } = UsePanel();
 
   const { LikeProductList } = useUserLike();
 
@@ -69,7 +68,6 @@ export default function Product() {
 
       LikeData.forEach((item: LikeProductType) => {
         const id = getProductId(item.product);
-        console.log("id", id);
         likeMap[id] = item;
       });
 
@@ -85,7 +83,7 @@ export default function Product() {
         CartCount: CartData.length,
       }));
     }
-  }, []);
+  }, [user]);
 
   const observeSection = useCallback(
     (index: number) => (el: HTMLDivElement | null) => {

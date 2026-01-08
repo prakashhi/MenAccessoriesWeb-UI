@@ -1,4 +1,6 @@
 import { getAuthData } from "@/utils/localStorageUtil";
+import { GuestCart } from "@/Type/GuestType";
+
 
 type CartItem = {
   code: string;
@@ -11,10 +13,10 @@ type CartItem = {
   quantity: number;
 };
 
-type GuestCart = {
-  items: Record<string, CartItem>;
-  likeProduct: Record<string, CartItem>;
-};
+// type GuestCart = {
+//   items: Record<string, CartItem>;
+//   likeProduct: Record<string, CartItem>;
+// };
 
 export function getUserFromStorage() {
   if (typeof window === "undefined") return null;

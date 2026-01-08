@@ -14,6 +14,7 @@ import { notify } from "@/Component/ToastComponent";
 import { mobileConfigType } from "@/Component/NavBar/Nav";
 import { setAuthData } from "@/utils/localStorageUtil";
 import { UsePanel } from "@/context/Context";
+import { UserLoginCredential } from "./utilFunction.ts";
 type OTPModalProps = {
   open: boolean;
   onClose: () => void;
@@ -37,26 +38,10 @@ export default function OTPModal({
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
-  const { UserTrigger ,triggerRefresh} = UsePanel();
+  const { UserTrigger, triggerRefresh, setUserDataContext, setUser } =
+    UsePanel();
 
-  const tempFunction = () => {
-    let data = {
-      id: "4d2a0f6d-6808-480d-b78d-91852f8ac2e6",
-      userFirstName: "Prakash",
-      userLastName: "Prajapati",
-      contactNumber: "1234567890",
-      email: "prakash398prajapati@gmail.com",
-      createdAt: "2026-01-03T09:28:23.467Z",
-      updatedAt: "2026-01-03T09:28:23.467Z",
-      deletedAt: null,
-    };
-    setAuthData("UserData", JSON.stringify(data), 24 * 60 * 60 * 1000);
-    setAuthData(
-      "Token",
-      JSON.stringify(process.env.NEXT_PUBLIC_USER_TOKEN),
-      24 * 60 * 60 * 1000
-    );
-  };
+  const { loginUser } = UserLoginCredential();
 
   // Resend OTP timer countdown
   useEffect(() => {
@@ -149,22 +134,21 @@ export default function OTPModal({
     setError("");
 
     try {
-      console.log(otpString);
-
       if (otpString == "111111") {
         notify({
           message: "OTP verified successfully",
           type: "success",
         });
-        tempFunction();
 
         UserTrigger();
-
+        loginUser();
         triggerRefresh();
         onClose();
       }
       if (otpString == "222222") {
+        //if user remain create
         onIfUserCreate();
+        onClose();
       }
     } catch (err: any) {
       notify({
@@ -174,9 +158,6 @@ export default function OTPModal({
     } finally {
       setLoading(false);
     }
-
-    // // onSubmitOTP(otpString);
-    // setTimeout(() => setLoading(false), 1000);
   };
 
   const handleResend = () => {
@@ -415,7 +396,7 @@ export default function OTPModal({
             className="
               w-full
               py-4
-              bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600
+              bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600
               hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700
               text-white font-semibold text-base
               rounded-2xl shadow-lg shadow-blue-500/25 dark:shadow-blue-500/15

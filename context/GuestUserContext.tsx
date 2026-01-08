@@ -9,7 +9,6 @@ import {
 } from "react";
 import { product, Like } from "@/Type/GuestType";
 
-import { useApi } from "@/app/useApi";
 import { notify, toastActions } from "@/Component/ToastComponent";
 import { getUserFromStorage, getGuestCart } from "./utils";
 
@@ -20,10 +19,6 @@ import { getProduct, getProductId } from "@/utils/getProductId";
 import { ProductInfoType } from "@/Type/ProductType";
 
 type PanelContextType = {
-  // cartProduct: product[];
-  // setCartProduct: React.Dispatch<React.SetStateAction<product[]>>;
-
-  //temporary
   AddCartProductGuest: (
     Product: ProductInfoType,
     variantSizeId?: string | null,
@@ -44,6 +39,10 @@ type PanelContextType = {
   decrementGuestCartProduct: (productId: string) => void;
   GuestUserDataLength: { Cart: number; Like: number };
   setCartProductQty: (productId: string, qty: number) => Promise<void>;
+
+  guestTriggerRefresh: () => void;
+
+  guestDataClear: () => void;
 };
 
 const GuestUserContext = createContext<PanelContextType | null>(null);
@@ -64,18 +63,14 @@ export function GuestUserContextProvider({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [cartProduct, setCartProduct] = useState<product[]>([]);
-  // const [guestCart, setGuestCart] = useState<GuestCart>({
-  //   items: {},
-  //   likeProduct: {},
-  // });
-
   const [guestCart, setGuestCart] = useState<GuestCart>(() => {
     if (typeof window === "undefined") {
       return { items: {}, likeProduct: {} };
     }
     return getGuestCart();
   });
+
+  const [guestRefresh, setGuestRefresh] = useState<number>(0);
 
   const [mounted, setMounted] = useState(false);
 
@@ -91,7 +86,7 @@ export function GuestUserContextProvider({
     const LoadCountData = async () => {
       const cart = getGuestCart();
 
-      setGuestCart((prev: any) => ({
+      setGuestCart((prev) => ({
         ...prev,
         items: cart.items,
         likeProduct: cart.likeProduct,
@@ -100,12 +95,6 @@ export function GuestUserContextProvider({
 
     LoadCountData();
   }, [mounted]);
-
-  // 3️⃣ Persist changes
-  // useEffect(() => {
-  //   if (!mounted || !guestCart) return;
-  //   localStorage.setItem("GuestUserData", JSON.stringify(guestCart));
-  // }, [guestCart, mounted]);
 
   const hasHydrated = useRef(false);
 
@@ -125,7 +114,7 @@ export function GuestUserContextProvider({
       Cart: Object.keys(guestCart?.items || {}).length,
       Like: Object.keys(guestCart?.likeProduct || {}).length,
     };
-  }, [guestCart]);
+  }, [guestCart, guestRefresh]);
 
   //*******Cart Functions******
   const AddCartProductGuest = (
@@ -136,7 +125,6 @@ export function GuestUserContextProvider({
   ) => {
     let productData = getProduct(Product);
 
-    console.log("productData", productData);
     let productId = productData.id;
 
     let added = false;
@@ -308,11 +296,22 @@ export function GuestUserContextProvider({
     });
   };
 
+  const guestTriggerRefresh = () => {
+    setGuestRefresh((prev) => prev + 1);
+  };
+
+  const guestDataClear = () => {
+    setGuestCart((prev) => ({
+      ...prev,
+      items: {},
+      likeProduct: {},
+    }));
+  };
+
   return (
     <GuestUserContext.Provider
       value={{
         guestCart,
-
         AddCartProductGuest,
         RemoveGuestCartProduct,
         AddGuestLikeProduct,
@@ -321,6 +320,9 @@ export function GuestUserContextProvider({
         decrementGuestCartProduct,
         GuestUserDataLength,
         setCartProductQty,
+        guestTriggerRefresh,
+
+        guestDataClear,
       }}
     >
       {children}

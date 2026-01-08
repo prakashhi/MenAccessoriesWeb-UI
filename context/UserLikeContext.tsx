@@ -8,7 +8,7 @@ import {
   useEffect,
 } from "react";
 
-import { User } from "@/Type/UserDetailType";
+import { UserGetDetailType } from "@/Type/UserDetailType";
 import { getUserFromStorage } from "./utils";
 import { useApi } from "@/app/useApi";
 import { ProductInfoType } from "@/Type/ProductType";
@@ -16,10 +16,11 @@ import { ApiResponse, APiNoDataREsponse } from "@/Type/Types";
 import { AddLikeResponse } from "@/Type/LikeType";
 
 import { LikeProductType } from "@/Type/LikeType";
+import { UsePanel } from "./Context";
 
 export type UserLikeContextType = {
   AddLikeProduct: (
-    Product: ProductInfoType,
+    Product: ProductInfoType
   ) => Promise<ApiResponse<AddLikeResponse>>;
 
   RemoveLikeProduct: (ProductId: string) => Promise<APiNoDataREsponse>;
@@ -38,29 +39,30 @@ export const useUserLike = (): UserLikeContextType => {
 };
 
 export function UserLikeContextProvider({ children }: { children: ReactNode }) {
+  const { userDataContext, user } = UsePanel();
+
   const { callApi } = useApi();
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState<User>();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   // 2️⃣ Read localStorage AFTER mount
-  useEffect(() => {
-    if (!mounted) return;
-    const userData = getUserFromStorage();
+  // useEffect(() => {
+  //   if (!mounted) return;
+  //   const userData = getUserFromStorage();
 
-    const LoadData = async () => {
-      if (userData) {
-        setUser(userData);
-      }
-    };
-    LoadData();
-  }, [mounted]);
+  //   const LoadData = async () => {
+  //     if (userData) {
+  //       setUser(userData);
+  //     }
+  //   };
+  //   LoadData();
+  // }, [mounted]);
 
   const AddLikeProduct = async (
-    Product: ProductInfoType,
+    Product: ProductInfoType
   ): Promise<ApiResponse<AddLikeResponse>> => {
     try {
       return await callApi("post", "/9rock/likes", {

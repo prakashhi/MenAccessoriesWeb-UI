@@ -10,7 +10,6 @@ import { useCallback, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ProductInfoType } from "@/Type/ProductType";
 
-
 export default function Page() {
   const params = useParams();
   const { callApi, loading } = useApi();
@@ -29,8 +28,6 @@ export default function Page() {
         categoryIds: [`${process.env.NEXT_PUBLIC_MENS_CAT_ID}`],
       },
     });
-
-    console.log("res", res);
     setData(res.data);
   }, []);
 

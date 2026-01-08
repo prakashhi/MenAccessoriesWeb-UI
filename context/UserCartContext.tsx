@@ -8,18 +8,15 @@ import {
   useEffect,
 } from "react";
 
-import { User } from "@/Type/UserDetailType";
 import { getUserFromStorage } from "./utils";
 import { useApi } from "@/app/useApi";
-import { ProductInfoType } from "@/Type/ProductType";
 import { ApiResponse, APiNoDataREsponse } from "@/Type/Types";
-import { AddLikeResponse } from "@/Type/LikeType";
 
 import { AddCartProductResponse, RemoveCartResponse } from "@/Type/CartType";
 
-import { LikeProductType } from "@/Type/LikeType";
-
 import { CartItem } from "@/Type/CartType";
+import { UsePanel } from "./Context";
+import { UserGetDetailType } from "@/Type/UserDetailType";
 
 export type UserCartContextType = {
   CartProductList: (userid: string) => Promise<ApiResponse<CartItem[]>>;
@@ -55,26 +52,26 @@ export const useUserCart = (): UserCartContextType => {
 };
 
 export function UserCartContextProvider({ children }: { children: ReactNode }) {
+  const { user } = UsePanel();
   const { callApi } = useApi();
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState<User>();
+
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   // 2️⃣ Read localStorage AFTER mount
-  useEffect(() => {
-    if (!mounted) return;
-    const userData = getUserFromStorage();
-
-    const LoadData = async () => {
-      if (userData) {
-        setUser(userData);
-      }
-    };
-    LoadData();
-  }, [mounted]);
+  // useEffect(() => {
+  //   if (!mounted) return;
+  //   const userData = getUserFromStorage();
+  //   const LoadData = async () => {
+  //     if (userData) {
+  //       setUser(userData);
+  //     }
+  //   };
+  //   LoadData();
+  // }, [mounted]);
 
   const AddCartProduct = async (
     ProductId: string,
