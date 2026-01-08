@@ -17,6 +17,7 @@ import { useApi } from "@/app/useApi";
 import { useParams } from "next/navigation";
 import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
+import { TbAlphabetLatin } from "react-icons/tb";
 
 interface RightSectionProps {
   ProductData: any[];
@@ -29,6 +30,8 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
   const { onOpen } = UsePanel();
 
   const { CartProductList } = useUserCart();
+
+  const { menProductFilter, setMenProductFilter } = UsePanel();
 
   const [sort, setSort] = useState("Featured");
 
@@ -44,56 +47,87 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
   const filterDataOption = [
     { label: "Featured" },
     // { label: "Best selling", icon: FiTrendingUp },
-    // { label: "A → Z", icon: TbAlphabetLatin },
-    // { label: "Z → A", icon: TbAlphabetLatin },
+    { label: "A → Z", icon: TbAlphabetLatin },
+    { label: "Z → A", icon: TbAlphabetLatin },
     { label: "Price: Low → High" },
     { label: "Price: High → Low" },
     { label: "Newest First" },
     { label: "Oldest First" },
   ];
 
+  // useEffect(() => {
+  //   if (!ProductData || ProductData.length === 0) {
+  //     setSortedProducts([]);
+  //     return;
+  //   }
+
+  //   const fetchSortedProducts = async () => {
+  //     try {
+  //       let url = "";
+
+  //       switch (sort) {
+  //         case "Price: Low → High":
+  //           setMenProductFilter((prev) => ({
+  //             ...prev,
+  //             sortBy: "price",
+  //             sortOrder: "desc",
+  //           }));
+  //           break;
+
+  //         case "Price: High → Low":
+  //           url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=desc&sortBy=price`;
+  //           break;
+
+  //         case "Newest First":
+  //           url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=desc&sortBy=createdAt`;
+  //           break;
+
+  //         case "Oldest First":
+  //           url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=asc&sortBy=createdAt`;
+  //           break;
+
+  //         default:
+  //           setSortedProducts(ProductData);
+  //           return;
+  //       }
+
+  //       const res = await callApi("get", url);
+  //       setSortedProducts(res.data ?? []);
+  //     } catch (error) {
+  //       console.error(error);
+  //       setSortedProducts([]);
+  //     }
+  //   };
+
+  //   fetchSortedProducts();
+  // }, [sort, ProductData, params.CategotyId]);
+
   useEffect(() => {
-    if (!ProductData || ProductData.length === 0) {
-      setSortedProducts([]);
-      return;
-    }
+    if (!sort) return;
 
-    const fetchSortedProducts = async () => {
-      try {
-        let url = "";
+    setMenProductFilter((prev) => {
+      switch (sort) {
+        case "Price: Low → High":
+          return { ...prev, sortBy: "price", sortOrder: "asc" };
 
-        switch (sort) {
-          case "Price: Low → High":
-            url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=asc&sortBy=price`;
-            break;
+        case "Price: High → Low":
+          return { ...prev, sortBy: "price", sortOrder: "desc" };
 
-          case "Price: High → Low":
-            url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=desc&sortBy=price`;
-            break;
+        case "Newest First":
+          return { ...prev, sortBy: "createdAt", sortOrder: "desc" };
 
-          case "Newest First":
-            url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=desc&sortBy=createdAt`;
-            break;
+        case "Oldest First":
+          return { ...prev, sortBy: "createdAt", sortOrder: "asc" };
 
-          case "Oldest First":
-            url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=asc&sortBy=createdAt`;
-            break;
-
-          default:
-            setSortedProducts(ProductData);
-            return;
-        }
-
-        const res = await callApi("get", url);
-        setSortedProducts(res.data ?? []);
-      } catch (error) {
-        console.error(error);
-        setSortedProducts([]);
+        case "A → Z":
+          return { ...prev, sortBy: "alphabetical", sortOrder: "asc" };
+        case "Z → A":
+          return { ...prev, sortBy: "alphabetical", sortOrder: "desc" };
+        default:
+          return prev;
       }
-    };
-
-    fetchSortedProducts();
-  }, [sort, ProductData, params.CategotyId]);
+    });
+  }, [sort]);
 
   useEffect(() => {
     const MetaData = async () => {
@@ -159,8 +193,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 max-w-7xl mx-auto">
           {/* Results Count */}
           <div className="text-sm text-gray-600 font-light">
-            {sortedProducts.length}{" "}
-            <span className="text-gray-400">products</span>
+            {ProductData.length} <span className="text-gray-400">products</span>
           </div>
 
           {/* Controls */}
@@ -214,7 +247,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
 
       {/* ===== PRODUCT GRID ===== */}
       <div className="p-4 sm:p-6 flex justify-center">
-        {sortedProducts.length > 0 ? (
+        {ProductData.length > 0 ? (
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -236,7 +269,7 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
                   md:min-w-[300px]
                   lg:min-w-[320px]
                 "
-              DataObj={sortedProducts}
+              DataObj={ProductData}
               setState={setState}
               Data={state}
               isUser={userData ? true : false}

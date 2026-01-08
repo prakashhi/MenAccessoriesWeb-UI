@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 import SearchInput from "@/Component/NavBar/Component/SearchInput";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { notify } from "../ToastComponent";
 import { useGuestUser } from "@/context/GuestUserContext";
 import { useUserCart } from "@/context/UserCartContext";
@@ -15,6 +15,9 @@ import { useUserLike } from "@/context/UserLikeContext";
 import MobileNumberLogin from "../CommonComponet/LoginModel/login";
 import OTPModal from "../CommonComponet/LoginModel/OTPFill";
 import UserCreateForm from "../CommonComponet/UserCreateFrom/UserCreateForm";
+import { Boxes } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
+// import { ShoppingBag } from "lucide-react";
 
 type length = {
   likeProductLength: number;
@@ -223,6 +226,15 @@ export default function Nav() {
                 />
               </motion.div>
             )}
+
+            <Link
+              href="/collection"
+              className="flex items-center gap-2 relative text-gray-700 hover:text-black group"
+            >
+              <LayoutGrid size={18} />
+              <span>All Collections</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-black transition-all group-hover:w-full" />
+            </Link>
 
             <Link className="relative" href="/wishlist">
               {state.likeProductLength > 0 && (

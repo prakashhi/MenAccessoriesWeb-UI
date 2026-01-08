@@ -37,3 +37,42 @@ export type accountInfoStateType = {
   OrderList: OrderDetailType[];
   AddressList: UserAddressListType[];
 };
+
+export type SizeMen = {
+  id: string;
+  size: string;
+  stock: number;
+};
+
+export type menProductData = {
+  id: string;
+  name: string;
+  image: string;
+  code: string;
+  sellingPrice: number;
+  categoryName: string;
+  sizes: SizeMen[];
+};
+
+export type menProductListType = {
+  total: number;
+  data: menProductData[];
+};
+
+export type menProductiveArraysObj = {
+  minPrice: 0;
+  maxPrice: 0;
+};
+
+export type menProductFilter = {
+  categoryIds?: string[];
+  materialIds?: string[];
+  priceArrays?: menProductiveArraysObj[];
+  sortOrder?: "asc" | "desc";
+  showInStockProducts?: true | false;
+  sortBy?: "createdAt" | "price" | "alphabetical";
+  minPrice?: number;
+  maxPrice?: number;
+  limit?: number;
+  offset?: number;
+};

@@ -23,7 +23,7 @@ export type StateMobileDrawer = {
 export default function MobileFilterDrawer({
   setData,
 }: {
-  setData: React.Dispatch<React.SetStateAction<ProductInfoType[]>>;
+  setData?: React.Dispatch<React.SetStateAction<ProductInfoType[]>>;
 }) {
   const { isOpen, onOpenChange } = UsePanel();
 

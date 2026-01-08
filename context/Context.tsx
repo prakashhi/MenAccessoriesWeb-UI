@@ -6,34 +6,32 @@ import {
   ReactNode,
   useState,
   useEffect,
-  useMemo,
 } from "react";
 
-import {
-  OrderProductLisType,
-  User,
-  UserAddressListType,
-} from "@/Type/UserDetailType";
-import { getGuestCart, getUserFromStorage } from "./utils";
+import { UserAddressListType } from "@/Type/UserDetailType";
+import { getUserFromStorage } from "./utils";
 import { useApi } from "@/app/useApi";
-import { ProductInfoType } from "@/Type/ProductType";
 import {
   ApiResponse,
   APiNoDataREsponse,
   accountInfoStateType,
 } from "@/Type/Types";
-import { AddLikeResponse } from "@/Type/LikeType";
-
 import { LikeProductType } from "@/Type/LikeType";
 import { CartItem } from "@/Type/CartType";
 
-import { CountStateType } from "@/Type/Types";
+import type {
+  CountStateType,
+  menProductListType,
+  menProductFilter,
+} from "@/Type/Types";
 import {
   UserGetDetailType,
   OrderDetailType,
   EditUserObjType,
   CreateAddressPostObjType,
 } from "@/Type/UserDetailType";
+
+const menSpecificId = ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"];
 
 export type UserContextType = {
   userCountData: CountStateType;
@@ -52,6 +50,11 @@ export type UserContextType = {
   onOpen: () => void;
   onOpenChange: () => void;
   GetUserData: (userid: string) => Promise<ApiResponse<UserGetDetailType>>;
+
+  MenCategoryList: (
+    filterOption: menProductFilter
+  ) => Promise<ApiResponse<menProductListType>>;
+
   GetUserOrderList: (userId: string) => Promise<ApiResponse<OrderDetailType[]>>;
   GetAllUserAddress: (
     userid: string
@@ -84,6 +87,8 @@ export type UserContextType = {
   setUserDataContext: React.Dispatch<
     React.SetStateAction<accountInfoStateType>
   >;
+  menProductFilter: menProductFilter;
+  setMenProductFilter: React.Dispatch<React.SetStateAction<menProductFilter>>;
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -104,6 +109,10 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [user, setUser] = useState<UserGetDetailType | null>(null);
+
+  const [menProductFilter, setMenProductFilter] = useState<menProductFilter>(
+    {}
+  );
 
   const [userDataContext, setUserDataContext] = useState<accountInfoStateType>({
     info: null,
@@ -128,7 +137,6 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   //User Functions
-
   const CreateUser = async (
     userDataObj: EditUserObjType
   ): Promise<ApiResponse<UserGetDetailType>> => {
@@ -199,12 +207,23 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // const MenCategoryList = () =>
-  // {
-  //   try{
-
-  //   }
-  // }
+  const MenCategoryList = async (
+    filterOption: menProductFilter
+  ): Promise<ApiResponse<menProductListType>> => {
+    try {
+      return await callApi("get", `/9rock/get-products`, {
+        params: {
+          ...filterOption,
+          categoryIds: ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"],
+        },
+      });
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
+  };
 
   //Address Functions
   const GetAllUserAddress = async (
@@ -273,8 +292,6 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     if (!mounted) return;
 
     const userData = getUserFromStorage();
-
-    
 
     setUser(userData);
 
@@ -369,6 +386,10 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
         userDataContext,
         setUserDataContext,
+        MenCategoryList,
+
+        menProductFilter,
+        setMenProductFilter,
       }}
     >
       {children}
