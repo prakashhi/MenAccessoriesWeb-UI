@@ -1,5 +1,6 @@
 import { getAuthData } from "@/utils/localStorageUtil";
 import { GuestCart } from "@/Type/GuestType";
+import { jwtDecode } from "jwt-decode";
 
 type CartItem = {
   code: string;
@@ -17,12 +18,34 @@ type CartItem = {
 //   likeProduct: Record<string, CartItem>;
 // };
 
+export type DecodedJwt = {
+  id?: string;
+  email?: string;
+  userFirstName?: string;
+  userLastName?: string;
+  iat?: number;
+};
+
+export function decodeJwtToken(token: string): DecodedJwt | null {
+  try {
+    return jwtDecode<DecodedJwt>(token);
+  } catch (error) {
+    console.error("Invalid JWT token", error);
+    return null;
+  }
+}
+
 export function getUserFromStorage() {
   if (typeof window === "undefined") return null;
 
   try {
     const data = getAuthData("UserData");
-    return data ? JSON.parse(data) : null;
+
+    const getToken = getAuthData("Token");
+
+    let tokenData = getToken && decodeJwtToken(getToken);
+
+    return data ? JSON.parse(data) : tokenData;
   } catch {
     return null;
   }
