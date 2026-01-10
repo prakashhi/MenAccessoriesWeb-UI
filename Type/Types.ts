@@ -76,6 +76,7 @@ export type menProductFilter = {
   maxPrice?: number;
   limit?: number;
   offset?: number;
+  priceLabel?: string;
 };
 
 export type MenSubCategoryResponse = {

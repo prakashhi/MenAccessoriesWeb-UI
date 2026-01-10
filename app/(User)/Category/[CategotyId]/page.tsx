@@ -90,13 +90,13 @@ export default function Page() {
               transition={{ duration: 0.5, ease: "easeOut" }}
               className=" p-2"
             >
-              <RightSection ProductData={data} />
+              <RightSection />
             </motion.div>
           </motion.div>
         </div>
       </motion.main>
 
-      <MobileFilterDrawer setData={setData} />
+      <MobileFilterDrawer />
 
       {/* FOOTER */}
       <Footer />

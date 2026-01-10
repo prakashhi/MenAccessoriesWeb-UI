@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-
 import { menProductData } from "@/Type/Types";
 import { UsePanel } from "@/context/Context";
 
@@ -13,28 +12,52 @@ export function useInfiniteProductsOffset() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const { MenCategoryList, menProductFilter } = UsePanel();
+  const { MenCategoryList, menProductFilter, isFilterApplied } = UsePanel();
 
+  const isFilterAppliedRef = useRef(false);
   const requestIdRef = useRef(0);
+  const prevFilterRef = useRef(menProductFilter);
+
+  // Function to reset everything when filters change
+  const resetState = useCallback(() => {
+    requestIdRef.current++;
+    setProducts([]);
+    setOffset(0);
+    setHasMore(true);
+    setLoading(false);
+    prevFilterRef.current = menProductFilter;
+  }, [menProductFilter]);
+
+  // Compare current filter with previous filter to detect changes
+  const hasFilterChanged = useCallback(() => {
+    return (
+      JSON.stringify(menProductFilter) !== JSON.stringify(prevFilterRef.current)
+    );
+  }, [menProductFilter]);
 
   const fetchProducts = useCallback(async () => {
-    if (loading || !hasMore) return;
+    if (loading) return;
+
+    // Reset if filter has changed
+    if (hasFilterChanged()) {
+      resetState();
+      // Don't fetch immediately - let the useEffect handle it
+      return;
+    }
+
+    if (!hasMore) return;
 
     const requestId = ++requestIdRef.current;
-
     setLoading(true);
 
-    const finalFilter = {
-      ...menProductFilter,
-      categoryIds:
-        menProductFilter.categoryIds && menProductFilter.categoryIds.length > 0
-          ? menProductFilter.categoryIds
-          : ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"],
-    };
+    const categoryIds =
+      menProductFilter.categoryIds && menProductFilter.categoryIds?.length > 0
+        ? menProductFilter.categoryIds
+        : ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"];
 
-    console.log("finalFilter", finalFilter);
     const res = await MenCategoryList({
-      ...finalFilter,
+      ...menProductFilter,
+      categoryIds,
       offset: offset,
       limit: LIMIT,
     });
@@ -42,13 +65,19 @@ export function useInfiniteProductsOffset() {
     if (requestId !== requestIdRef.current) return;
 
     let data = res?.success ? res.data.data : [];
-     console.log("DataFilter",data)
 
-    if (res.success && hasMore == true) {
-      setProducts((prev) => [...prev, ...data]);
+    if (res.success) {
+      setProducts((prev) => {
+        // If offset is 0, replace the data
+        if (offset === 0) {
+          return data;
+        }
+        // Otherwise append to existing data
+        return [...prev, ...data];
+      });
     }
 
-    // 👇 important logic
+    // Update pagination state
     if (data.length < LIMIT) {
       setHasMore(false);
     } else {
@@ -56,19 +85,41 @@ export function useInfiniteProductsOffset() {
     }
 
     setLoading(false);
-  }, [offset, loading, hasMore]);
+  }, [offset, loading, hasMore, hasFilterChanged, resetState]);
 
-  // reset when filter changes
+  // Effect to handle filter changes
   useEffect(() => {
-    requestIdRef.current++;
-    setProducts([]);
-    setOffset(0);
-    setHasMore(true);
-  }, [menProductFilter]);
+    if (hasFilterChanged()) {
+      resetState();
 
+      // Fetch with new filter after reset
+      const timer = setTimeout(() => {
+        fetchProducts();
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+  }, [menProductFilter, hasFilterChanged, resetState, fetchProducts]);
+
+  // Effect to handle initial load and scroll
   useEffect(() => {
-    fetchProducts();
-  }, [menProductFilter]);
+    if (
+      !hasFilterChanged() &&
+      offset === 0 &&
+      products.length === 0 &&
+      hasMore &&
+      !loading
+    ) {
+      fetchProducts();
+    }
+  }, [
+    offset,
+    hasFilterChanged,
+    products.length,
+    hasMore,
+    loading,
+    fetchProducts,
+  ]);
 
   return { products, fetchProducts, loading, hasMore };
 }

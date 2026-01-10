@@ -6,6 +6,7 @@ import {
   ReactNode,
   useState,
   useEffect,
+  useRef,
 } from "react";
 
 import { UserAddressListType } from "@/Type/UserDetailType";
@@ -99,6 +100,9 @@ export type UserContextType = {
   CateLogProducts: () => Promise<ApiResponse<CateLogResponse[]>>;
   setMenProductFilter: React.Dispatch<React.SetStateAction<menProductFilter>>;
   CateMateListState: MenCategoryMartialState;
+
+  isFilterApplied: boolean;
+  setIsFilterApplied: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -123,6 +127,8 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const [menProductFilter, setMenProductFilter] = useState<menProductFilter>({
     categoryIds: [],
   });
+
+  const [isFilterApplied, setIsFilterApplied] = useState<boolean>(false);
 
   const [userDataContext, setUserDataContext] = useState<accountInfoStateType>({
     info: null,
@@ -473,6 +479,9 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         MenAllSubCategoryList,
         MaterialAllList,
         CateMateListState,
+
+        isFilterApplied,
+        setIsFilterApplied,
       }}
     >
       {children}

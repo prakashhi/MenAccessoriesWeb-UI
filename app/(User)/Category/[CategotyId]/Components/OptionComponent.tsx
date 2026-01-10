@@ -15,8 +15,9 @@ export default function OptionComponent({
   state: StateMobileDrawer;
 }) {
   const [open, setOpen] = useState<Record<number, boolean>>({});
-
-  const { CateMateListState, setMenProductFilter } = UsePanel();
+  const { CateMateListState, setMenProductFilter, menProductFilter } =
+    UsePanel();
+  const [price, setPrice] = useState<number>(0);
 
   const toggle = (index: number) => {
     setOpen((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -25,10 +26,12 @@ export default function OptionComponent({
   const sections = [
     {
       title: "Materials",
+      type: "Materials",
       items: CateMateListState.Material,
     },
     {
       title: "Category",
+      type: "Category",
       items: CateMateListState.MenCategory,
     },
   ];
@@ -37,8 +40,43 @@ export default function OptionComponent({
     { label: "Under ₹5,000", min: 0, max: 5000 },
     { label: "₹5,000 – ₹10,000", min: 5000, max: 10000 },
     { label: "₹10,000 – ₹25,000", min: 10000, max: 25000 },
-    { label: "₹25,000+", min: 25000, max: null },
+    { label: "₹25,000+", min: 25000, max: 999999999 },
   ];
+
+  const maxLimit = 50000;
+
+  const handlePriceChange = (min: number, max: number, label: string) => {
+    setMenProductFilter((prev) => ({
+      ...prev,
+      minPrice: min,
+      maxPrice: max,
+      priceLabel: label,
+    }));
+  };
+
+  // update price when slider moves
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPrice(parseInt(e.target.value));
+
+    setMenProductFilter((prev) => ({
+      ...prev,
+      minPrice: 0,
+      maxPrice: price,
+    }));
+  };
+
+  const percentage = (price / maxLimit) * 100;
+
+  const resetFilter = () => {
+    setMenProductFilter({
+      minPrice: 0,
+      maxPrice: 0,
+      priceLabel: "",
+      categoryIds: [],
+      materialIds: [],
+    });
+    setPrice(0);
+  };
   return (
     <>
       <div className="space-y-4">
@@ -49,16 +87,15 @@ export default function OptionComponent({
             title={section.title}
             items={section.items}
             open={!!open[index]}
+            type={section.type}
             toggle={toggle}
-            state={state}
-            setState={setState}
           />
         ))}
 
         {/* ================= PRICE RANGE ================= */}
         <div className="px-5 lg:px-3 py-4 ">
           <h3 className="text-xs tracking-widest uppercase text-gray-500 mb-4">
-            Price Range
+            Price
           </h3>
 
           <div className="flex flex-col gap-2">
@@ -66,12 +103,7 @@ export default function OptionComponent({
               <button
                 key={item.label}
                 onClick={() =>
-                  setState((prev: StateMobileDrawer) => ({
-                    ...prev,
-                    minPrice: item.min,
-                    maxPrice: item.max,
-                    PriceLabel: item.label,
-                  }))
+                  handlePriceChange(item.min, item.max, item.label)
                 }
                 className={`
           text-left
@@ -80,8 +112,8 @@ export default function OptionComponent({
           border-1 border-gray-300
           rounded-md
           text-sm
-          ${state.PriceLabel == item.label && `bg-gray-700 text-white`}
-          hover:bg-black
+      ${menProductFilter.priceLabel === item.label ? "bg-black text-white" : ""}
+          hover:bg-gray-500
           hover:text-white
           transition
         `}
@@ -91,6 +123,50 @@ export default function OptionComponent({
             ))}
           </div>
         </div>
+
+        <h3 className="text-xs tracking-widest uppercase text-gray-500 mb-4">
+          Price Range
+        </h3>
+
+        {/* Price Sidler */}
+        <div className="px-5 py-4 flex flex-col gap-4">
+          {/* Slider */}
+          <input
+            type="range"
+            min={0}
+            max={maxLimit}
+            value={price}
+            onChange={handleChange}
+            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, #000 ${percentage}%, #e5e7eb ${percentage}%)`,
+            }}
+          />
+
+          {/* Show current selected price */}
+          <div className="text-sm text-gray-700">
+            Selected Price: ₹{price === maxLimit ? `${maxLimit}+` : price}
+          </div>
+        </div>
+
+        <button
+          onClick={resetFilter}
+          className="
+    px-4 py-2
+    bg-gray-100 
+    text-gray-700
+    rounded-lg 
+    shadow-sm
+    hover:bg-gray-200 
+    hover:shadow-md
+    transition 
+     cursor-pointer
+    duration-200
+    font-medium
+  "
+        >
+          Reset
+        </button>
       </div>
     </>
   );
@@ -98,118 +174,125 @@ export default function OptionComponent({
 
 function AccordionSection({
   index,
+  type,
   title,
   items,
   open,
   toggle,
-  state,
-  setState,
-}: any) {
-  const { CateMateListState, setMenProductFilter, menProductFilter } =
+}: {
+  index: number;
+  title: string;
+  type: string;
+  items: any[];
+  open: boolean;
+  toggle: (i: number) => void;
+}) {
+  const { setMenProductFilter, menProductFilter, setIsFilterApplied } =
     UsePanel();
 
-  const [checked, setChecked] = useState({
-    MaterialIds: menProductFilter.materialIds as string[],
-    CategoryIds: menProductFilter.categoryIds as string[],
-  });
+  const isChecked = (id: string) =>
+    type === "Materials"
+      ? menProductFilter.materialIds?.includes(id)
+      : menProductFilter.categoryIds?.includes(id);
 
-  const handleCheck = (type: "Materials" | "Category", itemId: string) => {
-    console.log(type, itemId);
+  const handleCheck = (id: string) => {
+    setIsFilterApplied(true);
     setMenProductFilter((prev) => {
       if (type === "Materials") {
         const materialIds = prev.materialIds ?? [];
-
         return {
           ...prev,
-          materialIds: materialIds.includes(itemId)
-            ? materialIds.filter((id) => id !== itemId)
-            : [...materialIds, itemId],
+          materialIds: materialIds.includes(id)
+            ? materialIds.filter((x) => x !== id)
+            : [...materialIds, id],
         };
       }
 
-      if (type === "Category") {
-        const categoryIds = prev.categoryIds ?? [];
-
-        return {
-          ...prev,
-          categoryIds: categoryIds.includes(itemId)
-            ? categoryIds.filter((id) => id !== itemId)
-            : [...categoryIds, itemId],
-        };
-      }
-
-      return prev;
+      const categoryIds = prev.categoryIds ?? [];
+      return {
+        ...prev,
+        categoryIds: categoryIds.includes(id)
+          ? categoryIds.filter((x) => x !== id)
+          : [...categoryIds, id],
+      };
     });
-
-    console.log("List", menProductFilter);
   };
 
   return (
     <>
-      <div className="rounded-xl bg-white border border-[#EDEDED] shadow">
+      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
         {/* HEADER */}
         <button
           onClick={() => toggle(index)}
-          className="w-full flex justify-between items-center px-4 py-4"
+          className="
+      w-full flex justify-between items-center
+      px-5 py-4
+      transition-colors duration-200
+      hover:bg-gray-50
+    "
         >
-          <span className="text-sm font-medium tracking-widest uppercase">
+          <span className="text-xs font-semibold tracking-[0.25em] uppercase text-gray-800">
             {title}
           </span>
+
           <RiArrowDropDownLine
-            size={24}
-            className={`transition-transform cursor-pointer duration-300 ${
-              open ? "rotate-180" : ""
-            }`}
+            size={26}
+            className={`transition-transform duration-300 text-gray-500
+        ${open ? "rotate-180 text-black" : ""}
+      `}
           />
         </button>
+
+        {/* subtle divider */}
+        <div className="h-px bg-gray-100" />
 
         {/* CONTENT */}
         <AnimatePresence>
           {open && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="px-6 pb-5 space-y-3"
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="px-5 pb-5 pt-4 space-y-2"
             >
               {Array.isArray(items) &&
                 items.map((item: any) => (
                   <label
                     key={item.id}
-                    className="flex items-center gap-3 cursor-pointer relative"
+                    className="
+                group flex items-center gap-3 cursor-pointer
+                rounded-xl border border-gray-200
+                px-4 py-2.5
+                transition-all duration-200
+                hover:border-black hover:bg-gray-50
+              "
                   >
+                    {/* hidden checkbox (logic unchanged) */}
                     <input
                       type="checkbox"
-                      checked={
-                        title === "Materials"
-                          ? menProductFilter.materialIds?.includes(item.id) ??
-                            false
-                          : menProductFilter.categoryIds?.includes(item.id) ??
-                            false
-                      }
-                      onChange={() => handleCheck(title, item.id)}
-                      className="peer absolute opacity-0 w-6 h-6 cursor-pointer"
+                      checked={!!isChecked(item.id)}
+                      onChange={() => handleCheck(item.id)}
+                      className="peer absolute opacity-0 w-0 h-0"
                     />
+
+                    {/* custom checkbox */}
                     <span
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
-    ${
-      title === "Materials"
-        ? menProductFilter.materialIds?.includes(item.id)
-        : menProductFilter.categoryIds?.includes(item.id)
-        ? "bg-black border-black"
-        : "bg-white border-gray-300"
-    }
-  `}
+                      className={`w-4 h-4 flex items-center justify-center
+                  rounded-full border-2
+                  transition-all duration-200
+                  ${
+                    isChecked(item.id)
+                      ? "bg-black border-black scale-105"
+                      : "bg-white border-gray-300 group-hover:border-black"
+                  }`}
                     >
-                      {(title === "Materials"
-                        ? menProductFilter.materialIds?.includes(item.id)
-                        : menProductFilter.categoryIds?.includes(item.id)) && (
+                      {isChecked(item.id) && (
                         <svg
                           className="w-3 h-3 text-white"
                           fill="none"
                           stroke="currentColor"
-                          strokeWidth="2"
+                          strokeWidth="2.5"
                           viewBox="0 0 24 24"
                         >
                           <path
@@ -221,7 +304,17 @@ function AccordionSection({
                       )}
                     </span>
 
-                    <span className="text-sm text-gray-700">{item.name}</span>
+                    {/* label */}
+                    <span
+                      className={`text-sm transition-colors
+                  ${
+                    isChecked(item.id)
+                      ? "text-black font-medium"
+                      : "text-gray-600 group-hover:text-black"
+                  }`}
+                    >
+                      {item.name}
+                    </span>
                   </label>
                 ))}
             </motion.div>
