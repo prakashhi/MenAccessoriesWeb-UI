@@ -3,20 +3,24 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { menProductData } from "@/Type/Types";
 import { UsePanel } from "@/context/Context";
+import { useParams } from "next/navigation";
 
 const LIMIT = 40;
 
 export function useInfiniteProductsOffset() {
+  const params = useParams();
   const [products, setProducts] = useState<menProductData[]>([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [totalProduct, setTotalProduct] = useState<number>(0);
 
-  const { MenCategoryList, menProductFilter, isFilterApplied } = UsePanel();
+  const { MenCategoryList, menProductFilter } = UsePanel();
 
-  const isFilterAppliedRef = useRef(false);
   const requestIdRef = useRef(0);
   const prevFilterRef = useRef(menProductFilter);
+
+  console.log("params,params", params);
 
   // Function to reset everything when filters change
   const resetState = useCallback(() => {
@@ -53,6 +57,8 @@ export function useInfiniteProductsOffset() {
     const categoryIds =
       menProductFilter.categoryIds && menProductFilter.categoryIds?.length > 0
         ? menProductFilter.categoryIds
+        : params.CategotyId
+        ? [`${params.CategotyId}`]
         : ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"];
 
     const res = await MenCategoryList({
@@ -65,6 +71,7 @@ export function useInfiniteProductsOffset() {
     if (requestId !== requestIdRef.current) return;
 
     let data = res?.success ? res.data.data : [];
+    let total = res.success ? res.data.total : 0;
 
     if (res.success) {
       setProducts((prev) => {
@@ -75,6 +82,8 @@ export function useInfiniteProductsOffset() {
         // Otherwise append to existing data
         return [...prev, ...data];
       });
+
+      setTotalProduct(total);
     }
 
     // Update pagination state
@@ -121,5 +130,5 @@ export function useInfiniteProductsOffset() {
     fetchProducts,
   ]);
 
-  return { products, fetchProducts, loading, hasMore };
+  return { products, fetchProducts, loading, hasMore ,totalProduct};
 }

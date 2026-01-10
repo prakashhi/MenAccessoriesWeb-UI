@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { StateMobileDrawer } from "./MobileFilterDrawer";
 import { UsePanel } from "@/context/Context";
+import { usePathname } from "next/navigation";
 
 export default function OptionComponent({
   setState,
@@ -23,19 +24,40 @@ export default function OptionComponent({
     setOpen((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
+  const pathname = usePathname();
+  const isCategoryPage = pathname.startsWith("/category/");
+
+  console.log("isCategoryPage", isCategoryPage, pathname);
+
+  // const sections = [
+  //   {
+  //     title: "Materials",
+  //     type: "Materials",
+  //     items: CateMateListState.Material,
+  //   },
+  //   {
+  //     title: "Category",
+  //     type: "Category",
+  //     items: CateMateListState.MenCategory,
+  //   },
+  // ];
+
   const sections = [
     {
       title: "Materials",
       type: "Materials",
-      items: CateMateListState.Material,
+      items: CateMateListState.Material ?? [],
     },
-    {
-      title: "Category",
-      type: "Category",
-      items: CateMateListState.MenCategory,
-    },
+    ...(isCategoryPage
+      ? []
+      : [
+          {
+            title: "Category",
+            type: "Category",
+            items: CateMateListState.MenCategory ?? [],
+          },
+        ]),
   ];
-
   const prices = [
     { label: "Under ₹5,000", min: 0, max: 5000 },
     { label: "₹5,000 – ₹10,000", min: 5000, max: 10000 },
@@ -187,8 +209,7 @@ function AccordionSection({
   open: boolean;
   toggle: (i: number) => void;
 }) {
-  const { setMenProductFilter, menProductFilter, setIsFilterApplied } =
-    UsePanel();
+  const { setMenProductFilter, menProductFilter } = UsePanel();
 
   const isChecked = (id: string) =>
     type === "Materials"
@@ -196,7 +217,6 @@ function AccordionSection({
       : menProductFilter.categoryIds?.includes(id);
 
   const handleCheck = (id: string) => {
-    setIsFilterApplied(true);
     setMenProductFilter((prev) => {
       if (type === "Materials") {
         const materialIds = prev.materialIds ?? [];

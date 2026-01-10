@@ -4,33 +4,9 @@ import Nav from "@/Component/NavBar/Nav";
 import RightSection from "@/app/(User)/category/[CategotyId]/Components/RightSectionProduct";
 import Footer from "@/Component/Footer/Footer";
 import MobileFilterDrawer from "@/app/(User)/category/[CategotyId]/Components/MobileFilterDrawer";
-import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { UsePanel } from "@/context/Context";
-
-import { menProductData } from "@/Type/Types";
-
-import { useInfiniteProductsOffset } from "./Component/infinityScrollProduct";
 
 export default function Page() {
-  const { fetchProducts, products, hasMore } = useInfiniteProductsOffset();
-  // const { MenCategoryList, menProductFilter, setMenProductFilter } = UsePanel();
-
-  // const [data, setData] = useState<menProductData[]>([]);
-
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     if (!menProductFilter) return;
-
-  //     let res = await MenCategoryList(menProductFilter);
-
-  //     if (res.data) {
-  //       setData(res.data.data);
-  //     }
-  //   };
-  //   getData();
-  // }, [menProductFilter]);
-
   return (
     <>
       <Nav />
@@ -48,16 +24,13 @@ export default function Page() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="flex justify-center lg:mt-2 my-6"
+            className="flex justify-center mt-8 "
           >
             <h2
-              className="text-xl lg:text-3xl tracking-wide text-black"
-              style={{
-                fontFamily: "ui-serif",
-                fontWeight: 800,
-              }}
+              className="text-2xl sm:text-3xl lg:text-4xl text-black tracking-wide text-center"
+              style={{ fontFamily: "ui-serif", fontWeight: 800 }}
             >
-              ALL Collations
+              All Collections
             </h2>
           </motion.div>
 

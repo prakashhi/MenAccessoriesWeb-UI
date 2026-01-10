@@ -101,8 +101,7 @@ export type UserContextType = {
   setMenProductFilter: React.Dispatch<React.SetStateAction<menProductFilter>>;
   CateMateListState: MenCategoryMartialState;
 
-  isFilterApplied: boolean;
-  setIsFilterApplied: React.Dispatch<React.SetStateAction<boolean>>;
+
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -128,7 +127,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     categoryIds: [],
   });
 
-  const [isFilterApplied, setIsFilterApplied] = useState<boolean>(false);
+
 
   const [userDataContext, setUserDataContext] = useState<accountInfoStateType>({
     info: null,
@@ -479,9 +478,6 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         MenAllSubCategoryList,
         MaterialAllList,
         CateMateListState,
-
-        isFilterApplied,
-        setIsFilterApplied,
       }}
     >
       {children}

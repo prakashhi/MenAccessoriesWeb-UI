@@ -113,7 +113,7 @@ export default function RightSection() {
     });
   }, [menProductFilter]);
 
-  const { fetchProducts, products, hasMore, loading } =
+  const { fetchProducts, products, hasMore, loading, totalProduct } =
     useInfiniteProductsOffset();
 
   const ProductData = products;
@@ -170,7 +170,7 @@ export default function RightSection() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 max-w-7xl mx-auto">
           {/* Results Count */}
           <div className="text-sm text-gray-600 font-light">
-            {ProductData.length} <span className="text-gray-400">products</span>
+            {totalProduct} <span className="text-gray-400">products</span>
           </div>
 
           {/* Controls */}
@@ -260,6 +260,32 @@ export default function RightSection() {
           <div className="flex items-center justify-center min-h-[70vh]">
             <EmptyTableComponent />
           </div>
+        )}
+        {totalProduct === products.length && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-center mt-16 px-4"
+          >
+            <div className="w-full max-w-lg">
+              {/* Gradient Divider */}
+              <div className="h-px bg-linear-to-r from-transparent via-gray-300 to-transparent mb-6" />
+
+              <div className="flex flex-col items-center gap-2">
+                {/* Icon */}
+                {/* <div className="w-9 h-9 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold">
+                  ✦
+                </div> */}
+
+                <p className="text-sm font-medium text-gray-700">
+                  End of Collection
+                </p>
+                <p className="text-xs text-gray-400 text-center">
+                  That’s everything we have for now
+                </p>
+              </div>
+            </div>
+          </motion.div>
         )}
 
         {loading && ProductData.length > 0 && <ProductSkeletonGrid count={8} />}
