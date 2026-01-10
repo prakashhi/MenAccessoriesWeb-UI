@@ -127,3 +127,85 @@ export type MenCategoryMartialState = {
   Material: materialListResponse[];
   MenCategory: MenSubCategoryResponse[];
 };
+
+export interface SaleProduct {
+  id: string;
+  salesId: string;
+  productId: string;
+
+  productName: string;
+  productCategory: string;
+  productSerialNumber: string;
+  productImage: string;
+  productHSNCode: string;
+
+  quantity: number;
+  weight: number | null;
+  price: number;
+  variantSize: string | null;
+  totalPrice: number;
+
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface Payment {
+  id: string;
+  transactionId: string;
+  salesId: string;
+
+  paymentDate: string; // ISO string
+  paymentMethod: string;
+  paymentStatus: string;
+  paymentAmount: number;
+
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface SaleResponseType {
+  id: string;
+  customerType: "RETAIL_CUSTOMER" | "WHOLESALE_CUSTOMER";
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerAddress: string;
+  customerGSTAddress: string | null;
+  customerState: string;
+  customerPinCode: string;
+  customerCountry: string;
+  customerCountryCode: string;
+
+  totalPrice: number;
+  totalQuantity: number;
+  totalDiscount: number;
+  totalTax: number;
+  shippingFee: number;
+
+  customerId: string | null;
+
+  address: string | null;
+  contactNumber: string | null;
+  countryCode: string | null;
+  country: string | null;
+  state: string | null;
+
+  invoiceId: string;
+  orderId: string;
+  salesDate: string; // ISO string
+  salesStatus: string;
+  source: string;
+
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+
+  products: SaleProduct[];
+  payments: Payment[];
+}

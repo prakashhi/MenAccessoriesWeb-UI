@@ -11,7 +11,6 @@ import { getUserFromStorage } from "@/context/utils";
 import { formatIndianPrice } from "@/utils/FormatCurrency";
 import PaymentSuccessModal from "./component/PaymentSuccessModel";
 import PaymentFailedModal from "./component/PaymentFailedModel";
-import GuestUserPaymentForm from "./component/GuestUserFill";
 import CartInfoModal from "./component/CartInfoModel";
 
 import { FiShoppingBag } from "react-icons/fi";
@@ -21,8 +20,6 @@ import EmptyDataModel from "@/Component/CommonComponet/EmptyDataModel";
 
 import { CartItem } from "@/Type/CartType";
 import { ProductInfoType } from "@/Type/ProductType";
-
-import { User } from "@/Type/UserDetailType";
 import { useApi } from "@/app/useApi";
 import { PaymentModeSelector } from "./component/PaymentMethodSelect";
 import { useUserCart } from "@/context/UserCartContext";
@@ -43,11 +40,9 @@ type modelTypes = {
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
-
   const { setUserCountData } = UsePanel();
 
   const { CartProductList } = useUserCart();
-
   const { guestCart } = useGuestUser();
 
   const [openModel, setOpenModel] = useState<modelTypes>({
@@ -58,12 +53,9 @@ export default function Page() {
   });
 
   const [cartListData, setCartListData] = useState<CartListItem[]>([]);
-  const [Fields, setFields] = useState<string[]>([]);
   const [paymentData, setPaymentData] = useState<any>(null);
 
   const [isEmptyStock, seIsEmptyStock] = useState(false);
-
-  const { callApi } = useApi();
 
   const router = useRouter();
 
@@ -90,7 +82,7 @@ export default function Page() {
 
   useEffect(() => {
     let value =
-      cartListData.filter((val) => val.product.stock <= 0).length > 0
+      cartListData.filter((val: any) => val.product.stock <= 0).length > 0
         ? true
         : false;
 
@@ -204,55 +196,11 @@ export default function Page() {
     return Total;
   }, [total]);
 
-  const valueCheckUser: (keyof User)[] = [
-    "contactNumber",
-    "country",
-    "state",
-    "address",
-    "pinCode",
-  ];
-
-  const userDataCheck = (user: User) => {
-    return valueCheckUser.filter((field) => {
-      const value = user[field];
-
-      return (
-        value === undefined ||
-        value === null ||
-        (typeof value === "string" && value.trim() === "")
-      );
-    });
-  };
-
   const handleCheckout = async () => {
     try {
       if (!user || !user.id) {
         router.push("/login");
       } else {
-        let res = await callApi(
-          "get",
-          `/9rock/users/4d2a0f6d-6808-480d-b78d-91852f8ac2e6`
-        );
-        let isCheck = userDataCheck(res.data);
-
-        // if (isCheck.length > 0) {
-        //   setFields(isCheck);
-        //   setOpenModel((prev) => ({
-        //     ...prev,
-        //     FillForm: true,
-        //     PaymentMethodModel: false,
-        //     PaymentSuccessModel: false,
-        //     PaymentFailModel: false,
-        //   }));
-        // } else {
-        //   setOpenModel((prev) => ({
-        //     ...prev,
-        //     PaymentMethodModel: true,
-        //     // PaymentFailModel: true,
-        //   }));
-
-        // }
-
         setOpenModel((prev) => ({
           ...prev,
           PaymentMethodModel: true,
@@ -383,32 +331,6 @@ export default function Page() {
             </motion.aside>
           )}
         </div>
-
-        {openModel.FillForm === true && (
-          <CartInfoModal
-            open={openModel.FillForm}
-            onClose={() =>
-              setOpenModel((prev) => ({ ...prev, FillForm: false }))
-            }
-            children={
-              <GuestUserPaymentForm
-                requiredFields={Fields}
-                onClose={() =>
-                  setOpenModel((prev) => ({ ...prev, FillForm: false }))
-                }
-                onSuccess={() =>
-                  setOpenModel({
-                    FillForm: false,
-                    PaymentMethodModel: true,
-                    PaymentSuccessModel: false,
-                    PaymentFailModel: false,
-                  })
-                }
-                UserData={user}
-              />
-            }
-          />
-        )}
 
         {openModel.PaymentMethodModel === true && (
           <CartInfoModal

@@ -29,13 +29,17 @@ import type {
   materialListParams,
   CateLogResponse,
   MenCategoryMartialState,
+  SaleResponseType,
 } from "@/Type/Types";
 import {
   UserGetDetailType,
   OrderDetailType,
   EditUserObjType,
   CreateAddressPostObjType,
+  createSaleConfigType,
 } from "@/Type/UserDetailType";
+
+import { generateOrderId } from "./utils";
 
 export type UserContextType = {
   userCountData: CountStateType;
@@ -100,8 +104,9 @@ export type UserContextType = {
   CateLogProducts: () => Promise<ApiResponse<CateLogResponse[]>>;
   setMenProductFilter: React.Dispatch<React.SetStateAction<menProductFilter>>;
   CateMateListState: MenCategoryMartialState;
-
-
+  createSalesFunction: (
+    CreateSaleConfig: createSaleConfigType
+  ) => Promise<ApiResponse<SaleResponseType>>;
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -126,8 +131,6 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const [menProductFilter, setMenProductFilter] = useState<menProductFilter>({
     categoryIds: [],
   });
-
-
 
   const [userDataContext, setUserDataContext] = useState<accountInfoStateType>({
     info: null,
@@ -342,6 +345,65 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // sales Function
+
+  const createSalesFunction = async (
+    CreateSaleConfig: createSaleConfigType
+  ): Promise<ApiResponse<SaleResponseType>> => {
+    try {
+      let date = new Date().toISOString();
+
+      let salesConfig = {
+        sales: {
+          salesDate: date,
+          invoiceId: generateOrderId("INVOICE"),
+          orderId: generateOrderId("ORD"),
+          totalPrice: Math.ceil(CreateSaleConfig.TotalAmount),
+          totalQuantity: CreateSaleConfig.TotalProductQty,
+          totalDiscount: 0,
+          totalTax: CreateSaleConfig.TotalTax,
+          shippingFee: CreateSaleConfig.shippingFee,
+          salesStatus: "PENDING",
+          source: "ROCKROAR",
+        },
+        products: CreateSaleConfig.OrderProductList,
+        payments: {
+          transactionId: generateOrderId("TRAN"),
+          paymentMethod: "RAZORPAY",
+          paymentStatus: "PAID",
+          paymentAmount: Math.ceil(CreateSaleConfig.TotalAmount),
+          razorpayOrderId: CreateSaleConfig.razorpayOrderId,
+          razorpayPaymentId: CreateSaleConfig.razorpayPaymentId,
+          razorpaySignature: CreateSaleConfig.razorpaySignature,
+          paymentDate: date,
+        },
+        customer: {
+          customerType: "RETAIL_CUSTOMER",
+          customerName: CreateSaleConfig.customerName,
+          customerEmail: CreateSaleConfig.customerEmail,
+          customerPhone: CreateSaleConfig.customerPhone,
+          customerAddress: CreateSaleConfig.customerAddress,
+          customerState: CreateSaleConfig.customerState,
+          customerPinCode: CreateSaleConfig.customerPinCode,
+          customerCountry: CreateSaleConfig.customerCountry,
+          customerCountryCode: CreateSaleConfig.customerCountryCode,
+          customerId: CreateSaleConfig.customerId,
+          customerGSTIN: null,
+          customerGSTAddress: null,
+        },
+        shouldSendEmail: true,
+        shouldMinimizeStock: true,
+      };
+
+      return await callApi("post", "/sales", { data: salesConfig });
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -478,6 +540,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         MenAllSubCategoryList,
         MaterialAllList,
         CateMateListState,
+        createSalesFunction,
       }}
     >
       {children}

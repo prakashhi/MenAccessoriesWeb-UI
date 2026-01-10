@@ -185,3 +185,38 @@ export type CreateAddressPostObjType = {
   contactNumber: string;
   email: string;
 };
+
+export type CreateSaleProductListType = {
+  productId: string;
+  productName: string;
+  productCategory: string;
+  productSerialNumber: string;
+  productImage: string;
+  productHSNCode: string;
+  quantity: number;
+  price: number;
+  totalPrice: number;
+  variantSize: string;
+};
+
+export type createSaleConfigType = {
+  TotalAmount: number;
+  // SubTotalAmount: number;
+  TotalProductQty: number;
+  TotalTax: number;
+  shippingFee: number;
+  OrderProductList: CreateSaleProductListType[];
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerAddress: string;
+  customerState: string;
+  customerPinCode: string;
+  customerCountry: string;
+  customerCountryCode: string;
+  customerId: string;
+};

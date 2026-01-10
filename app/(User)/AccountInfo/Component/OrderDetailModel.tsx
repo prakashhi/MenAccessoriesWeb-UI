@@ -6,7 +6,6 @@ import { Button } from "@heroui/react";
 import { Download } from "lucide-react";
 import { useApi } from "@/app/useApi";
 
-
 export default function OrderDetails({ OrderData, onClose }: any) {
   const router = useRouter();
   const payment = OrderData?.payments?.[0];

@@ -1,18 +1,14 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Wallet, CreditCard } from "lucide-react";
 import { X } from "lucide-react";
-import Loader from "@/public/svg/tube-spinner.svg";
-import Image from "next/image";
 import { useApi } from "@/app/useApi";
-import {
-  CartItem,
-  CartProductInfo,
-  ProductInfoType,
-  User,
-} from "@/app/(User)/Type/Types";
+import { CartItem, ProductInfoType, User } from "@/Type/Types";
 import { getUserFromStorage } from "@/context/utils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import PaymentSuccessModal from "./PaymentSuccessModel";
+import { UsePanel } from "@/context/Context";
+import CreateEditConfigAddressForm from "../../accountInfo/Component/CreateEditConfigAddressForm";
+import { Button } from "@heroui/react";
+import { notify } from "@/Component/ToastComponent";
 
 type PaymentMode = { paymentMode: "CASH" | "ONLINE" };
 
@@ -56,7 +52,6 @@ export function PaymentModeSelector({
   TotalQty: number;
 }) {
   const {
-    register,
     watch,
     handleSubmit,
     formState: { errors, isSubmitting, isDirty },
@@ -64,106 +59,71 @@ export function PaymentModeSelector({
 
   const user: User = useMemo(() => getUserFromStorage(), []);
 
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState<
+    number | null
+  >(null);
+
   const selected = watch("paymentMode");
   const { callApi } = useApi();
 
-  const generateOrderId = (type: string) => {
-    return `${type}-${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2, 6)
-      .toUpperCase()}`;
-  };
+  const { userDataContext, createSalesFunction } = UsePanel();
 
-  const onSubmit: SubmitHandler<PaymentMode> = async (info) => {
-    if (info.paymentMode == "CASH") {
-      let List = cartListData as CartItem[];
+  const [stateModel, setStateModel] = useState({
+    CreateAddress: false,
+  });
 
-      const productsList: ProductsListAPi[] = List.reduce((acc, val) => {
-        const { product, quantity, variantSize } = val;
-        if (!product || quantity <= 0) return acc;
-        const price = Number(product.productPrice)   * 10;
-        acc.push({
-          productId: product.productId,
-          productName: product.productName,
-          productCategory: product.categoryName,
-          productSerialNumber: product.serialNumber,
-          productImage: product.productImage,
-          productHSNCode: null,
-          quantity,
-          price,
-          totalPrice: quantity * price,
-          variantSize: variantSize?.variantSizeId ?? null,
-        });
+  const onSubmit = async () => {
+    let List = cartListData as CartItem[];
 
-        return acc;
-      }, [] as ProductsListAPi[]);
+    const productsList: ProductsListAPi[] = List.reduce((acc, val) => {
+      const { product, quantity, variantSize } = val;
+      if (!product || quantity <= 0) return acc;
+      const price = Number(product.productPrice) * 10;
+      acc.push({
+        productId: product.productId,
+        productName: product.productName,
+        productCategory: product.categoryName,
+        productSerialNumber: product.serialNumber,
+        productImage: product.productImage,
+        productHSNCode: null,
+        quantity,
+        price,
+        totalPrice: quantity * price,
+        variantSize: variantSize?.variantSizeId ?? null,
+      });
 
-      let date = new Date().toISOString();
+      return acc;
+    }, [] as ProductsListAPi[]);
 
-      try {
-        let res = await callApi("post", "/sales", {
-          data: {
-            sales: {
-              salesDate: date,
-              invoiceId: generateOrderId("INVOICE"),
-              orderId: generateOrderId("ORD"),
-              totalPrice: Math.ceil(PaymentAmount),
-              totalQuantity: TotalQty,
-              totalDiscount: 0,
-              totalTax: Math.ceil(((TotalPrice + shipping) * tax) / 100),
-              shippingFee: shipping,
-              salesStatus: "PENDING",
-              source: "OFFLINE",
-            },
-            products: productsList,
-            payments: {
-              transactionId: generateOrderId("TRAN"),
-              paymentMethod: "CASH",
-              paymentStatus: "PENDING",
-              paymentAmount: Math.ceil(PaymentAmount),
-              razorpayOrderId: null,
-              razorpayPaymentId: null,
-              razorpaySignature: null,
-              paymentDate: date,
-            },
-            customer: {
-              customerType: "RETAIL_CUSTOMER",
-              customerName: "Prakash",
-              customerEmail: "p@gmail.com",
-              customerPhone: "4322543",
-              customerAddress: "dferew",
-              customerState: "gujrata",
-              customerPinCode: "434",
-              customerCountry: "inida",
-              customerCountryCode: "+91",
-              customerId: null,
-              customerGSTIN: null,
-              customerGSTAddress: null,
-            },
-            shouldSendEmail: true,
-            shouldMinimizeStock: true,
-          },
-        });
+    // createSalesFunction({TotalAmount:});
 
-        if (res.success == true) {
-          setPaymentData(res.data);
-          onSuccess();
-        }
-      } catch (err) {
-        console.log(err);
-        onFail();
-      }
+    try {
+    } catch (error: any) {
+      notify({
+        message: error.message,
+        type: "error",
+      });
     }
   };
 
   return (
     <>
-      <div className="relative w-full">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="
+      {stateModel.CreateAddress == true && (
+        <CreateEditConfigAddressForm
+          typeOperation="Create"
+          onClose={() =>
+            setStateModel((prev) => ({ ...prev, CreateAddress: false }))
+          }
+        />
+      )}
+
+      {stateModel.CreateAddress == false && (
+        <div className="relative w-full">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="
         absolute top-4 right-4
         flex items-center cursor-pointer justify-center
         w-9 h-9
@@ -176,99 +136,122 @@ export function PaymentModeSelector({
         transition-all duration-200
         focus:outline-none focus:ring-2 focus:ring-gray-300
       "
-        >
-          <X size={18} />
-        </button>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-gray-100 space-y-5">
-            <h3 className="text-base font-semibold text-gray-900">
-              Payment Method
-            </h3>
+          >
+            <X size={18} />
+          </button>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-gray-100 space-y-5">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Select Delivery Address
+              </h3>
 
-            {/* CASH ON DELIVERY */}
-            <label
-              className={`relative flex gap-4 p-5 rounded-2xl cursor-pointer transition-all duration-200
-          border
-          ${
-            selected === "CASH"
-              ? "border-gray-300 bg-gray-50 ring-1 ring-gray-200"
-              : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/40"
-          }`}
-            >
-              <input
-                type="radio"
-                value="CASH"
-                {...register("paymentMode", { required: true })}
-                className="absolute top-5 right-5 h-4 w-4 accent-black"
-              />
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 h-80 overflow-y-auto">
+                {userDataContext.AddressList.map((val, index) => {
+                  const isSelected = selectedAddressIndex === index;
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100">
-                <Wallet size={18} className="text-gray-700" />
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  Cash on Delivery
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Pay when your order arrives
-                </p>
-              </div>
-            </label>
-
-            {/* ONLINE PAYMENT */}
-            <label
-              className={`relative flex gap-4 p-5 rounded-2xl cursor-pointer transition-all duration-200
-          border
-          ${
-            selected === "ONLINE"
-              ? "border-gray-300 bg-gray-50 ring-1 ring-gray-200"
-              : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/40"
-          }`}
-            >
-              <input
-                type="radio"
-                value="ONLINE"
-                {...register("paymentMode", { required: true })}
-                className="absolute top-5 right-5 h-4 w-4 accent-black"
-              />
-
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100">
-                <CreditCard size={18} className="text-gray-700" />
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  Online Payment
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  UPI, Cards, Net Banking
-                </p>
-              </div>
-            </label>
-
-            <button
-              type="submit"
-              disabled={isSubmitting || !selected}
-              className={`
-    w-full h-12 flex items-center justify-center rounded-xl
-    text-sm font-medium text-white transition-all
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => setSelectedAddressIndex(index)}
+                      className={`
+    cursor-pointer flex flex-col justify-between
+    rounded-2xl border
+    p-4 sm:p-5
+    transition-all duration-200
+    active:scale-[0.99]
     ${
-      isSubmitting || !selected
-        ? "bg-gray-300 cursor-not-allowed"
-        : "bg-black hover:bg-black/90 cursor-pointer"
+      isSelected
+        ? "border-black ring-2 ring-black/10 bg-gray-50"
+        : "border-gray-200 bg-white hover:border-gray-300"
     }
   `}
-            >
-              {isSubmitting ? (
-                <Image src={Loader} alt="loading" width={22} height={22} />
-              ) : (
-                "Save"
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
+                    >
+                      {/* Address Info */}
+                      <div className="space-y-1">
+                        <p className="text-sm sm:text-base font-semibold text-gray-900">
+                          {val.addressLine1}
+                        </p>
+
+                        {val.addressLine2 && (
+                          <p className="text-sm text-gray-600">
+                            {val.addressLine2}
+                          </p>
+                        )}
+
+                        <p className="text-sm text-gray-700">
+                          {val.city}, {val.state} – {val.pinCode}
+                        </p>
+
+                        <p className="text-sm text-gray-700">{val.country}</p>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="h-px bg-gray-200 my-3" />
+
+                      {/* Contact */}
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <p>
+                          📞 {val.countryCode} {val.contactNumber}
+                        </p>
+                        {val.email && (
+                          <p className="truncate">✉️ {val.email}</p>
+                        )}
+                      </div>
+
+                      {/* Selected Badge */}
+                      {isSelected && (
+                        <div className="mt-3 text-xs font-medium text-green-600">
+                          ✓ Selected
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div
+                className="
+    sticky bottom-0
+    bg-white pt-4
+    space-y-3
+  "
+              >
+                <Button
+                  disabled={selectedAddressIndex === null}
+                  className={`
+    w-full h-12 rounded-xl font-medium transition-all duration-200
+    ${
+      selectedAddressIndex === null
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : "bg-black text-white hover:bg-black/90 active:scale-95"
+    }
+  `}
+                >
+                  Continue
+                </Button>
+
+                <Button
+                  type="button"
+                  onPress={() =>
+                    setStateModel((prev) => ({ ...prev, CreateAddress: true }))
+                  }
+                  className="
+    w-full h-11 rounded-xl
+    border border-dashed border-gray-300
+    text-sm font-medium
+    text-gray-700
+    hover:border-black hover:text-black
+    active:scale-95
+    transition
+  "
+                >
+                  + Add New Address
+                </Button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
     </>
   );
 }

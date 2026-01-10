@@ -82,3 +82,10 @@ export function updateGuestCart(newCart: CartItem[]) {
 export function saveGuestCart(cart: GuestCart) {
   localStorage.setItem("GuestUserData", JSON.stringify(cart));
 }
+
+export const generateOrderId = (type: string) => {
+  return `${type}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 6)
+    .toUpperCase()}`;
+};

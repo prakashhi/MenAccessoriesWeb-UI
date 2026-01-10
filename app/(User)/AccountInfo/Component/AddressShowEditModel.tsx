@@ -144,13 +144,13 @@ export default function AddressShowEditModel({
 
       <button
         onClick={onClose}
-        className="flex w-20 items-center py-3 cursor-pointer gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600"
+        className="flex w-20 items-center py-3  cursor-pointer gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600"
       >
         <ArrowLeft size={18} />
         Back
       </button>
 
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-12 gap-4 bg-white p-5 rounded-xl ">
         {/* Email */}
         <div className={layout.pinCode}>
           <label className="text-sm font-medium">
