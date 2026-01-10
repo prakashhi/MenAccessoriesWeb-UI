@@ -20,7 +20,6 @@ import { LikeProductType } from "@/Type/LikeType";
 import { GuestLikeItem } from "@/Type/GuestType";
 
 import { useRouter } from "next/navigation";
-import { useApi } from "@/app/useApi";
 import { notify, toastActions } from "@/Component/ToastComponent";
 import { getProductId } from "@/utils/getProductId";
 import { useUserLike } from "@/context/UserLikeContext";
@@ -30,20 +29,12 @@ import { useGuestUser } from "@/context/GuestUserContext";
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
   const { setUserCountData } = UsePanel();
-
   const { LikeProductList, RemoveLikeProduct } = useUserLike();
-
   const { AddCartProduct } = useUserCart();
-
   const { AddCartProductGuest, guestCart, RemoveGuestLikeProduct } =
     useGuestUser();
-
-  const { callApi } = useApi();
-
   const [likeProductList, setLikeProductList] = useState<LikeProductType[]>([]);
-
   const [loading, setLoading] = useState<boolean>(false);
-
   const router = useRouter();
 
   const mapGuestLikesToLikeProducts = (
@@ -188,7 +179,6 @@ export default function Page() {
     }
   };
 
-
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">
       <Nav />
@@ -301,24 +291,33 @@ export default function Page() {
 
                       {/* ACTIONS */}
                       <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
-                        <button
-                          onClick={() => {
-                            addToCartHandle(item);
-                          }}
-                          className={`w-full py-2.5 border ${
-                            item.product.stock === 0
-                              ? "bg-gray-100 cursor-not-allowed border-none"
-                              : "cursor-pointer hover:bg-black hover:text-white  border-gray-900  text-gray-900"
-                          } 
+                        {item.product.stock <= 0 ? (
+                          <button
+                            className="w-full py-2.5 border cursor-not-allowed   border-gray-300  text-gray-400
+                   text-xs tracking-[0.15em] uppercase
+                    transition"
+                          >
+                            OUT OF stock
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              addToCartHandle(item);
+                            }}
+                            className={`w-full py-2.5 border cursor-pointer hover:bg-black hover:text-white  border-gray-900  text-gray-900
                    text-xs tracking-[0.15em] uppercase
                     transition`}
-                        >
-                          {loading ? (
-                            <Image alt={item.name ?? "Loading"} src={Loader} />
-                          ) : (
-                            "Add to Cart"
-                          )}
-                        </button>
+                          >
+                            {loading ? (
+                              <Image
+                                alt={item.name ?? "Loading"}
+                                src={Loader}
+                              />
+                            ) : (
+                              "Add to Cart"
+                            )}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </motion.div>

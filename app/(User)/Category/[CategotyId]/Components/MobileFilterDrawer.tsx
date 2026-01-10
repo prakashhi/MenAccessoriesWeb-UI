@@ -8,11 +8,6 @@ import { X, ArrowRight } from "lucide-react";
 import OptionComponent from "./OptionComponent";
 import { UsePanel } from "@/context/Context";
 
-import { ProductInfoType } from "@/Type/ProductType";
-
-import { useState } from "react";
-import { useParams } from "next/navigation";
-
 export type StateMobileDrawer = {
   malarialId: string | null;
   minPrice: number | null;
@@ -22,15 +17,6 @@ export type StateMobileDrawer = {
 
 export default function MobileFilterDrawer() {
   const { isOpen, onOpenChange } = UsePanel();
-
-  const params = useParams();
-
-  const [state, setState] = useState<StateMobileDrawer>({
-    malarialId: null,
-    minPrice: null,
-    maxPrice: null,
-    PriceLabel: null,
-  });
 
   return (
     <Drawer
@@ -91,7 +77,7 @@ export default function MobileFilterDrawer() {
             {/* ================= BODY ================= */}
             <DrawerBody className="flex-1 overflow-y-auto px-5 py-6">
               <div className="flex flex-col space-y-4">
-                <OptionComponent setState={setState} state={state} />
+                <OptionComponent />
               </div>
             </DrawerBody>
             {/* ================= FOOTER ================= */}

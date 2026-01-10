@@ -18,6 +18,8 @@ import { getProductId } from "@/utils/getProductId";
 import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { notify } from "../ToastComponent";
+import { Button } from "@heroui/react";
+import { ArrowRight } from "lucide-react";
 
 export default function Product() {
   const { setUserCountData, refreshKey, user, CateLogProducts } = UsePanel();
@@ -117,34 +119,35 @@ export default function Product() {
   }, [refreshKey]);
 
   return (
-    <section className="pt-12 lg:pt-49 px-4 lg:overflow-x-hidden sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
-      <div className="flex justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center text-center mb-6 sm:mb-10"
-        >
-          <h2
-            className="lg:text-3xl text-xl flex  items-center flex-col mb-20   lg:mb-10"
-            style={{ fontFamily: "ui-serif, serif", fontWeight: 800 }}
+    <>
+      <section className="pt-12 lg:pt-49 px-4 lg:overflow-x-hidden sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
+        <div className="flex justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center text-center mb-6 sm:mb-10"
           >
-            Explore Collection
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: "4rem" }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="h-0.5 bg-black mt-2 opacity-60"
-            />
-          </h2>
-        </motion.div>
-      </div>
-      {product?.length > 1 &&
-        product.map((categoryItem, index) => (
-          <div
-            key={index}
-            ref={observeSection(index)}
-            className={`
+            <h2
+              className="lg:text-3xl text-xl flex  items-center flex-col mb-20   lg:mb-10"
+              style={{ fontFamily: "ui-serif, serif", fontWeight: 800 }}
+            >
+              Explore Collection
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "4rem" }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+                className="h-0.5 bg-black mt-2 opacity-60"
+              />
+            </h2>
+          </motion.div>
+        </div>
+        {product?.length > 1 &&
+          product.map((categoryItem, index) => (
+            <div
+              key={index}
+              ref={observeSection(index)}
+              className={`
     mb-20
     transition-all duration-700 ease-out
     ${
@@ -153,22 +156,22 @@ export default function Product() {
         : "opacity-0 translate-y-12"
     }
   `}
-          >
-            {/* CATEGORY HEADER */}
-            <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-end mb-8">
-              <div>
-                <h2
-                  className="text-md sm:text-3xl lg:text-4xl font-semibold text-gray-900 tracking-tight"
-                  style={{ fontFamily: "ui-serif, serif" }}
-                >
-                  {categoryItem.name}
-                </h2>
-                <div className="w-14 h-0.5 bg-black mt-2 opacity-60" />
-              </div>
+            >
+              {/* CATEGORY HEADER */}
+              <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-end mb-8">
+                <div>
+                  <h2
+                    className="text-md sm:text-3xl lg:text-4xl font-semibold text-gray-900 tracking-tight"
+                    style={{ fontFamily: "ui-serif, serif" }}
+                  >
+                    {categoryItem.name}
+                  </h2>
+                  <div className="w-14 h-0.5 bg-black mt-2 opacity-60" />
+                </div>
 
-              <Link
-                href={`/category/${categoryItem.id}`}
-                className="
+                <Link
+                  href={`/category/${categoryItem.id}`}
+                  className="
                 inline-flex items-center justify-center
                 px-6 py-2.5
                 border border-black
@@ -177,41 +180,41 @@ export default function Product() {
                 hover:bg-black hover:text-white
                 transition-all duration-300
               "
-              >
-                VIEW ALL
-              </Link>
-            </div>
+                >
+                  VIEW ALL
+                </Link>
+              </div>
 
-            <div className="relative">
-              {/* RIGHT FADE */}
+              <div className="relative">
+                {/* RIGHT FADE */}
 
-              <div className="flex flex-col lg:flex-row gap-6 items-center">
-                {/* CATEGORY IMAGE */}
-                <div
-                  onClick={() => {
-                    router.replace(`/category/${categoryItem.id}`);
-                  }}
-                  className="group relative items-center
+                <div className="flex flex-col lg:flex-row gap-6 items-center">
+                  {/* CATEGORY IMAGE */}
+                  <div
+                    onClick={() => {
+                      router.replace(`/category/${categoryItem.id}`);
+                    }}
+                    className="group relative items-center
                     w-full lg:w-[300px] xl:w-[340px]
                     h-[200px] sm:h-[220px] lg:h-[420px]
                     shrink-0
                     rounded-2xl cursor-pointer
                     overflow-hidden
                     bg-gray-100"
-                >
-                  <Image
-                    src={ImageShowUtil(categoryItem.image)}
-                    alt={categoryItem.name}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 340px"
-                    className="object-cover
+                  >
+                    <Image
+                      src={ImageShowUtil(categoryItem.image)}
+                      alt={categoryItem.name}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 340px"
+                      className="object-cover
           transition-transform duration-500 ease-out
           lg:group-hover:scale-110"
-                  />
+                    />
 
-                  {/* OVERLAY */}
-                  <div
-                    className="
+                    {/* OVERLAY */}
+                    <div
+                      className="
           absolute inset-0
           bg-black/40
           flex flex-col justify-end p-4
@@ -219,20 +222,20 @@ export default function Product() {
           lg:group-hover:opacity-100
           transition-opacity duration-300
         "
-                  >
-                    <h3 className="text-white text-lg sm:text-xl font-semibold">
-                      {categoryItem.name}
-                    </h3>
-                    <span className="text-white/80 text-sm">
-                      {categoryItem.noOfProducts} Products
-                    </span>
+                    >
+                      <h3 className="text-white text-lg sm:text-xl font-semibold">
+                        {categoryItem.name}
+                      </h3>
+                      <span className="text-white/80 text-sm">
+                        {categoryItem.noOfProducts} Products
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                {/* PRODUCTS SCROLL */}
-                <div className="relative w-full max-w-full overflow-hidden">
-                  <div
-                    className="flex gap-4 sm:gap-5 w-full
+                  {/* PRODUCTS SCROLL */}
+                  <div className="relative w-full max-w-full overflow-hidden">
+                    <div
+                      className="flex gap-4 sm:gap-5 w-full
                         max-w-full
                         overflow-x-auto
                         scrollbar-hide    
@@ -242,11 +245,11 @@ export default function Product() {
                         overscroll-x-contain
                         px-1
                      "
-                  >
-                    {visibleSections.has(index) && (
-                      <CardModel
-                        DataObj={categoryItem.products}
-                        CustomWH="
+                    >
+                      {visibleSections.has(index) && (
+                        <CardModel
+                          DataObj={categoryItem.products}
+                          CustomWH="
                         snap-start
                         w-[320px]
                         sm:w-[280px]
@@ -254,18 +257,39 @@ export default function Product() {
                         xl:w-[320px]
                         shrink-0
                       "
-                        Data={state}
-                        setState={setState}
-                        isUser={!!userData}
-                        categoryName={categoryItem.name}
-                      />
-                    )}
+                          Data={state}
+                          setState={setState}
+                          isUser={!!userData}
+                          categoryName={categoryItem.name}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-    </section>
+          ))}
+        {/* view all collection */}
+        <div className="flex justify-center my-6">
+          <Link
+            href={"/collection"}
+            className="
+          group flex items-center gap-2 px-6 py-3 bg-black text-white 
+          font-medium rounded-full hover:bg-gray-900 transition
+          overflow-hidden relative
+        "
+          >
+            View All Collection
+            <span
+              className="
+            transform translate-x-0 group-hover:translate-x-2 transition-transform duration-300
+          "
+            >
+              <ArrowRight size={20} />
+            </span>
+          </Link>
+        </div>
+      </section>
+    </>
   );
 }

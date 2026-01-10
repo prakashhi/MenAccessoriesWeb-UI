@@ -2,13 +2,13 @@
 
 import Nav from "@/Component/NavBar/Nav";
 import Footer from "@/Component/Footer/Footer";
-import { Button, image } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useState } from "react";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { getUserFromStorage } from "@/context/utils";
-import { formatIndianPrice, PriceShowFunction } from "@/utils/FormatCurrency";
+import { formatIndianPrice } from "@/utils/FormatCurrency";
 import PaymentSuccessModal from "./component/PaymentSuccessModel";
 import PaymentFailedModal from "./component/PaymentFailedModel";
 import GuestUserPaymentForm from "./component/GuestUserFill";
@@ -28,6 +28,7 @@ import { PaymentModeSelector } from "./component/PaymentMethodSelect";
 import { useUserCart } from "@/context/UserCartContext";
 import { useGuestUser } from "@/context/GuestUserContext";
 import CartProductShowModel from "./component/CartProductShowModel";
+import { notify } from "@/Component/ToastComponent";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
 
@@ -43,12 +44,11 @@ type modelTypes = {
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
 
-
   const { setUserCountData } = UsePanel();
 
-  const { CartProductList, RemoveCartProduct } = useUserCart();
+  const { CartProductList } = useUserCart();
 
-  const { guestCart, RemoveGuestCartProduct } = useGuestUser();
+  const { guestCart } = useGuestUser();
 
   const [openModel, setOpenModel] = useState<modelTypes>({
     FillForm: false,
@@ -60,6 +60,8 @@ export default function Page() {
   const [cartListData, setCartListData] = useState<CartListItem[]>([]);
   const [Fields, setFields] = useState<string[]>([]);
   const [paymentData, setPaymentData] = useState<any>(null);
+
+  const [isEmptyStock, seIsEmptyStock] = useState(false);
 
   const { callApi } = useApi();
 
@@ -85,6 +87,15 @@ export default function Page() {
     };
     CartList();
   }, [user]);
+
+  useEffect(() => {
+    let value =
+      cartListData.filter((val) => val.product.stock <= 0).length > 0
+        ? true
+        : false;
+
+    seIsEmptyStock(value);
+  }, [cartListData]);
 
   useEffect(() => {
     if (user) return;
@@ -348,12 +359,26 @@ export default function Page() {
                 </div>
 
                 {/* CHECKOUT */}
-                <Button
-                  onPress={handleCheckout}
-                  className="w-full cursor-pointer bg-black cur text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition"
-                >
-                  CHECKOUT
-                </Button>
+                {isEmptyStock == true ? (
+                  <Button
+                    onPress={() =>
+                      notify({
+                        message: "Remove Out of stock Product",
+                        type: "warning",
+                      })
+                    }
+                    className="w-full  bg-gray-400 cur text-white py-4 text-xs tracking-[0.3em] cursor-not-allowed transition"
+                  >
+                    CHECKOUT
+                  </Button>
+                ) : (
+                  <Button
+                    onPress={handleCheckout}
+                    className="w-full cursor-pointer bg-black cur text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition"
+                  >
+                    CHECKOUT
+                  </Button>
+                )}
               </div>
             </motion.aside>
           )}

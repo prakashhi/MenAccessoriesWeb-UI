@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import headerImg from "@/public/Images/il_680x540.7199741956_g139.jpg";
+import ImageSlider from "./Component/ImageSlider";
 
 export default function Header() {
   return (
@@ -12,19 +13,19 @@ export default function Header() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col items-center text-center mb-10 "
+        className="flex flex-col items-center text-center mb-10 px-4"
       >
         <h1
-          className="text-[22px] sm:text-3xl md:text-4xl tracking-tight font-bold"
-          style={{ fontFamily: "ui-serif", fontWeight: 900 }}
+          className="text-2xl sm:text-4xl md:text-4xl tracking-tight font-extrabold"
+          style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Define Your Signature Look
         </h1>
         <motion.div
           initial={{ width: 0 }}
-          animate={{ width: "4rem" }}
+          animate={{ width: "5rem" }}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="h-0.5 bg-black mt-2 opacity-60"
+          className="h-1 bg-black mt-3 opacity-80 rounded-full"
         />
       </motion.div>
 
@@ -37,20 +38,7 @@ export default function Header() {
           flex flex-col lg:flex-row
           shadow-xl rounded-2xl overflow-hidden bg-white"
       >
-        {/* Image */}
-        <motion.div
-          className="w-full lg:w-[70%]"
-          initial={{ scale: 1.05 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-        >
-          <Image
-            className="w-full h-auto object-cover"
-            src={headerImg}
-            alt="Header"
-            priority
-          />
-        </motion.div>
+        <ImageSlider />
 
         {/* Desktop Text Box */}
         <motion.div

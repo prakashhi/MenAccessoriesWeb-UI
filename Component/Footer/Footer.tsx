@@ -1,6 +1,9 @@
 import SocialIcons from "./IconsComponet";
 import ContactComponent from "./ContectComponet";
+import { UsePanel } from "@/context/Context";
+import Link from "next/link";
 export default function Footer() {
+  const { CateMateListState } = UsePanel();
   return (
     <>
       <footer className="bg-white text-black pt-12 pb-6 border-t border-gray-200">
@@ -20,26 +23,16 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-3">Shop</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>
-                <a href="#" className="hover:text-black transition">
-                  Bracelet
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-black transition">
-                  Bags
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-black transition">
-                  Belts
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-black transition">
-                  Grooming Kits
-                </a>
-              </li>
+              {CateMateListState.MenCategory.map((val,index) => (
+                <li key={index}>
+                  <Link
+                    href={`/category/${val.id}`}
+                    className="hover:text-black transition"
+                  >
+                    {val.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

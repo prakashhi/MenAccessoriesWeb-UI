@@ -107,11 +107,12 @@ export default function RightSection() {
   }, []);
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth", // or "auto"
-    });
-  }, [menProductFilter]);
+    const t = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 120);
+
+    return () => clearTimeout(t);
+  }, [menProductFilter.sortBy, menProductFilter.sortOrder]);
 
   const { fetchProducts, products, hasMore, loading, totalProduct } =
     useInfiniteProductsOffset();

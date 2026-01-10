@@ -26,6 +26,7 @@ type BaseProduct = {
   code: string;
   sellingPrice: number;
   image: string;
+  stock: number;
   categoryName?: string;
 };
 
@@ -216,7 +217,7 @@ export default function CardModel<T extends BaseProduct>({
   return (
     <>
       {DataObj?.length > 1 &&
-        DataObj.map((product,index) => {
+        DataObj.map((product, index) => {
           let iscart = isUser
             ? !!Data.CartData?.[product.id]
             : !!guestCart?.items?.[product.id];
@@ -308,54 +309,87 @@ export default function CardModel<T extends BaseProduct>({
                     transition={{ duration: 0.3 }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (!iscart) {
-                        handleAddToCart(product.id);
+
+                      let stock = product.stock ?? null; // if stock is undefined, set null
+
+                      if (stock !== null) {
+                        // Stock exists, check if available
+                        if (stock > 0) {
+                          // Product in stock, allow adding to cart
+                          if (!iscart) {
+                            handleAddToCart(product.id);
+                          } else {
+                            router.push("/cart");
+                          }
+                        }
                       } else {
-                        router.push("/cart");
+                        // Stock does not exist → allow function
+                        if (!iscart) {
+                          handleAddToCart(product.id);
+                        } else {
+                          router.push("/cart");
+                        }
                       }
                     }}
-                    className="
-    w-full py-3 rounded-md bg-white border border-gray-100
+                    className={`
+    w-full py-3 rounded-md bg-white border 
      text-white text-sm font-semibold
     flex items-center justify-center gap-2
     md:bg-white md:text-neutral-900
-    md:hover:bg-gray-100 cursor-pointer md:hover:text-white
+    md:hover:bg-gray-100 ${
+      product.stock <= 0
+        ? "cursor-not-allowed border-none"
+        : "cursor-pointer border-gray-100"
+    } md:hover:text-white
     transition-colors duration-300
-  "
+                    `}
                   >
-                    <AnimatePresence mode="wait">
-                      {!iscart ? (
-                        <motion.span
-                          key="add"
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          transition={{ duration: 0.4, ease: "easeOut" }}
-                          className="flex  text-gray-400 items-center gap-2 cursor-pointer"
-                        >
-                          <RiShoppingCart2Line size={16} />
-                          ADD TO CART
-                        </motion.span>
-                      ) : (
-                        <motion.span
-                          key="added"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.6, ease: "easeInOut" }}
-                          className="flex items-center cursor-pointer gap-2 text-emerald-600 "
-                        >
+                    {product.stock <= 0 ? (
+                      <motion.span
+                        key="add"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        className="flex  text-gray-400  items-center gap-2 cursor-not-allowed"
+                      >
+                        OUT OF STOCK
+                      </motion.span>
+                    ) : (
+                      <AnimatePresence mode="wait">
+                        {!iscart ? (
                           <motion.span
-                            initial={{ scale: 0.85 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 0.6, ease: "easeOut" }}
+                            key="add"
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
+                            className="flex  text-gray-400 items-center gap-2 cursor-pointer"
                           >
-                            <CircleCheck size={18} />
+                            <RiShoppingCart2Line size={16} />
+                            ADD TO CART
                           </motion.span>
-                          ADDED
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
+                        ) : (
+                          <motion.span
+                            key="added"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.6, ease: "easeInOut" }}
+                            className="flex items-center cursor-pointer gap-2 text-emerald-600 "
+                          >
+                            <motion.span
+                              initial={{ scale: 0.85 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.6, ease: "easeOut" }}
+                            >
+                              <CircleCheck size={18} />
+                            </motion.span>
+                            ADDED
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    )}
                   </motion.button>
                 </div>
               </div>

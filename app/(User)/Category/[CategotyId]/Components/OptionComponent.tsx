@@ -8,13 +8,7 @@ import { StateMobileDrawer } from "./MobileFilterDrawer";
 import { UsePanel } from "@/context/Context";
 import { usePathname } from "next/navigation";
 
-export default function OptionComponent({
-  setState,
-  state,
-}: {
-  setState: React.Dispatch<React.SetStateAction<StateMobileDrawer>>;
-  state: StateMobileDrawer;
-}) {
+export default function OptionComponent() {
   const [open, setOpen] = useState<Record<number, boolean>>({});
   const { CateMateListState, setMenProductFilter, menProductFilter } =
     UsePanel();

@@ -383,10 +383,6 @@ export default function OTPModal({
               </button>
             </div>
 
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Paste or type the 6-digit code from your SMS. For security, this
-              code expires in 5 minutes.
-            </p>
           </div>
         </ModalBody>
 
