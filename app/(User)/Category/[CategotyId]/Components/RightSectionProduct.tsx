@@ -3,28 +3,22 @@
 import CardModel from "@/Component/ProductList/CardModel";
 import { motion } from "framer-motion";
 import { UsePanel } from "@/context/Context";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import EmptyTableComponent from "./EmptyTableComponents";
 import { FiFilter, FiChevronDown } from "react-icons/fi";
-
 import { Data } from "@/Type/Types";
-
 import { CartItem } from "@/Type/CartType";
-
 import { LikeProductType } from "@/Type/LikeType";
 import { getUserFromStorage } from "@/context/utils";
-import { useApi } from "@/app/useApi";
 import { useParams } from "next/navigation";
 import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { TbAlphabetLatin } from "react-icons/tb";
+import { useInfiniteProductsOffset } from "@/app/(User)/collection/Component/infinityScrollProduct";
 
-interface RightSectionProps {
-  ProductData: any[];
-}
+import { ProductSkeletonGrid } from "@/app/(User)/collection/Component/Skeleton";
 
-export default function RightSection({ ProductData = [] }: RightSectionProps) {
-  const [sortedProducts, setSortedProducts] = useState<any[]>([]);
+export default function RightSection() {
   const params = useParams();
   const userData = useMemo(() => getUserFromStorage(), []);
   const { onOpen } = UsePanel();
@@ -42,8 +36,6 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     CartData: {},
   });
 
-  const { callApi } = useApi();
-
   const filterDataOption = [
     { label: "Featured" },
     // { label: "Best selling", icon: FiTrendingUp },
@@ -54,53 +46,6 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     { label: "Newest First" },
     { label: "Oldest First" },
   ];
-
-  // useEffect(() => {
-  //   if (!ProductData || ProductData.length === 0) {
-  //     setSortedProducts([]);
-  //     return;
-  //   }
-
-  //   const fetchSortedProducts = async () => {
-  //     try {
-  //       let url = "";
-
-  //       switch (sort) {
-  //         case "Price: Low → High":
-  //           setMenProductFilter((prev) => ({
-  //             ...prev,
-  //             sortBy: "price",
-  //             sortOrder: "desc",
-  //           }));
-  //           break;
-
-  //         case "Price: High → Low":
-  //           url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=desc&sortBy=price`;
-  //           break;
-
-  //         case "Newest First":
-  //           url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=desc&sortBy=createdAt`;
-  //           break;
-
-  //         case "Oldest First":
-  //           url = `/product-list-for-idk-jwellery?limit=100&offset=0&categoryIds=${params.CategotyId}&sortOrder=asc&sortBy=createdAt`;
-  //           break;
-
-  //         default:
-  //           setSortedProducts(ProductData);
-  //           return;
-  //       }
-
-  //       const res = await callApi("get", url);
-  //       setSortedProducts(res.data ?? []);
-  //     } catch (error) {
-  //       console.error(error);
-  //       setSortedProducts([]);
-  //     }
-  //   };
-
-  //   fetchSortedProducts();
-  // }, [sort, ProductData, params.CategotyId]);
 
   useEffect(() => {
     if (!sort) return;
@@ -160,6 +105,38 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
     };
     MetaData();
   }, []);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // or "auto"
+    });
+  }, [menProductFilter]);
+
+  const { fetchProducts, products, hasMore, loading } =
+    useInfiniteProductsOffset();
+
+  const ProductData = products;
+
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!bottomRef.current || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          observer.unobserve(entry.target);
+          fetchProducts();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(bottomRef.current);
+
+    return () => observer.disconnect();
+  }, [fetchProducts, hasMore, ProductData.length]);
 
   // Animation variants
   const containerVariants = {
@@ -246,13 +223,14 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
       </div>
 
       {/* ===== PRODUCT GRID ===== */}
-      <div className="p-4 sm:p-6 flex justify-center">
+      <div className="p-4 sm:p-6">
         {ProductData.length > 0 ? (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="
+          <>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="
         grid
         grid-cols-1
         sm:grid-cols-2
@@ -261,25 +239,30 @@ export default function RightSection({ ProductData = [] }: RightSectionProps) {
         gap-4
         sm:gap-5
         lg:gap-6"
-          >
-            <CardModel
-              CustomWH="
+            >
+              <CardModel
+                CustomWH="
                   min-w-[300px]
                   sm:min-w-[260px]
                   md:min-w-[300px]
                   lg:min-w-[320px]
                 "
-              DataObj={ProductData}
-              setState={setState}
-              Data={state}
-              isUser={userData ? true : false}
-            />
-          </motion.div>
+                DataObj={ProductData}
+                setState={setState}
+                Data={state}
+                isUser={userData ? true : false}
+              />
+            </motion.div>
+
+            <div ref={bottomRef} className="h-10" />
+          </>
         ) : (
           <div className="flex items-center justify-center min-h-[70vh]">
             <EmptyTableComponent />
           </div>
         )}
+
+        {loading && ProductData.length > 0 && <ProductSkeletonGrid count={8} />}
       </div>
 
       {/* Mobile Filter FAB */}

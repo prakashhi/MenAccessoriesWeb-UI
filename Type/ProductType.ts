@@ -52,7 +52,6 @@ export type productCategoryList = {
   image: string;
   name: string;
   noOfProducts: number;
-
   products: ProductInfoType[];
 };
 
@@ -67,9 +66,11 @@ export type variantDataProduct = {
   stock: number;
 };
 
-
 export type productSize = {
   id: string;
   size: string;
   stock: number;
 };
+
+
+export 

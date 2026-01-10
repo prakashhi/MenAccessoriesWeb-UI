@@ -186,9 +186,6 @@ export default function Nav() {
   }, []);
 
   const shouldHide = isMobile && searchOpen;
-
-  console.log("userCountData", guestCart, GuestUserDataLength);
-
   return (
     <>
       <nav className="w-full sticky top-0 z-50 bg-white shadow-md">

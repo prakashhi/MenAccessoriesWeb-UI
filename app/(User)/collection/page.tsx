@@ -4,38 +4,32 @@ import Nav from "@/Component/NavBar/Nav";
 import RightSection from "@/app/(User)/category/[CategotyId]/Components/RightSectionProduct";
 import Footer from "@/Component/Footer/Footer";
 import MobileFilterDrawer from "@/app/(User)/category/[CategotyId]/Components/MobileFilterDrawer";
-import { useCallback, useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { UsePanel } from "@/context/Context";
 
 import { menProductData } from "@/Type/Types";
 
+import { useInfiniteProductsOffset } from "./Component/infinityScrollProduct";
+
 export default function Page() {
-  const { MenCategoryList, menProductFilter, setMenProductFilter } = UsePanel();
+  const { fetchProducts, products, hasMore } = useInfiniteProductsOffset();
+  // const { MenCategoryList, menProductFilter, setMenProductFilter } = UsePanel();
 
-  const [data, setData] = useState<menProductData[]>([]);
+  // const [data, setData] = useState<menProductData[]>([]);
 
-  console.log("menProductFilter", menProductFilter);
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     if (!menProductFilter) return;
 
-  useEffect(() => {
-    const getData = async () => {
-      // setMenProductFilter((prev) => ({
-      //   ...prev,
-      //   categoryIds: ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"],
-      // }));
+  //     let res = await MenCategoryList(menProductFilter);
 
-      if (!menProductFilter) return;
-
-      let res = await MenCategoryList(menProductFilter);
-
-      console.log("res", res);
-
-      if (res.data) {
-        setData(res.data.data);
-      }
-    };
-    getData();
-  }, [menProductFilter]);
+  //     if (res.data) {
+  //       setData(res.data.data);
+  //     }
+  //   };
+  //   getData();
+  // }, [menProductFilter]);
 
   return (
     <>
@@ -89,7 +83,7 @@ export default function Page() {
               transition={{ duration: 0.5, ease: "easeOut" }}
               className=" p-2"
             >
-              <RightSection ProductData={data} />
+              <RightSection />
             </motion.div>
           </motion.div>
         </div>

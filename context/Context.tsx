@@ -15,6 +15,7 @@ import {
   ApiResponse,
   APiNoDataREsponse,
   accountInfoStateType,
+  materialListResponse,
 } from "@/Type/Types";
 import { LikeProductType } from "@/Type/LikeType";
 import { CartItem } from "@/Type/CartType";
@@ -23,6 +24,10 @@ import type {
   CountStateType,
   menProductListType,
   menProductFilter,
+  MenSubCategoryResponse,
+  materialListParams,
+  CateLogResponse,
+  MenCategoryMartialState,
 } from "@/Type/Types";
 import {
   UserGetDetailType,
@@ -30,8 +35,6 @@ import {
   EditUserObjType,
   CreateAddressPostObjType,
 } from "@/Type/UserDetailType";
-
-const menSpecificId = ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"];
 
 export type UserContextType = {
   userCountData: CountStateType;
@@ -88,7 +91,14 @@ export type UserContextType = {
     React.SetStateAction<accountInfoStateType>
   >;
   menProductFilter: menProductFilter;
+  MenAllSubCategoryList: () => Promise<ApiResponse<MenSubCategoryResponse[]>>;
+  MaterialAllList: (
+    Params?: materialListParams
+  ) => Promise<ApiResponse<materialListResponse[]>>;
+
+  CateLogProducts: () => Promise<ApiResponse<CateLogResponse[]>>;
   setMenProductFilter: React.Dispatch<React.SetStateAction<menProductFilter>>;
+  CateMateListState: MenCategoryMartialState;
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -110,15 +120,20 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [user, setUser] = useState<UserGetDetailType | null>(null);
 
-  const [menProductFilter, setMenProductFilter] = useState<menProductFilter>(
-    {}
-  );
+  const [menProductFilter, setMenProductFilter] = useState<menProductFilter>({
+    categoryIds: [],
+  });
 
   const [userDataContext, setUserDataContext] = useState<accountInfoStateType>({
     info: null,
     OrderList: [],
     AddressList: [],
   });
+  const [CateMateListState, setCateMateLisState] =
+    useState<MenCategoryMartialState>({
+      Material: [],
+      MenCategory: [],
+    });
 
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [UserRefreshKey, setUserRefreshKey] = useState<number>(0);
@@ -196,7 +211,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   //ProductRelated Function
-  const catalogProducts = async () => {
+  const CateLogProducts = async (): Promise<ApiResponse<CateLogResponse[]>> => {
     try {
       return await callApi("get", `/rockroar/catalog`);
     } catch (error: any) {
@@ -211,12 +226,50 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     filterOption: menProductFilter
   ): Promise<ApiResponse<menProductListType>> => {
     try {
+      // let params = {};
+
+      // if (filterOption.categoryIds && filterOption.categoryIds.length > 0) {
+      //   console.log("lenghth", filterOption.categoryIds.length);
+      //   params = filterOption;
+      // } else {
+      //   params = {
+      //     ...filterOption,
+      //     categoryIds: ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"],
+      //   };
+      // }
+
+      // console.log("params", params);
+
       return await callApi("get", `/9rock/get-products`, {
-        params: {
-          ...filterOption,
-          categoryIds: ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"],
-        },
+        params: filterOption,
       });
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
+  };
+
+  const MenAllSubCategoryList = async (): Promise<
+    ApiResponse<MenSubCategoryResponse[]>
+  > => {
+    let menCategoryId = "3e1ae7d6-97aa-4068-9fbe-7c64b73525c1";
+    try {
+      return await callApi("get", `/9rock/get-sub-categories/${menCategoryId}`);
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
+  };
+
+  const MaterialAllList = async (
+    Params?: materialListParams
+  ): Promise<ApiResponse<materialListResponse[]>> => {
+    try {
+      return await callApi("get", `/material-list`, { params: Params });
     } catch (error: any) {
       throw {
         message: error?.response?.data?.message || "Something is wrong",
@@ -292,8 +345,32 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     if (!mounted) return;
 
     const userData = getUserFromStorage();
-
     setUser(userData);
+
+    const RequireListDataGet = async () => {
+      try {
+        const [CategoryList, MaterialList] = await Promise.allSettled([
+          MenAllSubCategoryList(),
+          MaterialAllList(),
+        ]);
+
+        const category =
+          CategoryList.status == "fulfilled"
+            ? CategoryList.value.data ?? []
+            : [];
+        const material =
+          MaterialList.status == "fulfilled"
+            ? MaterialList.value.data ?? []
+            : [];
+
+        setCateMateLisState({
+          MenCategory: category,
+          Material: material,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
     const LoadCountData = async () => {
       if (user?.id) {
@@ -324,6 +401,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     };
 
     LoadCountData();
+    RequireListDataGet();
   }, [mounted, user?.id, refreshKey]);
 
   useEffect(() => {
@@ -388,8 +466,13 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         setUserDataContext,
         MenCategoryList,
 
+        CateLogProducts,
+
         menProductFilter,
         setMenProductFilter,
+        MenAllSubCategoryList,
+        MaterialAllList,
+        CateMateListState,
       }}
     >
       {children}

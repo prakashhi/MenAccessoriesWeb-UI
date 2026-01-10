@@ -175,7 +175,7 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
         wrapper: "overflow-hidden",
       }}
     >
-      <ModalContent className="relative bg-linear-to-br from-white via-white to-gray-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 rounded-3xl shadow-2xl shadow-black/10 dark:shadow-black/30 border border-white/40 dark:border-zinc-700/50 p-6 sm:p-8">
+      <ModalContent className="relative bg-linear-to-br from-white via-white to-gray-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/30 border border-white/40 dark:border-zinc-700/50 p-6 sm:p-8">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -295,7 +295,7 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
                       ? "000 000 0000"
                       : "Phone number"
                   }
-                  className="w-full px-4 py-4 rounded-2xl border-2 border-gray-200 dark:border-zinc-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200 text-lg font-medium tracking-wider"
+                  className="w-full  px-4 py-4 rounded-2xl border-2 border-gray-200 dark:border-zinc-700 outline-none dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500/20 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200 text-lg font-medium tracking-wider"
                 />
                 <input
                   type="hidden"
@@ -327,7 +327,7 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
             className="
               w-full
               py-4
-              bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600
+              bg-linear-to-r bg-gray-700
               hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700
               text-white font-semibold text-base
               rounded-2xl shadow-lg shadow-blue-500/25 dark:shadow-blue-500/15
@@ -349,25 +349,6 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
             )}
           </Button>
         </form>
-
-        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-zinc-700">
-          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-            By continuing, you agree to our{" "}
-            <button
-              type="button"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Terms
-            </button>{" "}
-            and{" "}
-            <button
-              type="button"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Privacy Policy
-            </button>
-          </p>
-        </div>
       </ModalContent>
     </Modal>
   );

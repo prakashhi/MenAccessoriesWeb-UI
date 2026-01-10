@@ -3,12 +3,9 @@
 import Link from "next/link";
 import CardModel from "./CardModel";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useApi } from "@/app/useApi";
 import { UsePanel } from "@/context/Context";
 import { getUserFromStorage } from "@/context/utils";
-import { Data } from "@/Type/Types";
-
-import { productCategoryList } from "@/Type/ProductType";
+import { Data, CateLogResponse } from "@/Type/Types";
 import { LikeProductType } from "@/Type/LikeType";
 
 import { CartItem } from "@/Type/CartType";
@@ -20,13 +17,11 @@ import { useRouter } from "next/navigation";
 import { getProductId } from "@/utils/getProductId";
 import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
+import { notify } from "../ToastComponent";
 
 export default function Product() {
-  const { setUserCountData, refreshKey, user } = UsePanel();
+  const { setUserCountData, refreshKey, user, CateLogProducts } = UsePanel();
   const userData = useMemo(() => getUserFromStorage(), [user]);
-
-  const { callApi } = useApi();
-
   const { LikeProductList } = useUserLike();
 
   const { CartProductList } = useUserCart();
@@ -37,7 +32,7 @@ export default function Product() {
     new Set()
   );
 
-  const [product, setProduct] = useState<productCategoryList[]>([]);
+  const [product, setProduct] = useState<CateLogResponse[]>([]);
 
   const [state, setState] = useState<Data>({
     LikeData: {},
@@ -45,43 +40,54 @@ export default function Product() {
   });
 
   const getData = useCallback(async () => {
-    //Original Data
-    let res = await callApi("get", `/rockroar/catalog`);
-    setProduct(res.data);
+    try {
+      let res = await CateLogProducts();
 
-    if (userData) {
-      const [cart, like] = await Promise.allSettled([
-        CartProductList(userData.id),
-        LikeProductList(userData.id),
-      ]);
+      if (res.success == true && res.data) {
+        setProduct(res.data);
+      }
 
-      const LikeData = like.status == "fulfilled" ? like.value?.data ?? [] : [];
-      const CartData = cart.status == "fulfilled" ? cart.value?.data ?? [] : [];
+      if (userData) {
+        const [cart, like] = await Promise.allSettled([
+          CartProductList(userData.id),
+          LikeProductList(userData.id),
+        ]);
 
-      const cartMap: Record<string, CartItem> = {};
+        const LikeData =
+          like.status == "fulfilled" ? like.value?.data ?? [] : [];
+        const CartData =
+          cart.status == "fulfilled" ? cart.value?.data ?? [] : [];
 
-      CartData.forEach((item: CartItem) => {
-        cartMap[item.product.productId] = item;
+        const cartMap: Record<string, CartItem> = {};
+
+        CartData.forEach((item: CartItem) => {
+          cartMap[item.product.productId] = item;
+        });
+
+        const likeMap: Record<string, LikeProductType> = {};
+
+        LikeData.forEach((item: LikeProductType) => {
+          const id = getProductId(item.product);
+          likeMap[id] = item;
+        });
+
+        setState((prev) => ({
+          ...prev,
+          LikeData: likeMap,
+          CartData: cartMap,
+        }));
+
+        setUserCountData((prev) => ({
+          ...prev,
+          LikeCount: LikeData.length,
+          CartCount: CartData.length,
+        }));
+      }
+    } catch (err: any) {
+      notify({
+        message: err.message,
+        type: "error",
       });
-
-      const likeMap: Record<string, LikeProductType> = {};
-
-      LikeData.forEach((item: LikeProductType) => {
-        const id = getProductId(item.product);
-        likeMap[id] = item;
-      });
-
-      setState((prev) => ({
-        ...prev,
-        LikeData: likeMap,
-        CartData: cartMap,
-      }));
-
-      setUserCountData((prev) => ({
-        ...prev,
-        LikeCount: LikeData.length,
-        CartCount: CartData.length,
-      }));
     }
   }, [user]);
 
@@ -247,11 +253,11 @@ export default function Product() {
                         lg:w-[300px]
                         xl:w-[320px]
                         shrink-0
-
                       "
                         Data={state}
                         setState={setState}
                         isUser={!!userData}
+                        categoryName={categoryItem.name}
                       />
                     )}
                   </div>

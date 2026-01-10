@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import { RiArrowDropDownLine } from "react-icons/ri";
-import { useApi } from "@/app/useApi";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { StateMobileDrawer } from "./MobileFilterDrawer";
+import { UsePanel } from "@/context/Context";
 
 export default function OptionComponent({
   setState,
@@ -16,20 +16,22 @@ export default function OptionComponent({
 }) {
   const [open, setOpen] = useState<Record<number, boolean>>({});
 
-  const { callApi } = useApi();
-
-  const [option, setOption] = useState({
-    materials: [
-      { name: "fusion", id: "dewrwe" },
-      { name: "fusion", id: "dewrwefesrw" },
-    ],
-  });
+  const { CateMateListState, setMenProductFilter } = UsePanel();
 
   const toggle = (index: number) => {
     setOpen((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
-  const sections = [{ title: "Materials", items: option.materials }];
+  const sections = [
+    {
+      title: "Materials",
+      items: CateMateListState.Material,
+    },
+    {
+      title: "Category",
+      items: CateMateListState.MenCategory,
+    },
+  ];
 
   const prices = [
     { label: "Under ₹5,000", min: 0, max: 5000 },
@@ -37,7 +39,6 @@ export default function OptionComponent({
     { label: "₹10,000 – ₹25,000", min: 10000, max: 25000 },
     { label: "₹25,000+", min: 25000, max: null },
   ];
-
   return (
     <>
       <div className="space-y-4">
@@ -104,8 +105,43 @@ function AccordionSection({
   state,
   setState,
 }: any) {
-  const handleCheck = (id: string) => {
-    setState((prev: StateMobileDrawer) => ({ ...prev, malarialId: id }));
+  const { CateMateListState, setMenProductFilter, menProductFilter } =
+    UsePanel();
+
+  const [checked, setChecked] = useState({
+    MaterialIds: menProductFilter.materialIds as string[],
+    CategoryIds: menProductFilter.categoryIds as string[],
+  });
+
+  const handleCheck = (type: "Materials" | "Category", itemId: string) => {
+    console.log(type, itemId);
+    setMenProductFilter((prev) => {
+      if (type === "Materials") {
+        const materialIds = prev.materialIds ?? [];
+
+        return {
+          ...prev,
+          materialIds: materialIds.includes(itemId)
+            ? materialIds.filter((id) => id !== itemId)
+            : [...materialIds, itemId],
+        };
+      }
+
+      if (type === "Category") {
+        const categoryIds = prev.categoryIds ?? [];
+
+        return {
+          ...prev,
+          categoryIds: categoryIds.includes(itemId)
+            ? categoryIds.filter((id) => id !== itemId)
+            : [...categoryIds, itemId],
+        };
+      }
+
+      return prev;
+    });
+
+    console.log("List", menProductFilter);
   };
 
   return (
@@ -145,21 +181,32 @@ function AccordionSection({
                   >
                     <input
                       type="checkbox"
-                      checked={state.malarialId == item.id}
-                      onChange={() => handleCheck(item.id)}
-                      className="peer cursor-pointer  absolute opacity-0 w-6 h-6"
+                      checked={
+                        title === "Materials"
+                          ? menProductFilter.materialIds?.includes(item.id) ??
+                            false
+                          : menProductFilter.categoryIds?.includes(item.id) ??
+                            false
+                      }
+                      onChange={() => handleCheck(title, item.id)}
+                      className="peer absolute opacity-0 w-6 h-6 cursor-pointer"
                     />
                     <span
-                      className={`w-6 cursor-pointer h-6 shrink-0 rounded-full border-2 border-gray-300 flex items-center justify-center transition-all duration-300
-                      ${
-                        state.malarialId == item.id
-                          ? "bg-black border-black"
-                          : "bg-white"
-                      }`}
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+    ${
+      title === "Materials"
+        ? menProductFilter.materialIds?.includes(item.id)
+        : menProductFilter.categoryIds?.includes(item.id)
+        ? "bg-black border-black"
+        : "bg-white border-gray-300"
+    }
+  `}
                     >
-                      {state.malarialId == item.id && (
+                      {(title === "Materials"
+                        ? menProductFilter.materialIds?.includes(item.id)
+                        : menProductFilter.categoryIds?.includes(item.id)) && (
                         <svg
-                          className="w-4 cursor-pointer  h-4 text-white"
+                          className="w-3 h-3 text-white"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"
@@ -173,6 +220,7 @@ function AccordionSection({
                         </svg>
                       )}
                     </span>
+
                     <span className="text-sm text-gray-700">{item.name}</span>
                   </label>
                 ))}

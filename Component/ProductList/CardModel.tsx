@@ -11,32 +11,40 @@ import { CircleCheck } from "lucide-react";
 import { RiShoppingCart2Line } from "react-icons/ri";
 
 import { Heart } from "lucide-react";
-import { Data } from "@/Type/Types";
+import { Data, CateLogResponseProductType, menProductData } from "@/Type/Types";
 import { ProductInfoType } from "@/Type/ProductType";
 import { ImageShowUtil } from "@/utils/ImageShowUtil";
-import { useMemo, useState } from "react";
-import { getUserFromStorage } from "@/context/utils";
 import { notify, toastActions } from "../ToastComponent";
-import axios from "axios";
 import { useUserLike } from "@/context/UserLikeContext";
 import { useGuestUser } from "@/context/GuestUserContext";
 import { useUserCart } from "@/context/UserCartContext";
 
-export default function CardModel({
+type BaseProduct = {
+  id: string;
+  // price: number;
+  name: string;
+  code: string;
+  sellingPrice: number;
+  image: string;
+  categoryName?: string;
+};
+
+export default function CardModel<T extends BaseProduct>({
   DataObj,
   CustomWH,
   Data,
   isUser,
   setState,
+  categoryName,
 }: {
-  DataObj: ProductInfoType[];
+  DataObj: T[];
   CustomWH?: string;
   Data: Data;
   isUser?: boolean;
-  setState: React.Dispatch<React.SetStateAction<Data>>;
-}) {
-  type Product = ProductInfoType;
 
+  setState: React.Dispatch<React.SetStateAction<Data>>;
+  categoryName?: string;
+}) {
   const { callApi } = useApi();
 
   const { setUserCountData } = UsePanel();
@@ -208,7 +216,7 @@ export default function CardModel({
   return (
     <>
       {DataObj?.length > 1 &&
-        DataObj.map((product: Product) => {
+        DataObj.map((product,index) => {
           let iscart = isUser
             ? !!Data.CartData?.[product.id]
             : !!guestCart?.items?.[product.id];
@@ -218,7 +226,7 @@ export default function CardModel({
 
           return (
             <div
-              key={product.id}
+              key={index}
               className={`
             group relative bg-white rounded-2xl overflow-hidden
             border border-gray-100 shadow-sm
@@ -276,10 +284,10 @@ export default function CardModel({
               {/* INFO */}
               <div className="px-4 py-3 text-center space-y-1">
                 <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
-                  {product.name}dewrew
+                  {product.name.trim() !== ""
+                    ? product.name
+                    : categoryName ?? product.categoryName}
                 </h3>
-
-                {/* <Star starNum={4} /> */}
 
                 <div className="flex justify-center gap-2 items-center">
                   <span className="text-base font-bold text-gray-900">

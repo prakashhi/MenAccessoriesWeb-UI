@@ -51,6 +51,7 @@ export type menProductData = {
   code: string;
   sellingPrice: number;
   categoryName: string;
+  stock: number;
   sizes: SizeMen[];
 };
 
@@ -75,4 +76,53 @@ export type menProductFilter = {
   maxPrice?: number;
   limit?: number;
   offset?: number;
+};
+
+export type MenSubCategoryResponse = {
+  id: string;
+  name: string;
+  image: string;
+};
+
+export type materialListParams = {
+  page?: number;
+  limit?: number;
+};
+
+export type materialListData = {
+  id: string;
+  name: string;
+  categoryId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type materialListResponse = {
+  total: number;
+  page: number;
+  limit: number;
+  data: materialListData[];
+};
+
+export type CateLogResponseProductType = {
+  id: string;
+  seqId: number;
+  name: string;
+  image: string;
+  code: string;
+  sellingPrice: number;
+};
+
+export type CateLogResponse = {
+  id: string;
+  name: string;
+  image: string;
+  createdAt: string;
+  noOfProducts: number;
+  products: CateLogResponseProductType[];
+};
+
+export type MenCategoryMartialState = {
+  Material: materialListResponse[];
+  MenCategory: MenSubCategoryResponse[];
 };
