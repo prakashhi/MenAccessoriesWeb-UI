@@ -192,11 +192,11 @@ export type CreateSaleProductListType = {
   productCategory: string;
   productSerialNumber: string;
   productImage: string;
-  productHSNCode: string;
+  productHSNCode?: string | null;
   quantity: number;
   price: number;
   totalPrice: number;
-  variantSize: string;
+  variantSize: string | null;
 };
 
 export type createSaleConfigType = {
@@ -206,9 +206,9 @@ export type createSaleConfigType = {
   TotalTax: number;
   shippingFee: number;
   OrderProductList: CreateSaleProductListType[];
-  razorpayOrderId: string;
-  razorpayPaymentId: string;
-  razorpaySignature: string;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
+  razorpaySignature: string | null;
 
   customerName: string;
   customerEmail: string;
@@ -218,5 +218,5 @@ export type createSaleConfigType = {
   customerPinCode: string;
   customerCountry: string;
   customerCountryCode: string;
-  customerId: string;
+  customerId: string | null;
 };

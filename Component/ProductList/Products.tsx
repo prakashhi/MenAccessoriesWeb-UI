@@ -19,7 +19,8 @@ import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { notify } from "../ToastComponent";
 import { Button } from "@heroui/react";
-import { ArrowRight } from "lucide-react";
+
+import ImageCarousel from "../Header/Component/ImageCarousel";
 
 export default function Product() {
   const { setUserCountData, refreshKey, user, CateLogProducts } = UsePanel();
@@ -120,7 +121,7 @@ export default function Product() {
 
   return (
     <>
-      <section className="pt-12 lg:pt-49 px-4 lg:overflow-x-hidden sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
+      <section className="pt-12 lg:pt-39 px-4 lg:overflow-x-hidden sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
         <div className="flex justify-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -129,7 +130,7 @@ export default function Product() {
             className="flex flex-col items-center text-center mb-6 sm:mb-10"
           >
             <h2
-              className="lg:text-3xl text-xl flex  items-center flex-col mb-20   lg:mb-10"
+              className="lg:text-3xl text-xl flex text-blue-950 items-center flex-col mb-20   lg:mb-10"
               style={{ fontFamily: "ui-serif, serif", fontWeight: 800 }}
             >
               Explore Collection
@@ -137,7 +138,7 @@ export default function Product() {
                 initial={{ width: 0 }}
                 animate={{ width: "4rem" }}
                 transition={{ delay: 0.6, duration: 0.6 }}
-                className="h-0.5 bg-black mt-2 opacity-60"
+                className="h-px bg-black mt-2 opacity-60"
               />
             </h2>
           </motion.div>
@@ -270,25 +271,9 @@ export default function Product() {
             </div>
           ))}
         {/* view all collection */}
-        <div className="flex justify-center my-6">
-          <Link
-            href={"/collection"}
-            className="
-          group flex items-center gap-2 px-6 py-3 bg-black text-white 
-          font-medium rounded-full hover:bg-gray-900 transition
-          overflow-hidden relative
-        "
-          >
-            View All Collection
-            <span
-              className="
-            transform translate-x-0 group-hover:translate-x-2 transition-transform duration-300
-          "
-            >
-              <ArrowRight size={20} />
-            </span>
-          </Link>
-        </div>
+
+        <ImageCarousel />
+       
       </section>
     </>
   );

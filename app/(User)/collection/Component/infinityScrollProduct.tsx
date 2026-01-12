@@ -20,8 +20,6 @@ export function useInfiniteProductsOffset() {
   const requestIdRef = useRef(0);
   const prevFilterRef = useRef(menProductFilter);
 
-  console.log("params,params", params);
-
   // Function to reset everything when filters change
   const resetState = useCallback(() => {
     requestIdRef.current++;
@@ -70,8 +68,8 @@ export function useInfiniteProductsOffset() {
 
     if (requestId !== requestIdRef.current) return;
 
-    let data = res?.success ? res.data.data : [];
-    let total = res.success ? res.data.total : 0;
+    let data = res?.success && res.data ? res.data.data : [];
+    let total = res.success && res.data ? res.data.total : 0;
 
     if (res.success) {
       setProducts((prev) => {
@@ -130,5 +128,5 @@ export function useInfiniteProductsOffset() {
     fetchProducts,
   ]);
 
-  return { products, fetchProducts, loading, hasMore ,totalProduct};
+  return { products, fetchProducts, loading, hasMore, totalProduct };
 }

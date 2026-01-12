@@ -209,3 +209,9 @@ export interface SaleResponseType {
   products: SaleProduct[];
   payments: Payment[];
 }
+
+export type loginModelType = {
+  LoginModel: boolean;
+  OTPFillModel: boolean;
+  UserCreateModel: boolean;
+};

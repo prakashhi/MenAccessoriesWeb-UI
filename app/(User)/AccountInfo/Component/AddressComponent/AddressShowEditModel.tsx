@@ -32,7 +32,7 @@ type Props = {
   typeOperation: "Create" | "Edit";
   isSubmitting: any;
   handleSubmit: any;
-  EditAddressId: string;
+  EditAddressId?: string;
 };
 
 const countryCodeMap = new Map(CountryCode.map((c) => [c.code, c]));
@@ -109,22 +109,24 @@ export default function AddressShowEditModel({
           type: "info",
         });
       } else {
-        try {
-          let res = await EditUserAddress(EditAddressId, value);
-          if (res.success == true) {
-            notify({
-              message: "Address has been updated successfully",
-              type: "success",
-            });
+        if (EditAddressId) {
+          try {
+            let res = await EditUserAddress(EditAddressId, value);
+            if (res.success == true) {
+              notify({
+                message: "Address has been updated successfully",
+                type: "success",
+              });
 
-            UserTrigger();
-            onClose();
+              UserTrigger();
+              onClose();
+            }
+          } catch (err: any) {
+            notify({
+              message: err.message,
+              type: "warning",
+            });
           }
-        } catch (err: any) {
-          notify({
-            message: err.message,
-            type: "warning",
-          });
         }
       }
     }

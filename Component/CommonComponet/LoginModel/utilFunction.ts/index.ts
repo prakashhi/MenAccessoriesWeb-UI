@@ -4,10 +4,10 @@ import { UsePanel } from "@/context/Context";
 import { UserGetDetailType } from "@/Type/UserDetailType";
 import { setAuthData } from "@/utils/localStorageUtil";
 
-export function UserLoginCredential(token?: string) {
+export function UserLoginCredential() {
   const { setUser } = UsePanel();
 
-  const loginUser = (userData: UserGetDetailType, token: string) => {
+  const loginUser = (userData?: UserGetDetailType, token?: string) => {
     let Token = token ? token : process.env.NEXT_PUBLIC_USER_TOKEN;
     let data = {
       id: "4d2a0f6d-6808-480d-b78d-91852f8ac2e6",
@@ -22,10 +22,10 @@ export function UserLoginCredential(token?: string) {
 
     let Data = userData ? userData : data;
 
-     console.log(Token,data,process.env.NEXT_PUBLIC_USER_TOKEN)
+    console.log(Token, data, process.env.NEXT_PUBLIC_USER_TOKEN);
     setAuthData("UserData", JSON.stringify(Data), 24 * 60 * 60 * 1000);
     setAuthData("Token", JSON.stringify(Token), 24 * 60 * 60 * 1000);
-    setUser(userData);
+    setUser(Data);
   };
 
   return { loginUser };

@@ -1,45 +1,17 @@
 "use client";
 
 import Nav from "@/Component/NavBar/Nav";
-import { useParams } from "next/navigation";
 import RightSection from "./Components/RightSectionProduct";
 import Footer from "@/Component/Footer/Footer";
 import MobileFilterDrawer from "./Components/MobileFilterDrawer";
-import { useApi } from "@/app/useApi";
-import { useCallback, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ProductInfoType } from "@/Type/ProductType";
+import { useInfiniteProductsOffset } from "../../collection/Component/infinityScrollProduct";
 
 export default function Page() {
-  const params = useParams();
-  const { callApi, loading } = useApi();
-
-  const [data, setData] = useState<ProductInfoType[]>([]);
-
-  const getData = useCallback(async () => {
-    // const res = await axios.get('http//localhost:3005/9rock/get-products', {
-    //   params : {
-    //     categoryIds : ["a5834d51-f02b-468c-912f-050e1d3fa6e1"]
-    //   }
-    // })/
-
-    const res = await callApi("get", "/9rock/get-products", {
-      params: {
-        categoryIds: [`${process.env.NEXT_PUBLIC_MENS_CAT_ID}`],
-      },
-    });
-    setData(res.data);
-  }, []);
-
-  useEffect(() => {
-    getData();
-  }, [getData]);
+  const { products } = useInfiniteProductsOffset();
 
   return (
     <>
-      {/* Mobile Drawer */}
-
-      {/* Top Navigation */}
       <Nav />
 
       {/* PAGE FADE IN */}
@@ -55,16 +27,16 @@ export default function Page() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="flex justify-center lg:mt-2 my-6"
+            className="flex justify-center  lg:mt-2 py-6 "
           >
             <h2
-              className="text-xl lg:text-3xl tracking-wide text-black"
+              className="text-xl lg:text-3xl   tracking-wide text-blue-950"
               style={{
                 fontFamily: "ui-serif",
                 fontWeight: 800,
               }}
             >
-              {data?.[0]?.categoryName}
+              {products?.[0]?.categoryName}
             </h2>
           </motion.div>
 
@@ -97,8 +69,6 @@ export default function Page() {
       </motion.main>
 
       <MobileFilterDrawer />
-
-      {/* FOOTER */}
       <Footer />
     </>
   );

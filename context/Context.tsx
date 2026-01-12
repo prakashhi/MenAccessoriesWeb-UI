@@ -30,6 +30,7 @@ import type {
   CateLogResponse,
   MenCategoryMartialState,
   SaleResponseType,
+  loginModelType,
 } from "@/Type/Types";
 import {
   UserGetDetailType,
@@ -107,6 +108,10 @@ export type UserContextType = {
   createSalesFunction: (
     CreateSaleConfig: createSaleConfigType
   ) => Promise<ApiResponse<SaleResponseType>>;
+
+  loginModel: loginModelType;
+
+  setLoginModel: React.Dispatch<React.SetStateAction<loginModelType>>;
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -127,6 +132,12 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [user, setUser] = useState<UserGetDetailType | null>(null);
+
+  const [loginModel, setLoginModel] = useState<loginModelType>({
+    LoginModel: false,
+    OTPFillModel: false,
+    UserCreateModel: false,
+  });
 
   const [menProductFilter, setMenProductFilter] = useState<menProductFilter>({
     categoryIds: [],
@@ -234,20 +245,6 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     filterOption: menProductFilter
   ): Promise<ApiResponse<menProductListType>> => {
     try {
-      // let params = {};
-
-      // if (filterOption.categoryIds && filterOption.categoryIds.length > 0) {
-      //   console.log("lenghth", filterOption.categoryIds.length);
-      //   params = filterOption;
-      // } else {
-      //   params = {
-      //     ...filterOption,
-      //     categoryIds: ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"],
-      //   };
-      // }
-
-      // console.log("params", params);
-
       return await callApi("get", `/9rock/get-products`, {
         params: filterOption,
       });
@@ -387,13 +384,16 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
           customerPinCode: CreateSaleConfig.customerPinCode,
           customerCountry: CreateSaleConfig.customerCountry,
           customerCountryCode: CreateSaleConfig.customerCountryCode,
-          customerId: CreateSaleConfig.customerId,
+          // customerId: CreateSaleConfig.customerId,
+          nineRockUserId: CreateSaleConfig.customerId,
           customerGSTIN: null,
           customerGSTAddress: null,
         },
         shouldSendEmail: true,
         shouldMinimizeStock: true,
       };
+
+      console.log("salesConfig", salesConfig);
 
       return await callApi("post", "/sales", { data: salesConfig });
     } catch (error: any) {
@@ -541,6 +541,9 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         MaterialAllList,
         CateMateListState,
         createSalesFunction,
+
+        loginModel,
+        setLoginModel,
       }}
     >
       {children}

@@ -9,10 +9,12 @@ import { FiUser, FiMail, FiPhone } from "react-icons/fi";
 import OrderDetailModel from "@/app/(User)/accountInfo/Component/OrderDetailModel";
 
 import OrderListComponent from "@/app/(User)/accountInfo/Component/OrderListComponent";
-import AddressShowProfileModel from "./addressShowProfileModel";
+
+import AddressShowProfileModel from "./AddressComponent/addressShowProfileModel";
 
 import { useForm } from "react-hook-form";
-import CreateEditConfigAddressForm from "./CreateEditConfigAddressForm";
+
+import CreateEditConfigAddressForm from "./AddressComponent/CreateEditConfigAddressForm";
 import { UsePanel } from "@/context/Context";
 
 type IconType = "📭";
@@ -44,10 +46,24 @@ export default function ContentRenderer({
   const [isOpen, setIsOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
 
-  const [editAddressData, setEditAddressData] = useState<UserAddressListType>(
-    {}
-  );
-  const [selectOrderDetail, setSelectOrderDetail] = useState<OrderDetailType>(
+  const [editAddressData, setEditAddressData] = useState<UserAddressListType>({
+    id: "",
+    ninerockUserId: "",
+    idkUserId: null,
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pinCode: "",
+    country: "",
+    countryCode: "",
+    contactNumber: "",
+    email: "",
+    createdAt: "",
+    updatedAt: "",
+    deletedAt: null,
+  });
+  const [selectOrderDetail, setSelectOrderDetail] = useState<Partial<OrderDetailType>>(
     {}
   );
   const [modelState, setModelState] = useState({
@@ -120,7 +136,8 @@ export default function ContentRenderer({
 
                   <div className="flex justify-between">
                     <div className="mt-1 text-gray-900">
-                      {new Date(user?.info?.createdAt).toLocaleDateString()}
+                      {user?.info &&
+                        new Date(user?.info?.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                 </div>

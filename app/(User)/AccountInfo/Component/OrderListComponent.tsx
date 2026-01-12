@@ -9,7 +9,7 @@ export default function OrderListComponent({
   Data: OrderDetailType;
   openDetail: () => void;
   onCloseDetail: () => void;
-  setOderDetail: React.Dispatch<React.SetStateAction<OrderDetailType>>;
+  setOderDetail: React.Dispatch<React.SetStateAction<Partial<OrderDetailType>>>;
 }) {
   return (
     <>

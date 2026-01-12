@@ -252,7 +252,7 @@ export default function ProductPage() {
   const addToCartHandle = async (
     variantSizeId: string | null,
     Size: string | null,
-    variantSizeStock: number | null
+    variantSizeStock: number 
   ) => {
     setAdding(true);
     try {
@@ -289,10 +289,10 @@ export default function ProductPage() {
     }
   };
 
-  const addToLikeHandle = async (variantSizeId: string | null) => {
+  const addToLikeHandle = async (variantSizeId: string) => {
     if (user) {
       try {
-        let res = await AddLikeProduct(product, variantSizeId);
+        let res = await AddLikeProduct(product);
         if (res.success == true) {
           setState((prev) => ({
             ...prev,

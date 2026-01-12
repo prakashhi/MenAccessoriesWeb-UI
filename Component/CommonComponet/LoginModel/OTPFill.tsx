@@ -320,27 +320,7 @@ export default function OTPModal({
                   <X size={14} />
                   Clear
                 </button>
-                {/* <button
-                  type="button"
-                  onClick={() =>
-                    navigator.clipboard.readText().then((text) => {
-                      const otpMatch = text.match(/\b\d{6}\b/);
-                      if (otpMatch) {
-                        const otpArray = otpMatch[0].split("");
-                        setOtp(otpArray);
-                        otpArray.forEach((digit, index) => {
-                          if (inputsRef.current[index]) {
-                            inputsRef.current[index]!.value = digit;
-                          }
-                        });
-                      }
-                    })
-                  }
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition flex items-center gap-1"
-                >
-                  <Shield size={14} />
-                  Paste OTP
-                </button> */}
+
               </div>
             </div>
 

@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import AddressShowEditModel from "@/app/(User)/accountInfo/Component/AddressShowEditModel";
+import AddressShowEditModel from "@/app/(User)/accountInfo/Component/AddressComponent/AddressShowEditModel";
 import { useEffect } from "react";
 
 import { UserAddressListType } from "@/Type/UserDetailType";
@@ -88,7 +88,7 @@ export default function CreateEditConfigAddressForm({
         handleSubmit={handleSubmit}
         typeOperation={typeOperation}
         isDirty={isDirty}
-        EditAddressId={EditAddersData?.id}
+        EditAddressId={EditAddersData && EditAddersData.id}
       />
     </>
   );

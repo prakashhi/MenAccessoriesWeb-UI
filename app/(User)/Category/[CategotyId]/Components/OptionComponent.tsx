@@ -251,7 +251,7 @@ function AccordionSection({
 
           <RiArrowDropDownLine
             size={26}
-            className={`transition-transform duration-300 text-gray-500
+            className={`transition-transform duration-300 cursor-pointer text-gray-500
         ${open ? "rotate-180 text-black" : ""}
       `}
           />
@@ -327,7 +327,7 @@ function AccordionSection({
                       : "text-gray-600 group-hover:text-black"
                   }`}
                     >
-                      {item.name}
+                      {item.name.toUpperCase()}
                     </span>
                   </label>
                 ))}

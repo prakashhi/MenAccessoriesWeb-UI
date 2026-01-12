@@ -9,7 +9,7 @@ import Cufflinks from "@/public/Images/e38d41d842b77bea875ce96014f7bbf6.jpg";
 import Cufflinks2 from "@/public/Images/a0b9682ff1a4a99bad899e8576cc1a4a.jpg";
 
 export default function ImageSlider() {
-  const images = [BrochImg, ButtonImg, MenNickles, Cufflinks, Cufflinks2];
+  const images = [MenNickles, ButtonImg, Cufflinks, Cufflinks2, BrochImg];
   const autoSlideInterval = 4000;
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -22,7 +22,7 @@ export default function ImageSlider() {
   }, [images.length]);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl">
+    <div className="relative w-full left-0 md:left-10 overflow-hidden rounded-xl">
       <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
         <AnimatePresence initial={false}>
           {images.map((img, idx) => (
@@ -34,7 +34,7 @@ export default function ImageSlider() {
               animate={{ opacity: idx === currentIndex ? 1 : 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="absolute w-full h-full object-cover top-0 left-0"
+              className="absolute cursor-pointer w-full h-full object-cover top-0 left-0"
             />
           ))}
         </AnimatePresence>

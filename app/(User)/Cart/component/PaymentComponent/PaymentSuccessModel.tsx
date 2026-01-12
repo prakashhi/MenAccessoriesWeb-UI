@@ -58,7 +58,6 @@ export default function PaymentSuccessModal({
     },
   };
 
-
   return (
     <AnimatePresence>
       <>

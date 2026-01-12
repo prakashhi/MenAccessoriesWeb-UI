@@ -13,7 +13,7 @@ import { UsePanel } from "@/context/Context";
 import { notify } from "@/Component/ToastComponent";
 import { useState } from "react";
 
-import { DeleteAddressAskModel } from "./DeleteAddressAskModel";
+import { DeleteAddressAskModel } from "../DeleteAddressAskModel";
 
 type Props = {
   openCreateAddressModel: () => void;
@@ -101,7 +101,7 @@ export default function AddressShowProfileModel({
                 key={address.id}
                 className="
     rounded-xl
-    min-h-[180px] sm:min-h-[200px]
+  sm:min-h-[200px]
     cursor-pointer
     border border-gray-200
     bg-white

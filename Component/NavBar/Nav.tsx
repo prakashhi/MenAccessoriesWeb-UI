@@ -29,13 +29,15 @@ export type mobileConfigType = {
 };
 
 export default function Nav() {
-  const { triggerRefresh, userCountData, userDataContext, user } = UsePanel();
+  const {
+    triggerRefresh,
+    userCountData,
+    userDataContext,
+    user,
+    loginModel,
+    setLoginModel,
+  } = UsePanel();
 
-  const [stateModel, setStateModel] = useState({
-    LoginModel: false,
-    OTPFillModel: false,
-    UserCreateModel: false,
-  });
   const [mobileConfig, setMobileConfig] = useState<mobileConfigType>({
     mobileNumber: "",
     CountryCode: "",
@@ -232,7 +234,7 @@ export default function Nav() {
                   state={state}
                   mobileMenuOpen={mobileMenuOpen}
                   setMobileMenuOpen={setMobileMenuOpen}
-                  setStateModel={setStateModel}
+                  setStateModel={setLoginModel}
                 />
               </>
             ) : (
@@ -270,7 +272,7 @@ export default function Nav() {
                 ) : (
                   <button
                     onClick={() =>
-                      setStateModel((prev) => ({ ...prev, LoginModel: true }))
+                      setLoginModel((prev) => ({ ...prev, LoginModel: true }))
                     }
                     className="flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-gray-700 hover:text-black transition-colors"
                   >
@@ -295,11 +297,11 @@ export default function Nav() {
         </div>
       </nav>
 
-      {stateModel.LoginModel == true && (
+      {loginModel.LoginModel == true && (
         <MobileNumberLogin
-          open={stateModel.LoginModel}
+          open={loginModel.LoginModel}
           onClose={() =>
-            setStateModel((prev) => ({ ...prev, LoginModel: false }))
+            setLoginModel((prev) => ({ ...prev, LoginModel: false }))
           }
           onConfirm={(mobile, code) => {
             setMobileConfig((prev) => ({
@@ -307,30 +309,30 @@ export default function Nav() {
               mobileNumber: mobile,
               CountryCode: code,
             }));
-            setStateModel((prev) => ({ ...prev, OTPFillModel: true }));
+            setLoginModel((prev) => ({ ...prev, OTPFillModel: true }));
           }}
         />
       )}
 
-      {stateModel.OTPFillModel === true && (
+      {loginModel.OTPFillModel === true && (
         <OTPModal
-          open={stateModel.OTPFillModel}
+          open={loginModel.OTPFillModel}
           mobileData={mobileConfig}
           onClose={() =>
-            setStateModel((prev) => ({ ...prev, OTPFillModel: false }))
+            setLoginModel((prev) => ({ ...prev, OTPFillModel: false }))
           }
           onIfUserCreate={() =>
-            setStateModel((prev) => ({ ...prev, UserCreateModel: true }))
+            setLoginModel((prev) => ({ ...prev, UserCreateModel: true }))
           }
         />
       )}
 
-      {stateModel.UserCreateModel == true && (
+      {loginModel.UserCreateModel == true && (
         <UserCreateForm
-          open={stateModel.UserCreateModel}
+          open={loginModel.UserCreateModel}
           mobileNumber={mobileConfig.mobileNumber}
           onClose={() =>
-            setStateModel((prev) => ({
+            setLoginModel((prev) => ({
               ...prev,
               UserCreateModel: false,
             }))
