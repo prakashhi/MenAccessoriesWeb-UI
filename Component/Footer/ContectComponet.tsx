@@ -26,7 +26,7 @@ export default function ContactComponent() {
           <span>
             Vasupujya Bungalows, 1, Opp. Bagyashree Apartments,
             <br />
-            Ahmedabad, Gujarat 380015
+            Ahmedabad, Gujarat 380015, India
           </span>
         </li>
 

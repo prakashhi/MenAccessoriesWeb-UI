@@ -68,9 +68,9 @@ export default function Footer() {
         </div>
 
         {/* BOTTOM */}
-        <div className="border-t border-gray-300 mt-10 pt-5 text-center text-sm text-gray-600">
+        {/* <div className="border-t border-gray-300 mt-10 pt-5 text-center text-sm text-gray-600">
           © {new Date().getFullYear()} Men Accessories. All Rights Reserved.
-        </div>
+        </div> */}
       </footer>
     </>
   );
