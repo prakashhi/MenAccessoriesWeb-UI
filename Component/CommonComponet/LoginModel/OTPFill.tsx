@@ -181,6 +181,12 @@ export default function OTPModal({
     inputsRef.current[0]?.focus();
   };
 
+  const addToRefs = (el: HTMLInputElement | null) => {
+  if (el && !inputsRef.current.includes(el)) {
+    inputsRef.current.push(el);
+  }
+};
+
   return (
     <Modal
       isOpen={open}
@@ -287,7 +293,7 @@ export default function OTPModal({
                     inputMode="numeric"
                     maxLength={1}
                     value={digit}
-                    ref={(el) => (inputsRef.current[index] = el)}
+                    ref={addToRefs}
                     onChange={(e) => handleChange(e, index)}
                     onKeyDown={(e) => handleKeyDown(e, index)}
                     onFocus={(e) => e.target.select()}

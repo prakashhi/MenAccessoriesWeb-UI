@@ -28,7 +28,7 @@ export default function AccountSection() {
 
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get("tab") as TabKey;
-  const [active, setActive] = useState<TabKey>("info");
+  const [active, setActive] = useState("info");
 
   useEffect(() => {
     if (tabFromUrl) {
@@ -39,7 +39,6 @@ export default function AccountSection() {
   const {
     UserRefreshKey,
     userDataContext,
-    UserTrigger,
     triggerRefresh,
     setUserDataContext,
     setUserCountData,
