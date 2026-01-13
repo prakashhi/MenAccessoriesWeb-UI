@@ -1,3 +1,5 @@
+"use client";
+
 import ContentRenderer from "./ContentRenderComponent";
 
 export default function DesktopContentRenderComponent({

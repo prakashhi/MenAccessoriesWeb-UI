@@ -24,7 +24,7 @@ export default function ContactUs() {
     <>
       <Nav />
 
-      <section className="w-full min-h-screen px-4 sm:px-6 lg:px-24 py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="w-full min-h-screen px-4 sm:px-6 lg:px-24 py-20 bg-linear-to-b from-gray-50 to-white">
         {/* ===== HEADER ===== */}
         <motion.div
           variants={item}

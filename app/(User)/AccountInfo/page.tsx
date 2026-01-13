@@ -21,9 +21,22 @@ import ContentRenderer from "@/app/(User)/accountInfo/Component/ContentRenderCom
 import DesktopContentRenderComponent from "./Component/DesktopContentRenderComponent";
 import { useGuestUser } from "@/context/GuestUserContext";
 
+import { useSearchParams } from "next/navigation";
+type TabKey = "info" | "orders" | "Addresses" | "logout";
 export default function AccountSection() {
+
+
   const userData = useMemo(() => getUserFromStorage(), []);
-  const [active, setActive] = useState<string>("info");
+
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams.get("tab") as TabKey;
+  const [active, setActive] = useState<TabKey>("info");
+
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActive(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   const {
     UserRefreshKey,

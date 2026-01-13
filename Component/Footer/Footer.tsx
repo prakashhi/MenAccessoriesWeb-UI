@@ -23,7 +23,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-3">Shop</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              {CateMateListState.MenCategory.map((val,index) => (
+              {CateMateListState.MenCategory.map((val, index) => (
                 <li key={index}>
                   <Link
                     href={`/category/${val.id}`}
@@ -46,15 +46,15 @@ export default function Footer() {
                 </a>
               </li> */}
               <li>
-                <a href="/accountInfo" className="hover:text-black transition">
+                <a href="/accountInfo?tab=orders" className="hover:text-black transition">
                   Order Tracking
                 </a>
               </li>
-              {/* <li>
-                <a href="#" className="hover:text-black transition">
-                  Shipping & Returns
+              <li>
+                <a href="/return-policy" className="hover:text-black transition">
+                  Return Policy
                 </a>
-              </li> */}
+              </li>
               <li>
                 <a href="/contact-us" className="hover:text-black transition">
                   Contact Us
