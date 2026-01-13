@@ -1,9 +1,9 @@
 "use client";
 
 import Nav from "@/Component/NavBar/Nav";
-import RightSection from "@/app/(User)/category/[CategotyId]/Components/RightSectionProduct";
+import RightSection from "@/app/(User)/category/[categoryId]/Components/RightSectionProduct";
 import Footer from "@/Component/Footer/Footer";
-import MobileFilterDrawer from "@/app/(User)/category/[CategotyId]/Components/MobileFilterDrawer";
+import MobileFilterDrawer from "@/app/(User)/category/[categoryId]/Components/MobileFilterDrawer";
 import { motion } from "framer-motion";
 
 export default function Page() {

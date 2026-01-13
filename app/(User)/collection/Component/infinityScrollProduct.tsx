@@ -55,8 +55,8 @@ export function useInfiniteProductsOffset() {
     const categoryIds =
       menProductFilter.categoryIds && menProductFilter.categoryIds?.length > 0
         ? menProductFilter.categoryIds
-        : params.CategotyId
-        ? [`${params.CategotyId}`]
+        : params.categoryId
+        ? [`${params.categoryId}`]
         : ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"];
 
     const res = await MenCategoryList({
