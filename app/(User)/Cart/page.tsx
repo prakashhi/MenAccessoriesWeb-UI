@@ -28,7 +28,7 @@ export type modelTypes = {
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
-  const { setUserCountData } = UsePanel();
+  const { setUserCountData, refreshKey } = UsePanel();
 
   const { CartProductList } = useUserCart();
   const { guestCart } = useGuestUser();
@@ -62,7 +62,7 @@ export default function Page() {
       }
     };
     CartList();
-  }, [user]);
+  }, [user,refreshKey]);
 
   useEffect(() => {
     let value =

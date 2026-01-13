@@ -1,13 +1,8 @@
-import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
-
 import { CartItem } from "@/Type/CartType";
-
 import { CreateSaleProductListType } from "@/Type/UserDetailType";
-
 import { ProductInfoType } from "@/Type/ProductType";
 import { useState } from "react";
-
 import { UsePanel } from "@/context/Context";
 import CreateEditConfigAddressForm from "@/app/(User)/accountInfo/Component/AddressComponent/CreateEditConfigAddressForm";
 import { Button } from "@heroui/react";
@@ -102,17 +97,25 @@ export function PaymentAddressSelect({
           userDataContext.AddressList[selectedAddressIndex].country,
         customerCountryCode:
           userDataContext.AddressList[selectedAddressIndex].countryCode,
-        customerId: userDataContext?.info && userDataContext?.info?.id,
+        customerId: userDataContext?.info && userDataContext.info.id,
         customerEmail: userDataContext.AddressList[selectedAddressIndex].email,
         customerPhone:
           userDataContext.AddressList[selectedAddressIndex].contactNumber,
       };
-
-      console.log("saleConfigObj", saleConfigObj);
-
       let res = await createSalesFunction(saleConfigObj);
 
-      console.log(res);
+      if (res.success === true) {
+        notify({
+          message: "Payment successful! Your order has been placed.",
+          type: "success",
+        });
+        onClose();
+        onSuccess();
+        setPaymentData(res.data);
+      } else {
+        onClose();
+        onFail();
+      }
     } catch (error: any) {
       notify({
         message: error.message,

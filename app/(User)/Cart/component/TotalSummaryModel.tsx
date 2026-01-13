@@ -258,7 +258,7 @@ export const TotalSummaryModel = ({
           }
           children={
             <PaymentSuccessModal
-              PaymentData={sample}
+              PaymentData={paymentData}
               onClose={() =>
                 setOpenModel((prev) => ({
                   ...prev,

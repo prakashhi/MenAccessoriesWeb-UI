@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { RiCheckLine } from "react-icons/ri";
 import { Variants } from "framer-motion";
+import { UsePanel } from "@/context/Context";
 
 interface PaymentSuccessModalProps {
   onClose: () => void;
@@ -42,6 +43,8 @@ export default function PaymentSuccessModal({
     hidden: {},
     show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
   };
+
+  const { triggerRefresh } = UsePanel();
 
   const fadeUp: Variants = {
     hidden: {
@@ -141,7 +144,7 @@ export default function PaymentSuccessModal({
 
               <DetailRow
                 label="Payment Method"
-                value="Cash on Delivery"
+                value={PaymentData.payments[0].paymentMethod}
                 valueClass="text-gray-800 dark:text-gray-200"
               />
 
@@ -149,7 +152,7 @@ export default function PaymentSuccessModal({
 
               <DetailRow
                 label="Status"
-                value="Payable at delivery"
+                value={PaymentData.payments[0].paymentStatus}
                 success
                 valueClass="font-medium text-emerald-600 dark:text-emerald-400"
               />
@@ -167,7 +170,10 @@ export default function PaymentSuccessModal({
 
             {/* ACTION */}
             <button
-              onClick={onClose}
+              onClick={() => {
+                onClose();
+                triggerRefresh();
+              }}
               className="mt-7 sm:mt-8 w-full py-3.5 sm:py-4 cursor-pointer rounded-xl
         bg-black dark:bg-gray-900 text-white font-medium 
         tracking-wider sm:tracking-widest

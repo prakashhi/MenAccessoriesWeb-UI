@@ -63,9 +63,9 @@ export default function ContentRenderer({
     updatedAt: "",
     deletedAt: null,
   });
-  const [selectOrderDetail, setSelectOrderDetail] = useState<Partial<OrderDetailType>>(
-    {}
-  );
+  const [selectOrderDetail, setSelectOrderDetail] = useState<
+    Partial<OrderDetailType>
+  >({});
   const [modelState, setModelState] = useState({
     EditAddressModel: false,
     AddressDetailEdit: false,
@@ -153,7 +153,7 @@ export default function ContentRenderer({
   if (keyname === "orders") {
     return (
       <section>
-        <h3 className="text-xl font-semibold mb-3">My Orders</h3>
+        <h3 className="text-xl font-semibold lg:mb-3 mb-5">My Orders</h3>
 
         {isDetailOpen == true ? (
           <OrderDetailModel
@@ -161,7 +161,7 @@ export default function ContentRenderer({
             onClose={() => setIsDetailOpen(false)}
           />
         ) : (
-          <div className="space-y-3 p-5">
+          <div className="space-y-3 lg:p-5 p-1 h-[50dvh] overflow-y-auto">
             {user.OrderList?.length > 0 ? (
               user.OrderList.map((o: OrderDetailType) => (
                 <OrderListComponent

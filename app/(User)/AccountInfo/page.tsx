@@ -67,7 +67,7 @@ export default function AccountSection() {
     localStorage.removeItem("guest_cart_merged");
     localStorage.removeItem("guest_cart_merge_in_progress");
     notify({
-      message: "Log Out Successfully",
+      message: "Log-Out Successfully",
       type: "info",
     });
     setUser(null);

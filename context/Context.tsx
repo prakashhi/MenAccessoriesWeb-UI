@@ -221,7 +221,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     userId: string
   ): Promise<ApiResponse<OrderDetailType[]>> => {
     try {
-      return await callApi("get", `/sales/customer/${userId}`);
+      return await callApi("get", `/sales/customer/${userId}?type=ROCKROAR`);
     } catch (error: any) {
       throw {
         message: error?.response?.data?.message || "Something is wrong",
@@ -366,7 +366,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
           state: CreateSaleConfig.customerState,
 
           invoiceId: generateOrderId("INVOICE"),
-           orderId: generateOrderId("ORD"),
+          orderId: generateOrderId("ORD"),
           salesStatus: "PENDING",
           salesDate: date,
 
@@ -394,8 +394,8 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
           customerPinCode: CreateSaleConfig.customerPinCode,
           customerCountry: CreateSaleConfig.customerCountry,
           customerCountryCode: CreateSaleConfig.customerCountryCode,
-          customerId: CreateSaleConfig.customerId,
-           //nineRockUserId: CreateSaleConfig.customerId,
+          // customerId: CreateSaleConfig.customerId,
+          nineRockUserId: CreateSaleConfig.customerId,
           customerGSTIN: "",
           customerGSTAddress: "",
         },
