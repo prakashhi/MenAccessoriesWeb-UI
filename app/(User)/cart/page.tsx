@@ -37,7 +37,7 @@ export default function Page() {
 
   const [isEmptyStock, seIsEmptyStock] = useState(false);
 
-  const ShippingCharge = 900;
+ 
   const TaxPercentage = 3;
 
   const [openModel, setOpenModel] = useState<modelTypes>({
@@ -165,7 +165,6 @@ export default function Page() {
               setOpenModel={setOpenModel}
               isEmptyStock={isEmptyStock}
               subTotal={total}
-              ShippingCharge={ShippingCharge}
               TaxPercentage={TaxPercentage}
               cartListData={cartListData}
             />

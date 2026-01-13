@@ -73,4 +73,15 @@ export type productSize = {
 };
 
 
-export 
+export type ProductsListAPi = {
+  productId: string;
+  productName: string;
+  productCategory: string;
+  productSerialNumber: string;
+  productImage: string;
+  productHSNCode: string | null;
+  quantity: number;
+  price: number;
+  totalPrice: number;
+  variantSize: string;
+};

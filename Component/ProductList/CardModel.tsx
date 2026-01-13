@@ -26,7 +26,7 @@ type BaseProduct = {
   code: string;
   sellingPrice: number;
   image: string;
-  stock: number;
+  stock?: number;
   categoryName?: string;
 };
 
@@ -337,14 +337,14 @@ export default function CardModel<T extends BaseProduct>({
     flex items-center justify-center gap-2
     md:bg-white md:text-neutral-900
     md:hover:bg-gray-100 ${
-      product.stock <= 0
+     product.stock && product.stock <= 0
         ? "cursor-not-allowed border-none"
         : "cursor-pointer border-gray-100"
     } md:hover:text-white
     transition-colors duration-300
                     `}
                   >
-                    {product.stock <= 0 ? (
+                    {product.stock && product.stock <= 0 ? (
                       <motion.span
                         key="add"
                         initial={{ opacity: 0, y: 6 }}

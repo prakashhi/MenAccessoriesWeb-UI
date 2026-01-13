@@ -242,7 +242,7 @@ export function GuestUserContextProvider({
       if (!item) return prev;
 
       // 🚫 prevent exceeding stock
-      if (item.quantity >= item.stock) return prev;
+      if (item.quantity && item.quantity >= item.stock) return prev;
 
       return {
         ...prev,
@@ -250,7 +250,7 @@ export function GuestUserContextProvider({
           ...prev.items,
           [productId]: {
             ...item,
-            quantity: item.quantity + 1,
+            quantity: item.quantity && item.quantity + 1,
           },
         },
       };
@@ -262,7 +262,7 @@ export function GuestUserContextProvider({
       if (!prev) return prev;
 
       const item = prev.items[productId];
-      if (!item || item.quantity <= 1) return prev;
+      if (!item || item.quantity && item.quantity <= 1) return prev;
 
       return {
         ...prev,
@@ -270,7 +270,7 @@ export function GuestUserContextProvider({
           ...prev.items,
           [productId]: {
             ...item,
-            quantity: item.quantity - 1,
+            quantity: item.quantity && item.quantity - 1,
           },
         },
       };

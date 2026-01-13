@@ -1,21 +1,25 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@heroui/react";
 import { useMemo, useState } from "react";
 import { getUserFromStorage } from "@/context/utils";
-
 import PaymentSuccessModal from "@/app/(User)/cart/component/PaymentComponent/PaymentSuccessModel";
 import PaymentFailedModal from "@/app/(User)/cart/component/PaymentComponent/PaymentFailedModel";
 import CartInfoModal from "../component/CartInfoModel";
-
+import Image from "next/image";
 import { formatIndianPrice } from "@/utils/FormatCurrency";
 import { notify } from "@/Component/ToastComponent";
 import { UsePanel } from "@/context/Context";
 import { CartListItem } from "../page";
 import { PaymentAddressSelect } from "@/app/(User)/cart/component/PaymentComponent/PaymentAddressSelect";
 import { modelTypes } from "../page";
+import { CartItem } from "@/Type/CartType";
+import { ProductInfoType } from "@/Type/ProductType";
+import { calculateShippingCharge } from "@/utils/shippingFees";
+import { CreateSaleProductListType } from "@/Type/UserDetailType";
+import Loader from "@/public/svg/tube-spinner.svg";
+import { ProductsListAPi } from "@/Type/ProductType";
 
 export const TotalSummaryModel = ({
-  ShippingCharge,
   subTotal,
   TaxPercentage,
   isEmptyStock,
@@ -23,7 +27,6 @@ export const TotalSummaryModel = ({
   setOpenModel,
   cartListData,
 }: {
-  ShippingCharge: number;
   subTotal: number;
   TaxPercentage: number;
   isEmptyStock: boolean;
@@ -31,87 +34,31 @@ export const TotalSummaryModel = ({
   setOpenModel: React.Dispatch<React.SetStateAction<modelTypes>>;
   cartListData: CartListItem[];
 }) => {
+  // Type
+  type GuestCartItem = ProductInfoType & { quantity?: number };
+  type CartListItem = GuestCartItem | CartItem;
+
+  //Functions
   const user = useMemo(() => getUserFromStorage(), []);
 
-  const { loginModel, setLoginModel } = UsePanel();
+  const { setLoginModel, userDataContext, createSalesFunction, loading } =
+    UsePanel();
   const [paymentData, setPaymentData] = useState<any>(null);
 
-  const sample = {
-    id: "50c35f0c-8e7d-497e-9f74-f0e538d7241d",
-    customerType: "RETAIL_CUSTOMER",
-    customerName: "Prakash Prajapati",
-    customerEmail: "prakash398prajapati@gmail.com",
-    customerPhone: "9234567890",
-    customerAddress: "LODARA",
-    customerGSTAddress: null,
-    customerState: "Gujarat",
-    customerPinCode: "476576869",
-    customerCountry: "India",
-    customerCountryCode: "+91",
-    totalPrice: 1431,
-    totalQuantity: 1,
-    totalDiscount: 0,
-    totalTax: 41,
-    shippingFee: 900,
-    customerId: "67a91bce-5665-4d5d-909c-6349c3e761b9",
-    customerGSTIN: null,
-    address: null,
-    contactNumber: null,
-    countryCode: null,
-    country: null,
-    state: null,
-    invoiceId: "INVOICE-1767185450449-JHT3",
-    orderId: "ORD-1767185450449-2P8X",
-    salesDate: "2025-12-31T12:50:50.449Z",
-    salesStatus: "PENDING",
-    source: "OFFLINE",
-    createdAt: "2025-12-31T12:50:48.642Z",
-    updatedAt: "2025-12-31T12:50:48.642Z",
-    deletedAt: null,
-    products: [
-      {
-        id: "daab7c48-588c-4949-bfad-e8a802d118d4",
-        salesId: "50c35f0c-8e7d-497e-9f74-f0e538d7241d",
-        productId: "f69b9625-d945-48be-917f-3085c8308a93",
-        productName: "",
-        productCategory: "Buttons",
-        productSerialNumber: "B0BK4194",
-        productImage: "/1765349675079-1000067030.jpg/",
-        productHSNCode: "",
-        quantity: 1,
-        weight: null,
-        price: 490,
-        variantSize: null,
-        totalPrice: 490,
-        createdAt: "2025-12-31T12:50:48.642Z",
-        updatedAt: "2025-12-31T12:50:48.642Z",
-        deletedAt: null,
-      },
-    ],
-    payments: [
-      {
-        id: "5ed9e8b3-b8d9-40e7-a9eb-3702685eb4a0",
-        transactionId: "TRAN-1767185450449-ONMV",
-        salesId: "50c35f0c-8e7d-497e-9f74-f0e538d7241d",
-        paymentDate: "2025-12-31T12:50:50.449Z",
-        paymentMethod: "CASH",
-        paymentStatus: "PENDING",
-        paymentAmount: 1431,
-        createdAt: "2025-12-31T12:50:48.642Z",
-        razorpayOrderId: "",
-        razorpayPaymentId: "",
-        razorpaySignature: "",
-        updatedAt: "2025-12-31T12:50:48.642Z",
-        deletedAt: null,
-      },
-    ],
-  };
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState<number>(0);
 
-  const ShippingTax: number = useMemo(() => {
+  const ShippingCharge: number = useMemo(() => {
+    return calculateShippingCharge(
+      subTotal,
+      userDataContext.AddressList[selectedAddressIndex]?.country || "INDIA"
+    );
+  }, [subTotal, selectedAddressIndex]);
+
+  const ShippingWithTax: number = useMemo(() => {
     let Total =
       subTotal + ShippingCharge + (subTotal + ShippingCharge) * (3 / 100);
     return Total;
-  }, [subTotal]);
+  }, [subTotal, selectedAddressIndex]);
 
   const TotalQty: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
@@ -134,12 +81,82 @@ export const TotalSummaryModel = ({
     setOpenModel((prev) => ({ ...prev, PaymentAddressSelect: true }));
   };
 
+  let List = cartListData as CartItem[];
+  const productsList: CreateSaleProductListType[] = List.reduce((acc, val) => {
+    const { product, quantity, variantSize } = val;
+    if (!product || quantity <= 0) return acc;
+    const price = Number(product.productPrice) * 10;
+    acc.push({
+      productId: product.productId,
+      productName: product.productName,
+      productCategory: product.categoryName,
+      productSerialNumber: product.serialNumber,
+      productImage: product.productImage,
+      productHSNCode: null,
+      quantity,
+      price,
+      totalPrice: quantity * price,
+      variantSize: variantSize?.variantSizeId ?? null,
+    });
+
+    return acc;
+  }, [] as ProductsListAPi[]);
+
+  const handleSaleCreate = async () => {
+    try {
+      let saleConfigObj = {
+        TotalAmount: ShippingWithTax,
+        TotalProductQty: TotalQty,
+        TotalTax: Math.ceil(
+          ((subTotal + ShippingCharge) * TaxPercentage) / 100
+        ),
+        shippingFee: ShippingCharge,
+        OrderProductList: productsList,
+        razorpayOrderId: "ye56672g3dy3d7cdewffrev73vcye7ff",
+        razorpayPaymentId: "ye56672g3dyfefefedde3d7cv73vcye7fffefr",
+        razorpaySignature: "gwgr3ugrug32urgu3grueguerwrewrwe",
+
+        customerName: `${userDataContext.info?.userFirstName} ${userDataContext.info?.userLastName} `,
+        customerAddress: `${userDataContext.AddressList[selectedAddressIndex].addressLine1}  ${userDataContext.AddressList[selectedAddressIndex].addressLine2}`,
+        customerState: userDataContext.AddressList[selectedAddressIndex].state,
+        customerPinCode:
+          userDataContext.AddressList[selectedAddressIndex].pinCode,
+        customerCountry:
+          userDataContext.AddressList[selectedAddressIndex].country,
+        customerCountryCode:
+          userDataContext.AddressList[selectedAddressIndex].countryCode,
+        customerId: userDataContext?.info && userDataContext.info.id,
+        customerEmail: userDataContext.AddressList[selectedAddressIndex].email,
+        customerPhone:
+          userDataContext.AddressList[selectedAddressIndex].contactNumber,
+      };
+      let res = await createSalesFunction(saleConfigObj);
+
+      if (res.success === true) {
+        notify({
+          message: "Payment successful! Your order has been placed.",
+          type: "success",
+        });
+
+        PaymentSuccess();
+        setPaymentData(res.data);
+      } else {
+        PaymentFail();
+      }
+    } catch (error: any) {
+      notify({
+        message: error.message,
+        type: "error",
+      });
+    }
+  };
+
   const handleCheckout = async () => {
     try {
       if (!user || !user.id) {
         setLoginModel((prev) => ({ ...prev, LoginModel: true }));
       } else {
-        AddressSelect();
+        handleSaleCreate();
         //PaymentSuccess();
         //PaymentFail();
       }
@@ -156,37 +173,85 @@ export const TotalSummaryModel = ({
         className="w-full lg:w-[34%]"
       >
         <div className="bg-white rounded-xl border border-[#ECECEC] p-6 sticky top-24 space-y-4">
+          {/* Subtotal */}
           <div className="flex justify-between text-sm tracking-wide">
             <span>Subtotal</span>
             <span className="font-semibold">
               ₹{formatIndianPrice(subTotal)}.00
             </span>
           </div>
+
+          {/* Shipping */}
           <div className="flex justify-between text-sm tracking-wide">
             <span>Shipping</span>
             <span className="font-semibold">
-              ₹{formatIndianPrice(ShippingCharge)}.00
+              ₹
+              {calculateShippingCharge(
+                subTotal,
+                userDataContext.AddressList[selectedAddressIndex]?.country ||
+                  "INDIA"
+              )}
+              .00
             </span>
           </div>
+
+          {/* Default Shipping Address with Change button */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 bg-gray-50 p-3 rounded-md border border-gray-200">
+            {/* Address */}
+            <div className="text-xs text-gray-700 leading-relaxed break-words sm:max-w-[75%]">
+              <p className="font-bold">Shipping address</p>
+              {userDataContext.AddressList?.[selectedAddressIndex] ? (
+                <p className="line-clamp-2">
+                  {`${
+                    userDataContext.AddressList[selectedAddressIndex]
+                      ?.addressLine1
+                  }, 
+        ${
+          userDataContext.AddressList[selectedAddressIndex]?.addressLine2 ?? ""
+        } 
+        ${userDataContext.AddressList[selectedAddressIndex]?.city}, 
+        ${userDataContext.AddressList[selectedAddressIndex]?.state}, 
+        ${userDataContext.AddressList[selectedAddressIndex]?.country}`}
+                </p>
+              ) : (
+                <span className="text-gray-400">
+                  No default shipping address
+                </span>
+              )}
+            </div>
+
+            {/* Change Button */}
+            <div className="flex justify-end sm:justify-start">
+              <Button
+                onPress={AddressSelect}
+                className="text-blue-600 text-xs font-medium px-2 py-1 hover:underline whitespace-nowrap"
+              >
+                Change
+              </Button>
+            </div>
+          </div>
+
+          {/* Tax */}
           <div className="flex justify-between text-sm tracking-wide">
             <span>Tax</span>
             <span className="font-semibold text-sm">
               ₹{Math.ceil(((subTotal + ShippingCharge) * TaxPercentage) / 100)}
               .00
-              {/* ({`${TaxPercentage}%`}) */}
             </span>
           </div>
 
-          <div className="border-b-1 border-gray-400"></div>
+          <div className="border-b border-gray-300"></div>
+
+          {/* Total */}
           <div className="flex justify-between text-sm tracking-wide">
             <span>Total</span>
             <span className="font-semibold">
-              ₹{formatIndianPrice(ShippingTax)}.00
+              ₹{formatIndianPrice(ShippingWithTax)}.00
             </span>
           </div>
 
-          {/* CHECKOUT */}
-          {isEmptyStock == true ? (
+          {/* Checkout */}
+          {isEmptyStock ? (
             <Button
               onPress={() =>
                 notify({
@@ -194,16 +259,20 @@ export const TotalSummaryModel = ({
                   type: "warning",
                 })
               }
-              className="w-full  bg-gray-400 cur text-white py-4 text-xs tracking-[0.3em] cursor-not-allowed transition"
+              className="w-full bg-gray-400 text-white py-4 text-xs tracking-[0.3em] cursor-not-allowed transition"
             >
               CHECKOUT
             </Button>
           ) : (
             <Button
               onPress={handleCheckout}
-              className="w-full cursor-pointer bg-black cur text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition"
+              className="w-full bg-black text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition"
             >
-              CHECKOUT
+              {loading ? (
+                <Image width={20} height={20} alt="Loading" src={Loader} />
+              ) : (
+                "Continue"
+              )}
             </Button>
           )}
         </div>
@@ -217,28 +286,10 @@ export const TotalSummaryModel = ({
           }
           children={
             <PaymentAddressSelect
-              cartListData={cartListData}
-              subTotal={ShippingTax}
-              TotalQty={TotalQty}
-              TaxCal={Math.ceil(
-                ((subTotal + ShippingCharge) * TaxPercentage) / 100
-              )}
-              ShippingFee={ShippingCharge}
-              onSuccess={() =>
-                setOpenModel({
-                  PaymentAddressSelect: false,
-                  PaymentSuccessModel: true,
-                  PaymentFailModel: false,
-                })
+              setSelectedAddressIndex={(index: number) =>
+                setSelectedAddressIndex(index)
               }
-              setPaymentData={setPaymentData}
-              onFail={() =>
-                setOpenModel({
-                  PaymentAddressSelect: false,
-                  PaymentSuccessModel: false,
-                  PaymentFailModel: true,
-                })
-              }
+              selectedAddressIndex={selectedAddressIndex}
               onClose={() =>
                 setOpenModel((prev) => ({
                   ...prev,

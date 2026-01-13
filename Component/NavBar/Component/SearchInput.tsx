@@ -80,6 +80,11 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
     return () => clearTimeout(delay);
   }, [searchWord]);
 
+  const handleEnter = () =>
+  {
+    
+  }
+
   return (
     <>
       <>
