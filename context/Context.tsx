@@ -115,6 +115,7 @@ export type UserContextType = {
 };
 
 import { useDisclosure } from "@heroui/react";
+import { address } from "framer-motion/client";
 
 const UserContext = createContext<UserContextType | null>(null);
 
@@ -352,23 +353,32 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
       let salesConfig = {
         sales: {
-          salesDate: date,
-          invoiceId: generateOrderId("INVOICE"),
-          orderId: generateOrderId("ORD"),
           totalPrice: Math.ceil(CreateSaleConfig.TotalAmount),
           totalQuantity: CreateSaleConfig.TotalProductQty,
           totalDiscount: 0,
           totalTax: CreateSaleConfig.TotalTax,
           shippingFee: CreateSaleConfig.shippingFee,
+          nineRockUserId: CreateSaleConfig.customerId,
+          address: CreateSaleConfig.customerAddress,
+          contactNumber: CreateSaleConfig.customerPhone,
+          countryCode: CreateSaleConfig.customerCountryCode,
+          country: CreateSaleConfig.customerCountry,
+          state: CreateSaleConfig.customerState,
+
+          invoiceId: generateOrderId("INVOICE"),
+           orderId: generateOrderId("ORD"),
           salesStatus: "PENDING",
+          salesDate: date,
+
           source: "ROCKROAR",
         },
         products: CreateSaleConfig.OrderProductList,
         payments: {
-          transactionId: generateOrderId("TRAN"),
           paymentMethod: "RAZORPAY",
           paymentStatus: "PAID",
           paymentAmount: Math.ceil(CreateSaleConfig.TotalAmount),
+          transactionId: generateOrderId("TRAN"),
+          orderId: generateOrderId("ORD"),
           razorpayOrderId: CreateSaleConfig.razorpayOrderId,
           razorpayPaymentId: CreateSaleConfig.razorpayPaymentId,
           razorpaySignature: CreateSaleConfig.razorpaySignature,
@@ -384,13 +394,13 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
           customerPinCode: CreateSaleConfig.customerPinCode,
           customerCountry: CreateSaleConfig.customerCountry,
           customerCountryCode: CreateSaleConfig.customerCountryCode,
-          // customerId: CreateSaleConfig.customerId,
-          nineRockUserId: CreateSaleConfig.customerId,
-          customerGSTIN: null,
-          customerGSTAddress: null,
+          customerId: CreateSaleConfig.customerId,
+           //nineRockUserId: CreateSaleConfig.customerId,
+          customerGSTIN: "",
+          customerGSTAddress: "",
         },
-        shouldSendEmail: true,
-        shouldMinimizeStock: true,
+        // shouldSendEmail: true,
+        // shouldMinimizeStock: true,
       };
 
       console.log("salesConfig", salesConfig);
