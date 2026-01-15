@@ -5,11 +5,10 @@ import RightSection from "@/app/(User)/category/[categoryId]/Components/RightSec
 import Footer from "@/Component/Footer/Footer";
 import MobileFilterDrawer from "@/app/(User)/category/[categoryId]/Components/MobileFilterDrawer";
 import { motion } from "framer-motion";
-import { useSearchParams } from "next/navigation";
-
-
+import { UsePanel } from "@/context/Context";
 
 export default function Page() {
+  const { menProductFilter } = UsePanel();
 
   return (
     <>
@@ -31,10 +30,10 @@ export default function Page() {
             className="flex justify-center mt-8 "
           >
             <h2
-              className="text-2xl sm:text-3xl lg:text-4xl text-black tracking-wide text-center"
+              className="text-2xl lg:text-4xl font-extrabold"
               style={{ fontFamily: "ui-serif", fontWeight: 800 }}
             >
-              All Collections
+              Search Product "{menProductFilter.keyword}"
             </h2>
           </motion.div>
 

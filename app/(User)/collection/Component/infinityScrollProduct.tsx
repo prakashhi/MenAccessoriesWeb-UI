@@ -16,7 +16,6 @@ export function useInfiniteProductsOffset() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [totalProduct, setTotalProduct] = useState<number>(0);
-
   const { MenCategoryList, menProductFilter } = UsePanel();
 
   const requestIdRef = useRef(0);

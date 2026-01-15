@@ -6,7 +6,7 @@ import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useRef, useState } from "react";
 import EmptyTableComponent from "./EmptyTableComponents";
 import { FiFilter, FiChevronDown } from "react-icons/fi";
-import { Data } from "@/Type/Types";
+import { Data, menProductData } from "@/Type/Types";
 import { CartItem } from "@/Type/CartType";
 import { LikeProductType } from "@/Type/LikeType";
 import { getUserFromStorage } from "@/context/utils";

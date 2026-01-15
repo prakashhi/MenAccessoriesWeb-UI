@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useApi } from "@/app/useApi";
-
+import { useEffect, useState } from "react";
 import SearchDataInfo from "@/Component/NavBar/Component/SearchDataInfo";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
@@ -13,57 +11,20 @@ import { UsePanel } from "@/context/Context";
 import { menCategoryId } from "@/app/page";
 import { menProductListType } from "@/Type/Types";
 
-import { useRouter } from "next/navigation";
-
-// const pageFade: Variants = {
-//   hidden: { opacity: 0, y: 30 },
-//   show: {
-//     opacity: 1,
-//     y: 0,
-//     transition: { duration: 0.6, ease: "easeOut" },
-//   },
-// };
-
-// const sectionFade: Variants = {
-//   hidden: { opacity: 0, scale: 0.98 },
-//   show: {
-//     opacity: 1,
-//     scale: 1,
-//     transition: { duration: 0.5, ease: "easeOut" },
-//   },
-// };
-
-// const staggerContainer = {
-//   hidden: { opacity: 0 },
-//   show: {
-//     opacity: 1,
-//     transition: {
-//       staggerChildren: 0.06,
-//     },
-//   },
-// };
-
-// const staggerItem: Variants = {
-//   hidden: { opacity: 0, y: 12 },
-//   show: {
-//     opacity: 1,
-//     y: 0,
-//     transition: { duration: 0.3, ease: "easeOut" },
-//   },
-// };
+import { useRouter, useSearchParams } from "next/navigation";
+import { useRef } from "react";
 
 export default function SearchInput({ onClose }: { onClose: () => void }) {
-  const userData = useMemo(() => getUserFromStorage(), []);
+  const { MenCategoryList, setMenProductFilter } = UsePanel();
+
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const query = searchParams.get("query") ?? "";
+
   const [searchData, setSearchData] = useState<menProductListType | null>(null);
   const [searchWord, setSearchWord] = useState("");
-
-  const { callApi } = useApi();
-
-  const { MenCategoryList } = UsePanel();
-
-  console.log("menCategoryId", menCategoryId);
 
   const SearchProduct = async (words: string) => {
     if (!words) return;
@@ -76,26 +37,45 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
   };
 
   useEffect(() => {
+    if (query) {
+      setSearchWord(query);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setSearchData(null); // hide dropdown
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
     const delay = setTimeout(() => {
-      SearchProduct(searchWord);
-    }, 450);
+      SearchProduct(searchWord.trim());
+      setMenProductFilter((prev) => ({ ...prev, keyword: searchWord.trim() }));
+    }, 350);
 
     return () => clearTimeout(delay);
   }, [searchWord]);
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchWord.trim()) {
-      router.push(`/search=${encodeURIComponent(searchWord)}`);
+      router.push(`/search?query=${encodeURIComponent(searchWord)}`);
     }
   };
 
   return (
     <>
       <>
-        {/* BACKDROP */}
-        {/* SEARCH CONTENT */}
-
         <motion.div
+          ref={searchRef}
           className="relative w-full lg:w-[800px]"
           initial={{
             opacity: 0,
@@ -152,7 +132,7 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
               type="text"
               placeholder="Search"
               value={searchWord}
-              onChange={(e) => setSearchWord(e.target.value.trim())}
+              onChange={(e) => setSearchWord(e.target.value)}
               onKeyDown={handleEnter}
               className="
         w-full
@@ -187,7 +167,7 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* RESULT DROPDOWN */}
-          {searchWord && searchData && (
+          {searchWord && searchData && searchData.total > 0 && (
             <div className="relative z-50 mt-3 w-full">
               <SearchDataInfo Data={searchData} />
             </div>

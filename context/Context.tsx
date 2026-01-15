@@ -344,7 +344,6 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   // sales Function
-
   const createSalesFunction = async (
     CreateSaleConfig: createSaleConfigType
   ): Promise<ApiResponse<SaleResponseType>> => {
