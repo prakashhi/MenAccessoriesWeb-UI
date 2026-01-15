@@ -5,6 +5,8 @@ import { menProductData } from "@/Type/Types";
 import { UsePanel } from "@/context/Context";
 import { useParams } from "next/navigation";
 
+import { menCategoryId } from "@/app/page";
+
 const LIMIT = 40;
 
 export function useInfiniteProductsOffset() {
@@ -57,7 +59,7 @@ export function useInfiniteProductsOffset() {
         ? menProductFilter.categoryIds
         : params.categoryId
         ? [`${params.categoryId}`]
-        : ["3e1ae7d6-97aa-4068-9fbe-7c64b73525c1"];
+        : menCategoryId;
 
     const res = await MenCategoryList({
       ...menProductFilter,

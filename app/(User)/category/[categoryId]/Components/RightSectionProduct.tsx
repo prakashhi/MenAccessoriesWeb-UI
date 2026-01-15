@@ -257,6 +257,8 @@ export default function RightSection() {
 
             <div ref={bottomRef} className="h-10" />
           </>
+        ) : loading && ProductData.length > 0 ? (
+          <ProductSkeletonGrid count={8} />
         ) : (
           <div className="flex items-center justify-center min-h-[70vh]">
             <EmptyTableComponent />
@@ -273,11 +275,6 @@ export default function RightSection() {
               <div className="h-px bg-linear-to-r from-transparent via-gray-300 to-transparent mb-6" />
 
               <div className="flex flex-col items-center gap-2">
-                {/* Icon */}
-                {/* <div className="w-9 h-9 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold">
-                  ✦
-                </div> */}
-
                 <p className="text-sm font-medium text-gray-700">
                   End of Collection
                 </p>

@@ -4,72 +4,75 @@ import { useEffect, useMemo, useState } from "react";
 import { useApi } from "@/app/useApi";
 
 import SearchDataInfo from "@/Component/NavBar/Component/SearchDataInfo";
-import { Variants } from "framer-motion";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { X } from "lucide-react";
-
-import { Data } from "@/Type/Types";
-import { LikeProductType } from "@/Type/LikeType";
-import { CartItem } from "@/Type/CartType";
 
 import { getUserFromStorage } from "@/context/utils";
 import { UsePanel } from "@/context/Context";
-import { useUserLike } from "@/context/UserLikeContext";
-import { useUserCart } from "@/context/UserCartContext";
 
-const pageFade: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
-};
+import { menCategoryId } from "@/app/page";
+import { menProductListType } from "@/Type/Types";
 
-const sectionFade: Variants = {
-  hidden: { opacity: 0, scale: 0.98 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.5, ease: "easeOut" },
-  },
-};
+import { useRouter } from "next/navigation";
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.06,
-    },
-  },
-};
+// const pageFade: Variants = {
+//   hidden: { opacity: 0, y: 30 },
+//   show: {
+//     opacity: 1,
+//     y: 0,
+//     transition: { duration: 0.6, ease: "easeOut" },
+//   },
+// };
 
-const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, ease: "easeOut" },
-  },
-};
+// const sectionFade: Variants = {
+//   hidden: { opacity: 0, scale: 0.98 },
+//   show: {
+//     opacity: 1,
+//     scale: 1,
+//     transition: { duration: 0.5, ease: "easeOut" },
+//   },
+// };
+
+// const staggerContainer = {
+//   hidden: { opacity: 0 },
+//   show: {
+//     opacity: 1,
+//     transition: {
+//       staggerChildren: 0.06,
+//     },
+//   },
+// };
+
+// const staggerItem: Variants = {
+//   hidden: { opacity: 0, y: 12 },
+//   show: {
+//     opacity: 1,
+//     y: 0,
+//     transition: { duration: 0.3, ease: "easeOut" },
+//   },
+// };
 
 export default function SearchInput({ onClose }: { onClose: () => void }) {
   const userData = useMemo(() => getUserFromStorage(), []);
-  const [searchData, setSearchData] = useState<any[]>([]);
+
+  const router = useRouter();
+  const [searchData, setSearchData] = useState<menProductListType | null>(null);
   const [searchWord, setSearchWord] = useState("");
 
   const { callApi } = useApi();
 
+  const { MenCategoryList } = UsePanel();
+
+  console.log("menCategoryId", menCategoryId);
+
   const SearchProduct = async (words: string) => {
     if (!words) return;
 
-    const res = await callApi(
-      "get",
-      `/rockroars/product-search-response?keyword=${words}`
-    );
-
-    setSearchData(res);
+    let res = await MenCategoryList({
+      keyword: words,
+      categoryIds: menCategoryId,
+    });
+    setSearchData(res.data);
   };
 
   useEffect(() => {
@@ -80,10 +83,11 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
     return () => clearTimeout(delay);
   }, [searchWord]);
 
-  const handleEnter = () =>
-  {
-    
-  }
+  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchWord.trim()) {
+      router.push(`/search=${encodeURIComponent(searchWord)}`);
+    }
+  };
 
   return (
     <>
@@ -149,6 +153,7 @@ export default function SearchInput({ onClose }: { onClose: () => void }) {
               placeholder="Search"
               value={searchWord}
               onChange={(e) => setSearchWord(e.target.value.trim())}
+              onKeyDown={handleEnter}
               className="
         w-full
         bg-transparent
