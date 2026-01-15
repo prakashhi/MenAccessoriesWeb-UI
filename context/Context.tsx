@@ -112,6 +112,9 @@ export type UserContextType = {
   loginModel: loginModelType;
 
   setLoginModel: React.Dispatch<React.SetStateAction<loginModelType>>;
+  GetUserFromContactNumber: (
+    contactNumber: string
+  ) => Promise<ApiResponse<{ id: string }>>;
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -222,6 +225,22 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   ): Promise<ApiResponse<OrderDetailType[]>> => {
     try {
       return await callApi("get", `/sales/customer/${userId}?type=ROCKROAR`);
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
+  };
+
+  const GetUserFromContactNumber = async (
+    contactNumber: string
+  ): Promise<ApiResponse<{ id: string }>> => {
+    try {
+      return await callApi(
+        "get",
+        `/9rock/users/contact-number/${contactNumber}`
+      );
     } catch (error: any) {
       throw {
         message: error?.response?.data?.message || "Something is wrong",
@@ -553,6 +572,8 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
         loginModel,
         setLoginModel,
+
+        GetUserFromContactNumber,
       }}
     >
       {children}

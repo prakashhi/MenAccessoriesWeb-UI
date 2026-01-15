@@ -50,10 +50,9 @@ export default function UserCreateForm({
     setIsSubmitting(true);
     try {
       let res = await CreateUser(info);
-      console.log("res", res);
       if (res.data) {
         notify({
-          message: res.message,
+          message: "Account created successfully!",
           type: "success",
         });
         loginUser(res?.data, res?.data?.jwtToken);
