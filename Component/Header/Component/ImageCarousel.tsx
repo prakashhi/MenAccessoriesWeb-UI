@@ -11,6 +11,7 @@ import MenNickles from "@/public/Images/a0d480b8ddd82878d54ad84298542904.jpg";
 import Cufflinks from "@/public/Images/e38d41d842b77bea875ce96014f7bbf6.jpg";
 import Cufflinks2 from "@/public/Images/a0b9682ff1a4a99bad899e8576cc1a4a.jpg";
 import ButtonImg2 from "@/public/Images/edd22b6cd4ef931fc6eb0edf607640ed.jpg";
+import { Variants } from "framer-motion";
 
 import BrouchImg3 from "@/public/Images/66f87ba1d512f9f10034b3f3da2410d8.jpg";
 
@@ -21,7 +22,6 @@ const images = [
   MenNickles,
   Cufflinks,
   Cufflinks2,
-
   BrouchImg3,
 ];
 
@@ -36,7 +36,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants:Variants = {
   hidden: { opacity: 0, y: 40 },
   visible: {
     opacity: 1,
@@ -116,7 +116,7 @@ export default function ImageCarousel() {
         <Link
           href="/collection"
           className="
-            group relative inline-flex items-center gap-3 px-8 py-4 rounded-full
+            group relative inline-flex items-center gap-3 px-8 py-3 lg:px-8 lg:py-4 rounded-full
             bg-black text-white text-sm sm:text-base font-medium
             overflow-hidden
             hover:bg-gray-900

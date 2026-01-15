@@ -76,6 +76,9 @@ export default function CartProductShowModel({
       })
     );
   };
+
+   console.log("itesm",item)
+
   const router = useRouter();
   return (
     <>
@@ -112,7 +115,7 @@ export default function CartProductShowModel({
     "
           onClick={() =>
             router.push(
-              `/all-Product/${user ? item.product.productId : item.id}`
+              `/all-Product/${user ? item.product?.productId : item.id}`
             )
           }
         >
@@ -134,13 +137,15 @@ export default function CartProductShowModel({
           <div className="flex flex-col gap-1">
             <h3 className="text-sm font-medium text-neutral-900 line-clamp-2">
               {user
-                ? item.product.productName.trim() !== ""
+                ? (item.product?.productName ?? "").trim() !== ""
                   ? item.product.productName
-                  : item.product.categoryName
-                : item.name}
+                  : item.product?.categoryName
+                : (item.name ?? "").trim() !== ""
+                ? item.name
+                : item.categoryName}
             </h3>
             <p className="text-xs text-neutral-400">
-              {user ? item.product.categoryName : item.cate}
+              {user ? item.product?.categoryName : item.categoryName}
             </p>
             {item.size && (
               <p className="text-xs text-neutral-500 mt-1">Size: {item.size}</p>
@@ -159,9 +164,9 @@ export default function CartProductShowModel({
             {/* LEFT: QTY CONTROL */}
             <div className="sm:justify-self-start">
               <ItemCount
-                productId={user ? item.product.productId : item.id}
+                productId={user ? item.product?.productId : item.id}
                 quantity={item.quantity}
-                stock={user ? item.product.stock : item.stock}
+                stock={user ? item.product?.stock : item.stock}
                 cartId={user ? item.id : undefined}
                 setState={user ? setCartListData : undefined}
                 VariantStock={

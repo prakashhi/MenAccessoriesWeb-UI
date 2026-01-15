@@ -15,6 +15,7 @@ import { useUserCart } from "@/context/UserCartContext";
 import { useGuestUser } from "@/context/GuestUserContext";
 import CartProductShowModel from "./component/CartProductShowModel";
 import { TotalSummaryModel } from "./component/TotalSummaryModel";
+import { PriceShowFunction } from "@/utils/FormatCurrency";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
 
@@ -27,8 +28,9 @@ export type modelTypes = {
 };
 
 export default function Page() {
-  const user = useMemo(() => getUserFromStorage(), []);
-  const { setUserCountData, refreshKey } = UsePanel();
+  const { setUserCountData, refreshKey, userCountData, userDataContext } =
+    UsePanel();
+  const user = userDataContext.info;
 
   const { CartProductList } = useUserCart();
   const { guestCart } = useGuestUser();
@@ -37,7 +39,6 @@ export default function Page() {
 
   const [isEmptyStock, seIsEmptyStock] = useState(false);
 
-  const ShippingCharge = 900;
   const TaxPercentage = 3;
 
   const [openModel, setOpenModel] = useState<modelTypes>({
@@ -62,30 +63,25 @@ export default function Page() {
       }
     };
     CartList();
-  }, [user,refreshKey]);
+  }, [user?.id, refreshKey]);
 
   useEffect(() => {
     let value =
-      cartListData.filter((val: any) => val?.product?.stock <= 0).length > 0
+      cartListData.filter((val: any) =>
+        user ? val?.product?.stock <= 0 : val.stock <= 0
+      ).length > 0
         ? true
         : false;
 
     seIsEmptyStock(value);
   }, [cartListData]);
 
+  console.log("cartListData", cartListData);
+
   useEffect(() => {
     if (user) return;
     setCartListData(Object.values(guestCart.items));
   }, [guestCart]);
-
-  // const TotalQty: number = useMemo(() => {
-  //   if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
-
-  //   return cartListData.reduce(
-  //     (sum: number, item: any) => sum + Number(item.quantity),
-  //     0
-  //   );
-  // }, [cartListData]);
 
   const total: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
@@ -95,10 +91,12 @@ export default function Page() {
 
       if (!stock || stock === 0) return sum; // ❌ exclude out-of-stock
 
+      console.log(item, PriceShowFunction(item.code, item.sellingPrice));
+
       const price =
         user && item?.product?.productPrice
           ? Number(item.product?.productPrice) * 10
-          : Number(item.sellingPrice);
+          : Number(PriceShowFunction(item.code, item.sellingPrice, 1, true));
 
       return sum + price * Number(item.quantity);
     }, 0);
@@ -165,7 +163,6 @@ export default function Page() {
               setOpenModel={setOpenModel}
               isEmptyStock={isEmptyStock}
               subTotal={total}
-              ShippingCharge={ShippingCharge}
               TaxPercentage={TaxPercentage}
               cartListData={cartListData}
             />

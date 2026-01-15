@@ -113,7 +113,6 @@ export default function ItemCount({
             message: msg,
             type: "error",
           });
-          console.log("Failed to update cart", err);
         }
       }, 400);
     } else {

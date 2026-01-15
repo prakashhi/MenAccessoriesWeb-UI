@@ -18,7 +18,7 @@ export default function Header() {
         className="flex flex-col items-center text-center mb-10 px-4"
       >
         <h1
-          className="text-2xl sm:text-4xl text-blue-950 md:text-4xl tracking-tight font-extrabold"
+          className="text-xl sm:text-4xl text-blue-950 md:text-4xl tracking-tight font-extrabold"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Define Your Signature Look
@@ -37,7 +37,7 @@ export default function Header() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 1, ease: "easeOut" }}
-        className="mx-2 sm:mx-4 md:mx-6 lg:mx-10
+        className="mx-0 sm:mx-4 md:mx-6 lg:mx-10
   flex flex-col lg:flex-row
   rounded-2xl relative"
       >
@@ -57,7 +57,7 @@ export default function Header() {
                 fontFamily: "'Playfair Display', serif",
                 fontWeight: 900,
               }}
-              className="text-3xl tracking-wide text-gray-900"
+              className="sm:text-3xl text-xl tracking-wide text-gray-900"
             >
               Let’s Feel It
             </span>

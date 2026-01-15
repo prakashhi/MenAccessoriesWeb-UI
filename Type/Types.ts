@@ -66,6 +66,7 @@ export type menProductiveArraysObj = {
 };
 
 export type menProductFilter = {
+  keyword?: string;
   categoryIds?: string[];
   materialIds?: string[];
   priceArrays?: menProductiveArraysObj[];

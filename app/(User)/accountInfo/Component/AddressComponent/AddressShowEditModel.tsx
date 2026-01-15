@@ -293,6 +293,14 @@ export default function AddressShowEditModel({
           <input
             {...register("city", {
               required: "City is required",
+              pattern: {
+                value: /^[a-zA-Z\s]+$/,
+                message: "Enter a valid city name",
+              },
+              minLength: {
+                value: 2,
+                message: "City must be at least 2 characters",
+              },
             })}
             className="profile-input"
           />

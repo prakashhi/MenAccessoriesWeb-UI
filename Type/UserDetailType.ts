@@ -139,7 +139,7 @@ export type UserGetDetailType = {
   id: string;
   userFirstName: string;
   userLastName: string;
-  jwtToken?: string;
+  jwtToken: string;
   contactNumber: string;
   email: string;
   createdAt: string;

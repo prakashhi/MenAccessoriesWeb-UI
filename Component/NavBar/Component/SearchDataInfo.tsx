@@ -19,7 +19,7 @@ export default function SearchComponents({ Data }: { Data: any }) {
         className="absolute top-full left-0 z-50  w-full max-h-[420px] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.08)]"
       >
         {/* 🔹 Categories Horizontal */}
-        {Data.categories?.length > 0 && (
+        {/* {Data.categories?.length > 0 && (
           <div className="border-b border-gray-100 px-4 py-4">
             <p
               className="mb-3 text-[11px] font-medium uppercase text-gray-500"
@@ -58,10 +58,10 @@ export default function SearchComponents({ Data }: { Data: any }) {
               ))}
             </div>
           </div>
-        )}
+        )} */}
 
         {/* 🔹 Products (Scrollable) */}
-        {Data.products?.length > 0 && (
+        {Data.data?.length > 0 && (
           <div className="px-4 py-4 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
             <p
               className="mb-3 text-[11px] font-medium uppercase text-gray-500"
@@ -71,7 +71,7 @@ export default function SearchComponents({ Data }: { Data: any }) {
             </p>
 
             <div className="flex flex-col gap-2">
-              {Data.products.map((product: any) => (
+              {Data.data.map((product: any) => (
                 <motion.div
                   onClick={() => router.push(`/all-Product/${product.id}`)}
                   key={product.id}

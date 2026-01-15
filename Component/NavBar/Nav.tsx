@@ -17,6 +17,7 @@ import OTPModal from "../CommonComponet/LoginModel/OTPFill";
 import UserCreateForm from "../CommonComponet/UserCreateFrom/UserCreateForm";
 import { LayoutGrid } from "lucide-react";
 import MobileMenuModal from "./Component/MobileMoreMenu";
+import { usePathname } from "next/navigation";
 
 export type length = {
   likeProductLength: number;
@@ -43,6 +44,10 @@ export default function Nav() {
     CountryCode: "",
   });
 
+  const pathname = usePathname();
+
+  const isSearchPage = pathname.startsWith("/search");
+
   const { GuestUserDataLength, guestCart } = useGuestUser();
   const { AddCartProduct } = useUserCart();
   const { AddLikeProduct } = useUserLike();
@@ -53,7 +58,7 @@ export default function Nav() {
     CartProductLength: 0,
   });
 
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(isSearchPage ? true : false);
   const [isMobile, setIsMobile] = useState(false);
 
   const MergeLogic = async () => {

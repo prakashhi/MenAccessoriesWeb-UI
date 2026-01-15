@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
-
-import { StateMobileDrawer } from "./MobileFilterDrawer";
 import { UsePanel } from "@/context/Context";
 import { usePathname } from "next/navigation";
 
@@ -20,21 +18,6 @@ export default function OptionComponent() {
 
   const pathname = usePathname();
   const isCategoryPage = pathname.startsWith("/category/");
-
-  console.log("isCategoryPage", isCategoryPage, pathname);
-
-  // const sections = [
-  //   {
-  //     title: "Materials",
-  //     type: "Materials",
-  //     items: CateMateListState.Material,
-  //   },
-  //   {
-  //     title: "Category",
-  //     type: "Category",
-  //     items: CateMateListState.MenCategory,
-  //   },
-  // ];
 
   const sections = [
     {

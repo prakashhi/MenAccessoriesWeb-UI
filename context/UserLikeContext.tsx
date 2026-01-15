@@ -8,8 +8,6 @@ import {
   useEffect,
 } from "react";
 
-import { UserGetDetailType } from "@/Type/UserDetailType";
-import { getUserFromStorage } from "./utils";
 import { useApi } from "@/app/useApi";
 import { ProductInfoType } from "@/Type/ProductType";
 import { ApiResponse, APiNoDataREsponse } from "@/Type/Types";

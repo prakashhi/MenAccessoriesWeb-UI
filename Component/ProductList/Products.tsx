@@ -127,7 +127,7 @@ export default function Product() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex flex-col items-center text-center mb-6 sm:mb-10"
+            className="flex flex-col items-center text-center  sm:mb-10"
           >
             <h2
               className="lg:text-3xl text-xl flex text-blue-950 items-center flex-col mb-20   lg:mb-10"

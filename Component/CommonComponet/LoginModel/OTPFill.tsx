@@ -37,7 +37,7 @@ export default function OTPModal({
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
-  const { UserTrigger, triggerRefresh, setUserDataContext, setUser } =
+  const { UserTrigger, triggerRefresh, GetUserFromContactNumber, GetUserData } =
     UsePanel();
 
   const { loginUser } = UserLoginCredential();
@@ -109,7 +109,7 @@ export default function OTPModal({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const otpString = otp.join("");
     if (otpString.length < OTP_LENGTH) {
       setError("Please enter complete OTP");
@@ -132,35 +132,44 @@ export default function OTPModal({
     setLoading(true);
     setError("");
 
-    try {
-      if (otpString == "111111") {
-        notify({
-          message: "OTP verified successfully",
-          type: "success",
-        });
+    if (otpString == "111111") {
+      //OTP verify Logic
 
-        UserTrigger();
-        loginUser();
-        triggerRefresh();
-        onClose();
-      }
-      if (otpString == "222222") {
-        //if user remain create
+      notify({
+        message: "OTP verified successfully",
+        type: "success",
+      });
+
+      try {
+        let res = await GetUserFromContactNumber(mobileData.mobileNumber);
+
+        if (res.success == true && res.data) {
+          //if UserNumber is Exist
+          let userId = res.data.id;
+          let response = await GetUserData(userId);
+
+          if (response.success == true && response.data?.jwtToken) {
+            // userLog-in
+            let userData = response.data;
+            let jwtToken: string = userData.jwtToken;
+            UserTrigger();
+            loginUser(userData, jwtToken);
+            triggerRefresh();
+            onClose();
+          }
+        }
+      } catch (error: any) {
+        //if UserNot is Exist
         onIfUserCreate();
         onClose();
       }
+    } else {
       notify({
         message: "OTP is not valid",
         type: "error",
       });
-    } catch (err: any) {
-      notify({
-        message: err.message,
-        type: "error",
-      });
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   const handleResend = () => {
@@ -169,7 +178,6 @@ export default function OTPModal({
     inputsRef.current[0]?.focus();
     setResendTimer(60);
     setIsAutoRead(false);
-    console.log("Resending OTP...");
   };
 
   // Clear all inputs
@@ -182,10 +190,10 @@ export default function OTPModal({
   };
 
   const addToRefs = (el: HTMLInputElement | null) => {
-  if (el && !inputsRef.current.includes(el)) {
-    inputsRef.current.push(el);
-  }
-};
+    if (el && !inputsRef.current.includes(el)) {
+      inputsRef.current.push(el);
+    }
+  };
 
   return (
     <Modal
@@ -326,7 +334,6 @@ export default function OTPModal({
                   <X size={14} />
                   Clear
                 </button>
-
               </div>
             </div>
 
@@ -368,7 +375,6 @@ export default function OTPModal({
                 Resend OTP {resendTimer > 0 && `(${resendTimer}s)`}
               </button>
             </div>
-
           </div>
         </ModalBody>
 

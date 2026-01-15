@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { Suspense } from "react";
 import {
   FiUser,
   FiClipboard,
@@ -23,11 +24,18 @@ import { useGuestUser } from "@/context/GuestUserContext";
 
 import { useSearchParams } from "next/navigation";
 type TabKey = "info" | "orders" | "Addresses" | "logout";
-export default function AccountSection() {
-  const userData = useMemo(() => getUserFromStorage(), []);
 
+export default function AccountSection() {
+  return (
+    <Suspense fallback={null}>
+      <AccountRender />
+    </Suspense>
+  );
+}
+export function AccountRender() {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get("tab") as TabKey;
+  const userData = useMemo(() => getUserFromStorage(), []);
   const [active, setActive] = useState("info");
 
   useEffect(() => {

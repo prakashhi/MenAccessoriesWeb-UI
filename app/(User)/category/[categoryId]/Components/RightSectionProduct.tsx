@@ -6,11 +6,10 @@ import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useRef, useState } from "react";
 import EmptyTableComponent from "./EmptyTableComponents";
 import { FiFilter, FiChevronDown } from "react-icons/fi";
-import { Data } from "@/Type/Types";
+import { Data, menProductData } from "@/Type/Types";
 import { CartItem } from "@/Type/CartType";
 import { LikeProductType } from "@/Type/LikeType";
 import { getUserFromStorage } from "@/context/utils";
-import { useParams } from "next/navigation";
 import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { TbAlphabetLatin } from "react-icons/tb";
@@ -19,7 +18,7 @@ import { useInfiniteProductsOffset } from "@/app/(User)/collection/Component/inf
 import { ProductSkeletonGrid } from "@/app/(User)/collection/Component/Skeleton";
 
 export default function RightSection() {
-  const params = useParams();
+
   const userData = useMemo(() => getUserFromStorage(), []);
   const { onOpen } = UsePanel();
 
@@ -114,10 +113,11 @@ export default function RightSection() {
     return () => clearTimeout(t);
   }, [menProductFilter.sortBy, menProductFilter.sortOrder]);
 
-  const { fetchProducts, products, hasMore, loading, totalProduct } =
+const { fetchProducts, products, hasMore, loading, totalProduct } =
     useInfiniteProductsOffset();
 
   const ProductData = products;
+
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -273,11 +273,6 @@ export default function RightSection() {
               <div className="h-px bg-linear-to-r from-transparent via-gray-300 to-transparent mb-6" />
 
               <div className="flex flex-col items-center gap-2">
-                {/* Icon */}
-                {/* <div className="w-9 h-9 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold">
-                  ✦
-                </div> */}
-
                 <p className="text-sm font-medium text-gray-700">
                   End of Collection
                 </p>

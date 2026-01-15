@@ -182,7 +182,7 @@ export default function PaymentSuccessModal({
         shadow-[0_15px_40px_rgba(0,0,0,0.4)]
         border border-gray-800 dark:border-gray-700 text-xs sm:text-sm lg:text-md "
             >
-              Continue Shopping
+              Continue
             </button>
 
             {/* FOOTER NOTE */}
