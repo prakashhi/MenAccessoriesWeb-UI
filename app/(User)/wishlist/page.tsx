@@ -1,0 +1,357 @@
+"use client";
+
+import Nav from "@/Component/NavBar/Nav";
+import Footer from "@/Component/Footer/Footer";
+import { UsePanel } from "@/context/Context";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { getUserFromStorage } from "@/context/utils";
+import { ImageShowUtil } from "@/utils/ImageShowUtil";
+import { PriceShowFunction } from "@/utils/FormatCurrency";
+import { FiHeart, FiX } from "react-icons/fi";
+import { useEffect, useMemo, useState } from "react";
+import EmptyDataModel from "@/Component/CommonComponet/EmptyDataModel";
+import Loader from "@/public/svg/tube-spinner.svg";
+
+import { UserLikeItem } from "@/Type/Types";
+
+import { ProductInfoType } from "@/Type/ProductType";
+import { LikeProductType } from "@/Type/LikeType";
+import { GuestLikeItem } from "@/Type/GuestType";
+
+import { useRouter } from "next/navigation";
+import { notify, toastActions } from "@/Component/ToastComponent";
+import { getProductId } from "@/utils/getProductId";
+import { useUserLike } from "@/context/UserLikeContext";
+import { useUserCart } from "@/context/UserCartContext";
+import { useGuestUser } from "@/context/GuestUserContext";
+
+export default function Page() {
+  const user = useMemo(() => getUserFromStorage(), []);
+  const { setUserCountData } = UsePanel();
+  const { LikeProductList, RemoveLikeProduct } = useUserLike();
+  const { AddCartProduct } = useUserCart();
+  const { AddCartProductGuest, guestCart, RemoveGuestLikeProduct } =
+    useGuestUser();
+  const [likeProductList, setLikeProductList] = useState<LikeProductType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+
+  const mapGuestLikesToLikeProducts = (
+    guestLikes: Record<string, ProductInfoType | { data: ProductInfoType }>
+  ): LikeProductType[] => {
+    return Object.values(guestLikes).map((item) => {
+      //const product = item.data ? item.data : item;
+      const product = "data" in item ? item.data : item;
+
+      return {
+        likeId: `guest-${product.id}`, // temp id
+        product, // always normalized
+      };
+    });
+  };
+
+  const normalizeProduct = (input: any): ProductInfoType => {
+    return input?.data ?? input?.product?.data ?? input?.product ?? input;
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+    const LikeData = async () => {
+      try {
+        setLoading(true);
+        if (user) {
+          let response = await LikeProductList(user.id);
+
+          if (response.success == true) {
+            const likeArray = response.data ?? [];
+            const normalizedLikes = likeArray.map((like) => ({
+              ...like,
+              product: normalizeProduct(like.product),
+            }));
+
+            setLikeProductList(normalizedLikes);
+
+            setUserCountData((prev) => ({
+              ...prev,
+              LikeCount: likeArray.length,
+            }));
+          }
+        } else {
+          let Guest = guestCart;
+          // let data = Object.values(Guest.likeProduct || {}) ?? [];
+          // setLikeProductList(data);
+          const data = mapGuestLikesToLikeProducts(Guest.likeProduct ?? {});
+          setLikeProductList(data);
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    LikeData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user, guestCart]);
+
+  type HandleCart = GuestLikeItem | UserLikeItem;
+
+  const addToCartHandle = async (item: HandleCart) => {
+    if (user) {
+      let User = item as UserLikeItem;
+      let ProductID = User.product.id;
+
+      try {
+        let response = await AddCartProduct(ProductID, User.product.variantId);
+        if (response.success == true) {
+          let res = await RemoveLikeProduct(ProductID);
+
+          if (res.success == true) {
+            setUserCountData((prev) => ({
+              ...prev,
+              LikeCount: prev.LikeCount - 1,
+              CartCount: prev.CartCount + 1,
+            }));
+
+            setLikeProductList((prev) =>
+              prev.filter((p) => p.product.id !== ProductID)
+            );
+            toastActions.addToCart();
+          }
+        }
+      } catch (err: any) {
+        let res = await RemoveLikeProduct(ProductID);
+
+        if (res.success == true) {
+          setUserCountData((prev) => ({
+            ...prev,
+            LikeCount: prev.LikeCount - 1,
+          }));
+
+          setLikeProductList((prev) =>
+            prev.filter((p) => p.product.id !== ProductID)
+          );
+
+          notify({
+            message: err.message,
+            type: "warning",
+          });
+        }
+      }
+    } else {
+      let guest = item as LikeProductType;
+      AddCartProductGuest(guest.product);
+      RemoveGuestLikeProduct(guest.product.id);
+    }
+  };
+
+  const XRemoveHandle = async (item: HandleCart) => {
+    if (user) {
+      let User = item as UserLikeItem;
+      let productId = getProductId(User.product);
+      try {
+        let res = await RemoveLikeProduct(productId);
+
+        if (res.success == true) {
+          setLikeProductList((prev) =>
+            prev.filter((p) => p.product.id !== productId)
+          );
+          setUserCountData((prev) => ({
+            ...prev,
+            LikeCount: prev.LikeCount - 1,
+          }));
+          toastActions.removeFromWishlist();
+        }
+      } catch (err: any) {
+        notify({
+          message: err?.message,
+          type: "warning",
+        });
+      }
+    } else {
+      let GuestLike = item as LikeProductType;
+      RemoveGuestLikeProduct(GuestLike.product.id);
+      toastActions.removeFromWishlist();
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900">
+      <Nav />
+
+      <main className="flex-1 px-4 sm:px-6 md:px-8 lg:px-12 py-8 md:py-12 lg:py-16 max-w-7xl mx-auto w-full">
+        {/* TITLE - RESPONSIVE */}
+        <div className="relative mb-8 md:mb-12 lg:mb-16">
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.2em] md:tracking-[0.3em] mb-8"
+            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+          >
+            WISHLIST
+          </motion.h1>
+          <div className="w-16 sm:w-20 md:w-24 h-px bg-neutral-300 mx-auto"></div>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div
+              className="grid lg:grid-cols-3 grid-cols-1 gap-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {[...Array(6)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="h-72 bg-gray-200 rounded-lg animate-pulse"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                />
+              ))}
+            </motion.div>
+          ) : likeProductList?.length > 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ staggerChildren: 0.1 }}
+              className="grid lg:grid-cols-3 grid-cols-1 gap-3"
+            >
+              {likeProductList &&
+                likeProductList.map((item: any) => (
+                  <motion.div
+                    key={item.likeId || item.product?.id || item.id}
+                    layout
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    whileHover={{ y: -4 }}
+                    className="group relative bg-white border border-gray-100 hover:border-gray-200
+             transition-all duration-300 overflow-hidden"
+                  >
+                    {/* IMAGE */}
+                    <div className="relative w-full h-64 md:h-72 bg-gray-50 overflow-hidden">
+                      <Image
+                        alt={item.product?.data?.name ?? "NO image"}
+                        onClick={() =>
+                          router.push(`/all-Product/${item?.product?.id}`)
+                        }
+                        src={
+                          ImageShowUtil(item?.product.image) ||
+                          "/images/placeholder.webp"
+                        }
+                        fill
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                        className="object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105"
+                      />
+
+                      {/* REMOVE */}
+                      <button
+                        onClick={() => XRemoveHandle(item)}
+                        className="absolute cursor-pointer top-3 right-3 w-8 h-8 rounded-full bg-white/90
+                 backdrop-blur-sm flex items-center justify-center
+                 opacity-0 group-hover:opacity-100 transition"
+                      >
+                        <FiX className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </div>
+
+                    {/* CONTENT */}
+                    <div className="p-4 flex flex-col gap-4">
+                      {/* TITLE */}
+                      <div>
+                        <h3
+                          className="text-md font-light tracking-wide text-gray-900 line-clamp-2"
+                          style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                        >
+                          {item.product.name}
+                        </h3>
+
+                        <p className="text-xs text-gray-500 uppercase tracking-[0.12em] mt-1">
+                          {item.product.categoryName}
+                        </p>
+                      </div>
+
+                      {/* PRICE */}
+                      <div>
+                        <p className="text-xl font-light text-gray-900">
+                          ₹
+                          {PriceShowFunction(
+                            item.product.code,
+                            item.product.sellingPrice
+                          )}
+                        </p>
+                      </div>
+
+                      {/* ACTIONS */}
+                      <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
+                        {item.product.stock <= 0 ? (
+                          <button
+                            className="w-full py-2.5 border cursor-not-allowed   border-gray-300  text-gray-400
+                   text-xs tracking-[0.15em] uppercase
+                    transition"
+                          >
+                            OUT OF stock
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              addToCartHandle(item);
+                            }}
+                            className={`w-full py-2.5 border cursor-pointer hover:bg-black hover:text-white  border-gray-900  text-gray-900
+                   text-xs tracking-[0.15em] uppercase
+                    transition`}
+                          >
+                            {loading ? (
+                              <Image
+                                alt={item.name ?? "Loading"}
+                                src={Loader}
+                              />
+                            ) : (
+                              "Add to Cart"
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+            </motion.div>
+          ) : (
+            /* EMPTY STATE - RESPONSIVE */
+
+            <EmptyDataModel
+              message="Your Wishlist is Empty"
+              Icon={
+                <FiHeart className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-neutral-400" />
+              }
+            />
+          )}
+        </AnimatePresence>
+
+        {/* BOTTOM DECORATIVE LINE - RESPONSIVE */}
+        {likeProductList?.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8 sm:mt-12 md:mt-16 pt-6 sm:pt-8 border-t border-neutral-200"
+          >
+            <p className="text-xs tracking-[0.2em] text-neutral-500 text-center">
+              {likeProductList.length} ITEM
+              {likeProductList.length > 1 ? "S" : ""} CURATED
+            </p>
+          </motion.div>
+        )}
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

@@ -1,0 +1,64 @@
+import { useState } from "react";
+import { AxiosRequestConfig } from "axios";
+
+import API from "./api";
+import { notify } from "@/Component/ToastComponent";
+
+
+export function useApi<T = any>() {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const callApi = async (
+    method: "get" | "post" | "put" | "delete" | "patch",
+    url: string,
+    config?: AxiosRequestConfig,
+    ISErrorThrowMSg?: false | true
+  ) => {
+    try {
+      let response;
+      setLoading(true);
+      setError(null);
+
+      switch (method) {
+        case "get":
+          response = await API.get(url, config);
+          break;
+        case "post":
+          response = await API.post(url, config?.data, config);
+          break;
+        case "put":
+          response = await API.put(url, config?.data, config);
+          break;
+        case "delete":
+          response = await API.delete(url, config);
+          break;
+        case "patch":
+          response = await API.patch(url, config?.data);
+          break;
+        default:
+          throw new Error(`Unsupported method: ${method}`);
+      }
+      setData(response.data);
+      return response!.data;
+    } catch (err: any) {
+      let errorMsg;
+      errorMsg = err.response?.data?.message || err.response?.data?.error;
+      setError(errorMsg);
+      console.log("err",err)
+      if (ISErrorThrowMSg === false) {
+        notify({
+          message: errorMsg,
+          type: "error",
+        });
+      }
+
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { data, loading, error, callApi };
+}
