@@ -15,6 +15,7 @@ import { useUserCart } from "@/context/UserCartContext";
 import { useGuestUser } from "@/context/GuestUserContext";
 import CartProductShowModel from "./component/CartProductShowModel";
 import { TotalSummaryModel } from "./component/TotalSummaryModel";
+import { PriceShowFunction } from "@/utils/FormatCurrency";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
 
@@ -28,7 +29,7 @@ export type modelTypes = {
 
 export default function Page() {
   const user = useMemo(() => getUserFromStorage(), []);
-  const { setUserCountData, refreshKey } = UsePanel();
+  const { setUserCountData, refreshKey, userCountData } = UsePanel();
 
   const { CartProductList } = useUserCart();
   const { guestCart } = useGuestUser();
@@ -37,7 +38,6 @@ export default function Page() {
 
   const [isEmptyStock, seIsEmptyStock] = useState(false);
 
- 
   const TaxPercentage = 3;
 
   const [openModel, setOpenModel] = useState<modelTypes>({
@@ -62,7 +62,7 @@ export default function Page() {
       }
     };
     CartList();
-  }, [user,refreshKey]);
+  }, [user, refreshKey]);
 
   useEffect(() => {
     let value =
@@ -78,14 +78,7 @@ export default function Page() {
     setCartListData(Object.values(guestCart.items));
   }, [guestCart]);
 
-  // const TotalQty: number = useMemo(() => {
-  //   if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
-
-  //   return cartListData.reduce(
-  //     (sum: number, item: any) => sum + Number(item.quantity),
-  //     0
-  //   );
-  // }, [cartListData]);
+  console.log("cartListData", cartListData);
 
   const total: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
@@ -95,10 +88,12 @@ export default function Page() {
 
       if (!stock || stock === 0) return sum; // ❌ exclude out-of-stock
 
+      console.log(item, PriceShowFunction(item.code, item.sellingPrice));
+
       const price =
         user && item?.product?.productPrice
           ? Number(item.product?.productPrice) * 10
-          : Number(item.sellingPrice);
+          : Number(PriceShowFunction(item.code, item.sellingPrice, 1, true));
 
       return sum + price * Number(item.quantity);
     }, 0);

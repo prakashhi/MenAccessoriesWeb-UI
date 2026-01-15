@@ -417,11 +417,9 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
           customerGSTIN: "",
           customerGSTAddress: "",
         },
-        // shouldSendEmail: true,
-        // shouldMinimizeStock: true,
+        shouldSendEmail: true,
+        shouldMinimizeStock: true,
       };
-
-      console.log("salesConfig", salesConfig);
 
       return await callApi("post", "/sales", { data: salesConfig });
     } catch (error: any) {

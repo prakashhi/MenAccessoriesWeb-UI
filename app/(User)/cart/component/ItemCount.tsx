@@ -50,8 +50,6 @@ export default function ItemCount({
 
   let IsStock: number = VariantStock == null ? stock : VariantStock;
 
-   console.log("IsStock",IsStock,VariantStock)
-
   const {
     incrementGuestCartProduct,
     decrementGuestCartProduct,
@@ -115,7 +113,6 @@ export default function ItemCount({
             message: msg,
             type: "error",
           });
-          console.log("Failed to update cart", err);
         }
       }, 400);
     } else {

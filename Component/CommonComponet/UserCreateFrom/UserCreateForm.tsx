@@ -67,10 +67,7 @@ export default function UserCreateForm({
       setIsSubmitting(false);
     }
   };
-
   const formValues = watch();
-
-  console.log(isValid);
 
   return (
     <Modal

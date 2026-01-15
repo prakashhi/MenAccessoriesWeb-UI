@@ -45,11 +45,8 @@ export function useApi<T = any>() {
     } catch (err: any) {
       let errorMsg;
       errorMsg = err.response?.data?.message || err.response?.data?.error;
-
-      console.log("err", err);
-
       setError(errorMsg);
-
+      console.log("err",err)
       if (ISErrorThrowMSg === false) {
         notify({
           message: errorMsg,

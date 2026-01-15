@@ -10,7 +10,6 @@ import { Data, menProductData } from "@/Type/Types";
 import { CartItem } from "@/Type/CartType";
 import { LikeProductType } from "@/Type/LikeType";
 import { getUserFromStorage } from "@/context/utils";
-import { useParams } from "next/navigation";
 import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { TbAlphabetLatin } from "react-icons/tb";
@@ -19,7 +18,7 @@ import { useInfiniteProductsOffset } from "@/app/(User)/collection/Component/inf
 import { ProductSkeletonGrid } from "@/app/(User)/collection/Component/Skeleton";
 
 export default function RightSection() {
-  const params = useParams();
+
   const userData = useMemo(() => getUserFromStorage(), []);
   const { onOpen } = UsePanel();
 
@@ -114,10 +113,11 @@ export default function RightSection() {
     return () => clearTimeout(t);
   }, [menProductFilter.sortBy, menProductFilter.sortOrder]);
 
-  const { fetchProducts, products, hasMore, loading, totalProduct } =
+const { fetchProducts, products, hasMore, loading, totalProduct } =
     useInfiniteProductsOffset();
 
   const ProductData = products;
+
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -257,8 +257,6 @@ export default function RightSection() {
 
             <div ref={bottomRef} className="h-10" />
           </>
-        ) : loading && ProductData.length > 0 ? (
-          <ProductSkeletonGrid count={8} />
         ) : (
           <div className="flex items-center justify-center min-h-[70vh]">
             <EmptyTableComponent />

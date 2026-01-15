@@ -12,7 +12,7 @@ import PictureGallery from "./Component/PictureGallery";
 import { useApi } from "@/app/useApi";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-import { formatIndianPrice } from "@/utils/FormatCurrency";
+import { formatIndianPrice, PriceShowFunction } from "@/utils/FormatCurrency";
 
 import { AnimatePresence } from "framer-motion";
 import { RiShoppingCart2Line, RiCheckLine } from "react-icons/ri";
@@ -335,8 +335,6 @@ export default function ProductPage() {
     });
   };
 
-  console.log("state", state);
-
   return (
     <>
       <Nav />
@@ -385,7 +383,9 @@ export default function ProductPage() {
                 className="mt-3 text-3xl sm:text-4xl font-semibold text-black"
                 style={{ fontFamily: "ui-serif, serif" }}
               >
-                {product.name}
+                {product.name.trim() !== ""
+                  ? product.name
+                  : product.categoryName}
               </h1>
 
               <h2 className="text-gray-300 text-sm mt-2.5">
@@ -395,14 +395,14 @@ export default function ProductPage() {
             {/* PRICE */}
             <div className="flex items-center gap-4">
               <span className="text-3xl font-semibold text-black">
-                ₹ {formatIndianPrice(product.sellingPrice)}
+                ₹{PriceShowFunction(product.code, product.sellingPrice)}
               </span>
 
-              {product.customPrice !== 0 && (
+              {/* {product.customPrice !== 0 && (
                 <span className="text-sm text-gray-400 line-through">
                   ₹{formatIndianPrice(product.customPrice)}
                 </span>
-              )}
+              )} */}
             </div>
             <SizeSelector
               sizes={size}

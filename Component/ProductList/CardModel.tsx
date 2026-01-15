@@ -216,7 +216,7 @@ export default function CardModel<T extends BaseProduct>({
 
   return (
     <>
-      {DataObj?.length > 1 &&
+      {DataObj?.length > 0 &&
         DataObj.map((product, index) => {
           let iscart = isUser
             ? !!Data.CartData?.[product.id]
@@ -247,9 +247,7 @@ export default function CardModel<T extends BaseProduct>({
                   alt={product.name}
                   fill
                   priority
-                  sizes="(max-width: 640px) 100vw,
-         (max-width: 1024px) 50vw,
-         33vw"
+                  sizes="(max-width: 640px) 100vw,(max-width: 1024px) 50vw,33vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
 
@@ -285,9 +283,7 @@ export default function CardModel<T extends BaseProduct>({
               {/* INFO */}
               <div className="px-4 py-3 text-center space-y-1">
                 <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
-                  {product.name.trim() !== ""
-                    ? product.name
-                    : categoryName ?? product.categoryName}
+                  {product.name.trim() !== "" ? product.name : categoryName ?? product.categoryName}
                 </h3>
 
                 <div className="flex justify-center gap-2 items-center">
@@ -337,16 +333,15 @@ export default function CardModel<T extends BaseProduct>({
     flex items-center justify-center gap-2
     md:bg-white md:text-neutral-900
     md:hover:bg-gray-100 ${
-     product.stock && product.stock <= 0
+      product.stock !== undefined && product.stock <= 0
         ? "cursor-not-allowed border-none"
         : "cursor-pointer border-gray-100"
     } md:hover:text-white
     transition-colors duration-300
                     `}
                   >
-                    {product.stock && product.stock <= 0 ? (
+                    {product.stock !== undefined && product.stock <= 0 ? (
                       <motion.span
-                        key="add"
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}

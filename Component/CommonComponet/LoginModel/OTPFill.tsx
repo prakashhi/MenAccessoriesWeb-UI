@@ -151,7 +151,7 @@ export default function OTPModal({
           if (response.success == true && response.data?.jwtToken) {
             // userLog-in
             let userData = response.data;
-            let jwtToken :string = userData.jwtToken;
+            let jwtToken: string = userData.jwtToken;
             UserTrigger();
             loginUser(userData, jwtToken);
             triggerRefresh();
@@ -178,7 +178,6 @@ export default function OTPModal({
     inputsRef.current[0]?.focus();
     setResendTimer(60);
     setIsAutoRead(false);
-    console.log("Resending OTP...");
   };
 
   // Clear all inputs

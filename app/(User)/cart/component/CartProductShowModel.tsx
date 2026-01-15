@@ -64,6 +64,8 @@ export default function CartProductShowModel({
     }
   };
 
+  console.log("item", item);
+
   const changeCartState = (cartId: string, quantity: number) => {
     setCartListData((prev) =>
       prev.map((item) => {
@@ -137,10 +139,12 @@ export default function CartProductShowModel({
                 ? item.product.productName.trim() !== ""
                   ? item.product.productName
                   : item.product.categoryName
-                : item.name}
+                : item.name.trim() !== ""
+                ? item.name
+                : item.categoryName}
             </h3>
             <p className="text-xs text-neutral-400">
-              {user ? item.product.categoryName : item.cate}
+              {user ? item.product.categoryName : item.categoryName}
             </p>
             {item.size && (
               <p className="text-xs text-neutral-500 mt-1">Size: {item.size}</p>
