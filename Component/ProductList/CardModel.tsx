@@ -11,7 +11,7 @@ import { CircleCheck } from "lucide-react";
 import { RiShoppingCart2Line } from "react-icons/ri";
 
 import { Heart } from "lucide-react";
-import { Data, CateLogResponseProductType, menProductData } from "@/Type/Types";
+import { Data} from "@/Type/Types";
 import { ProductInfoType } from "@/Type/ProductType";
 import { ImageShowUtil } from "@/utils/ImageShowUtil";
 import { notify, toastActions } from "../ToastComponent";
@@ -283,9 +283,7 @@ export default function CardModel<T extends BaseProduct>({
               {/* INFO */}
               <div className="px-4 py-3 text-center space-y-1">
                 <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
-                  {product.name.trim() !== ""
-                    ? product.name
-                    : categoryName ?? product.categoryName}
+                  {product.name.trim() !== "" ? product.name : categoryName ?? product.categoryName}
                 </h3>
 
                 <div className="flex justify-center gap-2 items-center">
