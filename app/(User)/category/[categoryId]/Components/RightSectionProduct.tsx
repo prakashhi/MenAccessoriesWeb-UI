@@ -18,7 +18,6 @@ import { useInfiniteProductsOffset } from "@/app/(User)/collection/Component/inf
 import { ProductSkeletonGrid } from "@/app/(User)/collection/Component/Skeleton";
 
 export default function RightSection() {
-
   const userData = useMemo(() => getUserFromStorage(), []);
   const { onOpen } = UsePanel();
 
@@ -67,6 +66,8 @@ export default function RightSection() {
           return { ...prev, sortBy: "alphabetical", sortOrder: "asc" };
         case "Z → A":
           return { ...prev, sortBy: "alphabetical", sortOrder: "desc" };
+
+          
         default:
           return prev;
       }
@@ -113,11 +114,10 @@ export default function RightSection() {
     return () => clearTimeout(t);
   }, [menProductFilter.sortBy, menProductFilter.sortOrder]);
 
-const { fetchProducts, products, hasMore, loading, totalProduct } =
+  const { fetchProducts, products, hasMore, loading, totalProduct } =
     useInfiniteProductsOffset();
 
   const ProductData = products;
-
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -225,6 +225,9 @@ const { fetchProducts, products, hasMore, loading, totalProduct } =
 
       {/* ===== PRODUCT GRID ===== */}
       <div className="p-4 sm:p-6">
+        {loading && ProductData.length === 0 && (
+          <ProductSkeletonGrid count={8} />
+        )}
         {ProductData.length > 0 ? (
           <>
             <motion.div
@@ -283,8 +286,6 @@ const { fetchProducts, products, hasMore, loading, totalProduct } =
             </div>
           </motion.div>
         )}
-
-        {loading && ProductData.length > 0 && <ProductSkeletonGrid count={8} />}
       </div>
 
       {/* Mobile Filter FAB */}

@@ -198,7 +198,7 @@ export const TotalSummaryModel = ({
           {/* Default Shipping Address with Change button */}
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 bg-gray-50 p-3 rounded-md border border-gray-200">
             {/* Address */}
-            <div className="text-xs text-gray-700 leading-relaxed break-words sm:max-w-[75%]">
+            <div className="text-xs text-gray-700 leading-relaxed wrap-break-words sm:max-w-[75%]">
               <p className="font-bold">Shipping address</p>
               {userDataContext.AddressList?.[selectedAddressIndex] ? (
                 <p className="line-clamp-2">

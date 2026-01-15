@@ -123,11 +123,64 @@ export default function OptionComponent() {
           </div>
         </div>
 
+        {/* in Stock */}
+
+        <label className="group flex items-center gap-3 cursor-pointer rounded-xl border border-gray-200 px-4 py-2.5 transition-all duration-200 hover:border-black hover:bg-gray-50">
+          {/* Hidden checkbox */}
+          <input
+            type="checkbox"
+            checked={menProductFilter.showInStockProducts} // controlled
+            onChange={(e) =>
+              setMenProductFilter((prev) => ({
+                ...prev,
+                showInStockProducts: e.target.checked,
+              }))
+            }
+            className="peer absolute opacity-0 w-0 h-0"
+          />
+
+          {/* Custom checkbox */}
+          <span
+            className={`w-5 h-5 flex items-center justify-center rounded-full border-2 transition-all duration-200
+      ${
+        menProductFilter.showInStockProducts
+          ? "bg-black border-black scale-105"
+          : "bg-white border-gray-300 group-hover:border-black"
+      }`}
+          >
+            {menProductFilter.showInStockProducts && (
+              <svg
+                className="w-3 h-3 text-white"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            )}
+          </span>
+
+          {/* Label */}
+          <span
+            className={`text-sm transition-colors ${
+              menProductFilter.showInStockProducts
+                ? "text-black font-medium"
+                : "text-gray-600 group-hover:text-black"
+            }`}
+          >
+            In Stock Only
+          </span>
+        </label>
+
+        {/* Price Sidler */}
         <h3 className="text-xs tracking-widest uppercase text-gray-500 mb-4">
           Price Range
         </h3>
-
-        {/* Price Sidler */}
         <div className="px-5 py-4 flex flex-col gap-4">
           {/* Slider */}
           <input
