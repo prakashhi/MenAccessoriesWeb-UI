@@ -28,8 +28,9 @@ export type modelTypes = {
 };
 
 export default function Page() {
-  const user = useMemo(() => getUserFromStorage(), []);
-  const { setUserCountData, refreshKey, userCountData } = UsePanel();
+  const { setUserCountData, refreshKey, userCountData, userDataContext } =
+    UsePanel();
+  const user = userDataContext.info;
 
   const { CartProductList } = useUserCart();
   const { guestCart } = useGuestUser();
@@ -62,23 +63,25 @@ export default function Page() {
       }
     };
     CartList();
-  }, [user, refreshKey]);
+  }, [user?.id, refreshKey]);
 
   useEffect(() => {
     let value =
-      cartListData.filter((val: any) => val?.product?.stock <= 0).length > 0
+      cartListData.filter((val: any) =>
+        user ? val?.product?.stock <= 0 : val.stock <= 0
+      ).length > 0
         ? true
         : false;
 
     seIsEmptyStock(value);
   }, [cartListData]);
 
+  console.log("cartListData", cartListData);
+
   useEffect(() => {
     if (user) return;
     setCartListData(Object.values(guestCart.items));
   }, [guestCart]);
-
-  console.log("cartListData", cartListData);
 
   const total: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;

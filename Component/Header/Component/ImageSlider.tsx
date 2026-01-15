@@ -22,7 +22,7 @@ export default function ImageSlider() {
   }, [images.length]);
 
   return (
-    <div className="relative w-full left-0 md:left-10 overflow-hidden rounded-xl">
+    <div className="relative w-full left-0 md:left-10 overflow-hidden  md:rounded-xl">
       <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
         <AnimatePresence initial={false}>
           {images.map((img, idx) => (
