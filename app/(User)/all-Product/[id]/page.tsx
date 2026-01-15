@@ -221,7 +221,7 @@ export default function ProductPage() {
     return () => {
       active = false;
     };
-  }, [product, user, guestCart]);
+  }, [product, user, guestCart, state.Cart]);
 
   const parsedDescription =
     typeof product?.description === "string"
@@ -252,7 +252,7 @@ export default function ProductPage() {
   const addToCartHandle = async (
     variantSizeId: string | null,
     Size: string | null,
-    variantSizeStock: number 
+    variantSizeStock: number
   ) => {
     setAdding(true);
     try {
@@ -334,6 +334,8 @@ export default function ProductPage() {
       };
     });
   };
+
+  console.log("state", state);
 
   return (
     <>
@@ -483,7 +485,7 @@ export default function ProductPage() {
                   setState={user && setState}
                   VariantStock={
                     user
-                      ? state.CartData?.variantSize?.variantSizeStock ?? null
+                      ? state.CartData?.variantSize?.variantSizeStock
                       : selectedSize?.stock ?? null
                   }
                   stateChangeQuantity={changeStateQuantity}

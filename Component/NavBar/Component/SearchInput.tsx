@@ -5,7 +5,6 @@ import SearchDataInfo from "@/Component/NavBar/Component/SearchDataInfo";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 
-import { getUserFromStorage } from "@/context/utils";
 import { UsePanel } from "@/context/Context";
 
 import { menCategoryId } from "@/app/page";

@@ -50,6 +50,8 @@ export default function ItemCount({
 
   let IsStock: number = VariantStock == null ? stock : VariantStock;
 
+   console.log("IsStock",IsStock,VariantStock)
+
   const {
     incrementGuestCartProduct,
     decrementGuestCartProduct,
