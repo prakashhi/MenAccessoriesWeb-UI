@@ -7,7 +7,7 @@ import { UsePanel } from "@/context/Context";
 import { usePathname } from "next/navigation";
 import { formatIndianPrice } from "@/utils/FormatCurrency";
 
-export default function OptionComponent() {
+export default function OptionComponent({ onClose }: { onClose: () => void }) {
   const [open, setOpen] = useState<Record<number, boolean>>({});
   const { CateMateListState, setMenProductFilter, menProductFilter } =
     UsePanel();
@@ -52,6 +52,7 @@ export default function OptionComponent() {
       maxPrice: max,
       priceLabel: label,
     }));
+    onClose();
   };
 
   // update price when slider moves
@@ -90,6 +91,7 @@ export default function OptionComponent() {
             open={!!open[index]}
             type={section.type}
             toggle={toggle}
+            onClose={onClose}
           />
         ))}
 
@@ -131,7 +133,7 @@ export default function OptionComponent() {
           {/* Hidden checkbox */}
           <input
             type="checkbox"
-            checked={menProductFilter.showInStockProducts} // controlled
+            checked={!!menProductFilter.showInStockProducts} // controlled
             onChange={(e) =>
               setMenProductFilter((prev) => ({
                 ...prev,
@@ -246,6 +248,7 @@ function AccordionSection({
   items,
   open,
   toggle,
+  onClose,
 }: {
   index: number;
   title: string;
@@ -253,6 +256,7 @@ function AccordionSection({
   items: any[];
   open: boolean;
   toggle: (i: number) => void;
+  onClose: () => void;
 }) {
   const { setMenProductFilter, menProductFilter } = UsePanel();
 
@@ -281,6 +285,7 @@ function AccordionSection({
           : [...categoryIds, id],
       };
     });
+    onClose();
   };
 
   return (

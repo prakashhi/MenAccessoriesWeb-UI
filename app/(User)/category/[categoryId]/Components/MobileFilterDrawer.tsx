@@ -77,7 +77,7 @@ export default function MobileFilterDrawer() {
             {/* ================= BODY ================= */}
             <DrawerBody className="flex-1 overflow-y-auto px-5 py-6">
               <div className="flex flex-col space-y-4">
-                <OptionComponent />
+                <OptionComponent onClose={onClose}  />
               </div>
             </DrawerBody>
             {/* ================= FOOTER ================= */}
