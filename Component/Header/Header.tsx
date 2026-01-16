@@ -80,15 +80,21 @@ export default function Header() {
             {/* CTA */}
             <Button
               onPress={() => router.push("/collection")}
-              endContent={<ArrowRight size={18} />}
+              endContent={
+                <span className="ml-1 inline-flex transform transition-transform duration-300 group-hover:translate-x-2">
+                  <ArrowRight size={18} />
+                </span>
+              }
               className="
-        mt-2
-        px-8 py-6
-        text-base font-medium
-        transition-transform
-        hover:scale-105
-        bg-black rounded-full text-white
-      "
+    group
+    mt-2
+    px-8 py-6
+    text-base font-medium
+    bg-black text-white
+    rounded-full
+    transition-transform duration-300
+    hover:scale-105
+  "
             >
               Shop Now
             </Button>

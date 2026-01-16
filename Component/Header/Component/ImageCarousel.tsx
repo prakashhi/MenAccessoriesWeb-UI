@@ -10,42 +10,59 @@ import ButtonImg from "@/public/Images/Brouch8.jpeg";
 import MenNickles from "@/public/Images/Nackless1.jpeg";
 import Cufflinks from "@/public/Images/Brouch5.jpeg";
 import Cufflinks2 from "@/public/Images/Brouch4.jpeg";
-import ButtonImg2 from "@/public/Images/Nackless5.jpeg";
-import BrouchImg3 from "@/public/Images/Broch1.jpeg";
 import NAckless from "@/public/Images/Nackless3.jpeg";
-import GoomNackless from "@/public/Images/GroomNackless2.jpeg";
+
 
 import { Variants } from "framer-motion";
 
+import ButtonImg2 from "@/public/Images/ButtonImg3.jpg"
+import ButtonImg3 from "@/public/Images/B67WK4225-with-qr.jpg"
+import CuflineImg2 from "@/public/Images/C0PBWF4012-with-qr.jpg"
+import BrouchImg2 from "@/public/Images/018GWBK540-with-qr.jpg"
+import BrouchImg3 from "@/public/Images/00RGOK543-with-qr.jpg"
+
 const images = [
+    BrouchImg2,
+  CuflineImg2,
   BrochImg,
   ButtonImg,
   MenNickles,
+  ButtonImg3,
   ButtonImg2,
-  Cufflinks,
   Cufflinks2,
   NAckless,
   BrouchImg3,
-  GoomNackless,
+
 ];
 
-/* ================= ANIMATIONS ================= */
 
+/* ================= ANIMATIONS ================= */
 const containerVariants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0.18,
+      delayChildren: 0.1,
     },
   },
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: {
+    opacity: 0,
+    y: 60,
+    scale: 0.96,
+    filter: "blur(6px)",
+  },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: "easeOut" },
+    scale: 1,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.9,
+      ease: [0.22, 1, 0.36, 1], // luxury easing
+    },
   },
 };
 
@@ -53,7 +70,7 @@ export default function ImageCarousel() {
   return (
     <>
       <motion.section
-        className="w-full px-0 sm:px-6 lg:px-10 py-16 relative"
+        className="w-full px-2 sm:px-6 lg:px-10 my-10 relative bg-[#FAFAFA]"
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
@@ -62,10 +79,13 @@ export default function ImageCarousel() {
         <section className="w-full px-0 sm:px-6 lg:px-10 py-16 relative">
           {/* ===== HEADER ===== */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{
+              duration: 0.8,
+              ease: [0.22, 1, 0.36, 1],
+            }}
             className="mb-10 flex items-end justify-between"
           >
             <div>
@@ -117,12 +137,12 @@ export default function ImageCarousel() {
           >
             <Link
               href="/collection"
-              className="group relative inline-flex items-center gap-3 px-8 py-3 lg:px-8 lg:py-4 rounded-full
-      bg-black text-white text-sm sm:text-base font-medium
-      overflow-hidden hover:bg-gray-900 transition"
+              className="group relative inline-flex items-center gap-3 px-8 py-3 lg:px-8 lg:py-2 
+        text-sm sm:text-base font-medium
+      overflow-hidden   transition"
             >
               <span className="relative z-10 lg:text-md text-xs">
-                View All Collections
+                View More
               </span>
               <ArrowRight
                 size={20}

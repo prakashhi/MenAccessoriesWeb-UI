@@ -21,6 +21,7 @@ import { notify } from "../ToastComponent";
 
 import ImageCarousel from "../Header/Component/ImageCarousel";
 import { AboutUsComponent } from "@/Component/Header/Component/About-us";
+import WhyChooseUs from "@/Component/Header/Component/WhyChooseUs";
 
 export default function Product() {
   const { setUserCountData, refreshKey, user, CateLogProducts } = UsePanel();
@@ -151,7 +152,7 @@ export default function Product() {
               key={index}
               ref={observeSection(index)}
               className={`
-    mb-20
+    lg:mb-20 mb-10
     transition-all duration-700 ease-out
     ${
       visibleSections.has(index)
@@ -175,14 +176,15 @@ export default function Product() {
                 <Link
                   href={`/category/${categoryItem.id}`}
                   className="
-                inline-flex items-center justify-center
-                px-6 py-2.5
-                border border-black
-                text-xs tracking-widest font-semibold
-                rounded-full
-                hover:bg-black hover:text-white
-                transition-all duration-300
-              "
+    hidden lg:inline-flex
+    items-center justify-center
+    px-6 py-2.5
+    border border-black
+    text-xs tracking-widest font-semibold
+    rounded-full
+    hover:bg-black hover:text-white
+    transition-all duration-300
+  "
                 >
                   VIEW ALL
                 </Link>
@@ -198,12 +200,12 @@ export default function Product() {
                       router.replace(`/category/${categoryItem.id}`);
                     }}
                     className="group relative items-center
-                    w-full lg:w-[300px] xl:w-[340px]
-                    h-[200px] sm:h-[220px] lg:h-[420px]
-                    shrink-0
-                    rounded-2xl cursor-pointer
-                    overflow-hidden
-                    bg-gray-100"
+    w-full lg:w-[300px] xl:w-[340px]
+    h-[200px] sm:h-[220px] lg:h-[420px]
+    shrink-0
+    rounded-2xl cursor-pointer
+    overflow-hidden
+    bg-gray-100"
                   >
                     <Image
                       src={ImageShowUtil(categoryItem.image)}
@@ -211,27 +213,45 @@ export default function Product() {
                       fill
                       sizes="(max-width: 1024px) 100vw, 340px"
                       className="object-cover
-          transition-transform duration-500 ease-out
-          lg:group-hover:scale-110"
+      transition-transform duration-500 ease-out
+      lg:group-hover:scale-110"
                     />
 
                     {/* OVERLAY */}
                     <div
                       className="
-          absolute inset-0
-          bg-black/40
-          flex flex-col justify-end p-4
-          opacity-100 lg:opacity-0
-          lg:group-hover:opacity-100
-          transition-opacity duration-300
-        "
+      absolute inset-0
+      bg-black/40
+      flex flex-col justify-end p-4
+      opacity-100 lg:opacity-0
+      lg:group-hover:opacity-100
+      transition-opacity duration-300
+    "
                     >
                       <h3 className="text-white text-lg sm:text-xl font-semibold">
                         {categoryItem.name}
                       </h3>
-                      <span className="text-white/80 text-sm">
+
+                      <span className="text-white/80 text-sm mb-2">
                         {categoryItem.noOfProducts} Products
                       </span>
+
+                      {/* MOBILE VIEW ALL BUTTON */}
+                      <button
+                        className="
+        md:hidden
+        self-start
+        mt-1
+        px-4 py-1.5
+        text-xs tracking-widest font-semibold
+        border border-white text-white
+        rounded-full
+        hover:bg-white hover:text-black
+        transition-all duration-300
+      "
+                      >
+                        VIEW ALL
+                      </button>
                     </div>
                   </div>
 
@@ -273,7 +293,28 @@ export default function Product() {
             </div>
           ))}
         {/* view all collection */}
+
+        <motion.div
+          className="flex justify-center mt-0 lg:mt-14"
+        >
+          <Link
+            href="/collection"
+            className="group relative inline-flex items-center gap-3 px-8 py-3 lg:px-8 lg:py-4 rounded-full
+      bg-black text-white text-sm sm:text-base font-medium
+      overflow-hidden hover:bg-gray-900 transition"
+          >
+            <span className="relative z-10 lg:text-md text-xs">
+              View All Collections
+            </span>
+            {/* <ArrowRight
+                size={20}
+                className="relative z-10 transform group-hover:translate-x-2 transition-transform duration-300"
+              /> */}
+          </Link>
+        </motion.div>
       </section>
+
+      <WhyChooseUs />
     </>
   );
 }

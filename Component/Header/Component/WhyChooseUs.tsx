@@ -83,6 +83,7 @@ export default function WhyChooseUs() {
               text-center
               transition
               hover:-translate-y-1
+              cursor-pointer
               hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]
             "
           >
