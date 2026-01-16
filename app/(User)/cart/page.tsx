@@ -76,7 +76,6 @@ export default function Page() {
     seIsEmptyStock(value);
   }, [cartListData]);
 
-  console.log("cartListData", cartListData);
 
   useEffect(() => {
     if (user) return;
@@ -90,8 +89,6 @@ export default function Page() {
       const stock = user ? item.product?.stock : item.stock;
 
       if (!stock || stock === 0) return sum; // ❌ exclude out-of-stock
-
-      console.log(item, PriceShowFunction(item.code, item.sellingPrice));
 
       const price =
         user && item?.product?.productPrice

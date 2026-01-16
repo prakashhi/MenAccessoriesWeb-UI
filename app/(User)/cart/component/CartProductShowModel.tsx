@@ -77,7 +77,6 @@ export default function CartProductShowModel({
     );
   };
 
-   console.log("itesm",item)
 
   const router = useRouter();
   return (

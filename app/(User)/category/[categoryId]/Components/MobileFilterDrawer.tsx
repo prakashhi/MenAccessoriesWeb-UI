@@ -1,6 +1,6 @@
 "use client";
 
-import { Drawer, DrawerContent, DrawerBody } from "@heroui/drawer";
+import { Drawer, DrawerContent, DrawerBody } from "@heroui/react";
 import { Button } from "@heroui/react";
 
 import { X, ArrowRight } from "lucide-react";

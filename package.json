@@ -9,8 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@heroui/checkbox": "^2.3.27",
-    "@heroui/drawer": "^2.2.24",
     "@heroui/react": "^2.8.5",
     "axios": "^1.13.2",
     "framer-motion": "^12.23.26",

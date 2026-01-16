@@ -134,12 +134,13 @@ export default function OptionComponent({ onClose }: { onClose: () => void }) {
           <input
             type="checkbox"
             checked={!!menProductFilter.showInStockProducts} // controlled
-            onChange={(e) =>
+            onChange={(e) => {
               setMenProductFilter((prev) => ({
                 ...prev,
                 showInStockProducts: e.target.checked,
-              }))
-            }
+              }));
+              onClose();
+            }}
             className="peer absolute opacity-0 w-0 h-0"
           />
 
