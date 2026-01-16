@@ -74,7 +74,7 @@ export type menProductFilter = {
   showInStockProducts?: true | false;
   sortBy?: "createdAt" | "price" | "alphabetical";
   minPrice?: number;
-  maxPrice?: number;
+  maxPrice: number;
   limit?: number;
   offset?: number;
   priceLabel?: string;

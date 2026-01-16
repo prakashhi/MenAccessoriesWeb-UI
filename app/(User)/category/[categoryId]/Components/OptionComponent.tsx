@@ -5,6 +5,7 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
 import { UsePanel } from "@/context/Context";
 import { usePathname } from "next/navigation";
+import { formatIndianPrice } from "@/utils/FormatCurrency";
 
 export default function OptionComponent() {
   const [open, setOpen] = useState<Record<number, boolean>>({});
@@ -39,10 +40,10 @@ export default function OptionComponent() {
     { label: "Under ₹5,000", min: 0, max: 5000 },
     { label: "₹5,000 – ₹10,000", min: 5000, max: 10000 },
     { label: "₹10,000 – ₹25,000", min: 10000, max: 25000 },
-    { label: "₹25,000+", min: 25000, max: 999999999 },
+    { label: "₹25,000+", min: 25000, max: 100000 },
   ];
 
-  const maxLimit = 50000;
+  const maxLimit = 500000;
 
   const handlePriceChange = (min: number, max: number, label: string) => {
     setMenProductFilter((prev) => ({
@@ -55,16 +56,17 @@ export default function OptionComponent() {
 
   // update price when slider moves
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPrice(parseInt(e.target.value));
+    let value = Number(e.target.value);
+    setPrice(value);
 
     setMenProductFilter((prev) => ({
       ...prev,
       minPrice: 0,
-      maxPrice: price,
+      maxPrice: value,
     }));
   };
-
-  const percentage = (price / maxLimit) * 100;
+  const percentage = (menProductFilter.maxPrice / maxLimit) * 100;
+  const Price = menProductFilter.maxPrice;
 
   const resetFilter = () => {
     setMenProductFilter({
@@ -187,7 +189,7 @@ export default function OptionComponent() {
             type="range"
             min={0}
             max={maxLimit}
-            value={price}
+            value={menProductFilter.maxPrice}
             onChange={handleChange}
             className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
             style={{
@@ -196,8 +198,21 @@ export default function OptionComponent() {
           />
 
           {/* Show current selected price */}
-          <div className="text-sm text-gray-700">
-            Selected Price: ₹{price === maxLimit ? `${maxLimit}+` : price}
+          <div className="text-sm text-gray-700 flex items-center justify-between">
+            <span>
+              Selected Price:
+              <strong className="ml-1 text-gray-900">
+                ₹
+                {Price === maxLimit
+                  ? `${formatIndianPrice(maxLimit)}+`
+                  : formatIndianPrice(Price)}
+              </strong>
+            </span>
+          </div>
+
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>₹0</span>
+            <span>₹{formatIndianPrice(maxLimit)}</span>
           </div>
         </div>
 

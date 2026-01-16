@@ -41,6 +41,7 @@ export function Search({ onClose }: { onClose: () => void }) {
     let res = await MenCategoryList({
       keyword: words,
       categoryIds: menCategoryId,
+      maxPrice:0
     });
     setSearchData(res.data);
   };

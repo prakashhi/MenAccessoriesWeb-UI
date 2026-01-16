@@ -6,6 +6,7 @@ import { UsePanel } from "@/context/Context";
 import { useParams } from "next/navigation";
 
 import { menCategoryId } from "@/app/page";
+import { usePathname } from "next/navigation";
 
 const LIMIT = 40;
 
@@ -16,10 +17,11 @@ export function useInfiniteProductsOffset() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [totalProduct, setTotalProduct] = useState<number>(0);
-  const { MenCategoryList, menProductFilter } = UsePanel();
+  const { MenCategoryList, menProductFilter, setMenProductFilter } = UsePanel();
 
   const requestIdRef = useRef(0);
   const prevFilterRef = useRef(menProductFilter);
+  const pathname = usePathname();
 
   // Function to reset everything when filters change
   const resetState = useCallback(() => {
@@ -30,6 +32,42 @@ export function useInfiniteProductsOffset() {
     setLoading(false);
     prevFilterRef.current = menProductFilter;
   }, [menProductFilter]);
+
+  useEffect(() => {
+    //reset filter after pathChange
+    setMenProductFilter((prev) => {
+      if (!prev) {
+        return {
+          minPrice: 0,
+          maxPrice: 0,
+          priceLabel: "",
+          categoryIds: [],
+          materialIds: [],
+          keyword: "",
+        };
+      }
+
+      if (
+        prev.minPrice === 0 &&
+        prev.maxPrice === 0 &&
+        prev.priceLabel === "" &&
+        prev.categoryIds?.length === 0 &&
+        prev.materialIds?.length === 0 &&
+        prev.keyword === ""
+      ) {
+        return prev; // already reset
+      }
+
+      return {
+        minPrice: 0,
+        maxPrice: 0,
+        priceLabel: "",
+        categoryIds: [],
+        materialIds: [],
+        keyword: "",
+      };
+    });
+  }, [pathname]);
 
   // Compare current filter with previous filter to detect changes
   const hasFilterChanged = useCallback(() => {
@@ -129,5 +167,12 @@ export function useInfiniteProductsOffset() {
     fetchProducts,
   ]);
 
-  return { products, fetchProducts, loading, hasMore, totalProduct };
+  return {
+    products,
+    fetchProducts,
+    loading,
+    hasMore,
+    totalProduct,
+    resetState,
+  };
 }

@@ -145,6 +145,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
   const [menProductFilter, setMenProductFilter] = useState<menProductFilter>({
     categoryIds: [],
+    maxPrice: 0,
   });
 
   const [userDataContext, setUserDataContext] = useState<accountInfoStateType>({

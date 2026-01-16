@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import ImageSlider from "./Component/ImageSlider";
 import { Button } from "@heroui/react";
-import { Sparkles, ArrowRight } from "lucide-react";
+import {  ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
