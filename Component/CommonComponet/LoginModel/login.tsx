@@ -1,19 +1,15 @@
 "use client";
 
 import { useApi } from "@/app/useApi";
-import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { UsePanel } from "@/context/Context";
 
 import { Modal, ModalContent, Button } from "@heroui/react";
 import {
   X,
   Smartphone,
-  Shield,
   ArrowRight,
   ChevronDown,
   Search,
-  Globe,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { CountryCode } from "@/utils/CountryCode"; // Adjust import path
@@ -45,7 +41,6 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
     clearErrors,
   } = useForm<Info>();
 
-  const router = useRouter();
   const { loading } = useApi();
 
   const onSubmit: SubmitHandler<Info> = async (info) => {

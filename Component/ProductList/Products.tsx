@@ -18,9 +18,9 @@ import { getProductId } from "@/utils/getProductId";
 import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { notify } from "../ToastComponent";
-import { Button } from "@heroui/react";
 
 import ImageCarousel from "../Header/Component/ImageCarousel";
+import { AboutUsComponent } from "@/Component/Header/Component/About-us";
 
 export default function Product() {
   const { setUserCountData, refreshKey, user, CateLogProducts } = UsePanel();
@@ -121,6 +121,8 @@ export default function Product() {
 
   return (
     <>
+      <ImageCarousel />
+      <AboutUsComponent />
       <section className="pt-12 lg:pt-39 px-4 lg:overflow-x-hidden sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
         <div className="flex justify-center">
           <motion.div
@@ -271,9 +273,6 @@ export default function Product() {
             </div>
           ))}
         {/* view all collection */}
-
-        <ImageCarousel />
-       
       </section>
     </>
   );

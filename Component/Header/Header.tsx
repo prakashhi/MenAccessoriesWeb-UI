@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import ImageSlider from "./Component/ImageSlider";
 import { Button } from "@heroui/react";
-import {  ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
@@ -46,36 +46,49 @@ export default function Header() {
         {/* Desktop Text Box */}
         <motion.div
           // initial={{ opacity: 0, x: 40 }}
-          // animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="hidden lg:flex  w-full bg-[#F6F6F6]
-              items-center rounded-r-xl justify-center text-center  px-10"
+          // whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
+          className="
+    hidden lg:flex
+    w-full bg-[#F6F6F6]
+    items-center justify-center
+    rounded-r-xl
+    px-12 py-16
+  "
         >
-          <div className="flex flex-col gap-5 text-center">
-            <span
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontWeight: 900,
-              }}
-              className="sm:text-3xl text-xl tracking-wide text-gray-900"
+          <div className="flex max-w-xl flex-col items-center gap-6 text-center">
+            {/* Heading */}
+            <h2
+              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-2xl sm:text-3xl font-extrabold tracking-wide text-gray-900"
             >
-              Let’s Feel It
-            </span>
+              Crafted for the Modern Gentleman
+            </h2>
 
             {/* Description */}
             <p
-              className="text-md text-gray-700 leading-relaxed"
               style={{ fontFamily: "ui-serif" }}
+              className="text-sm sm:text-base leading-relaxed text-gray-700"
             >
-              Explore the new collection of timeless fashion crafted for
-              confidence and comfort.
+              Discover premium men’s accessories designed to elevate your
+              everyday style. From refined Button and Broch to statement pieces
+              that define confidence, every detail is crafted for comfort,
+              quality, and timeless appeal.
             </p>
 
             {/* CTA */}
             <Button
               onPress={() => router.push("/collection")}
               endContent={<ArrowRight size={18} />}
-              className="mx-auto px-8 py-6 text-base font-medium"
+              className="
+        mt-2
+        px-8 py-6
+        text-base font-medium
+        transition-transform
+        hover:scale-105
+        bg-black rounded-full text-white
+      "
             >
               Shop Now
             </Button>
@@ -90,10 +103,36 @@ export default function Header() {
         transition={{ delay: 0.8, duration: 0.6 }}
         className="lg:hidden flex flex-col items-center mt-4 px-3 overflow-hidden py-5 text-center"
       >
-        <h2 className="text-xl font-semibold tracking-wide">Let’s Feel It</h2>
-        <p className="text-sm text-gray-600 mt-1">
-          Explore the New Collection of Timeless Fashion.
+        <h2
+          style={{ fontFamily: "'Playfair Display', serif" }}
+          className="text-2xl sm:text-3xl font-extrabold tracking-wide text-gray-900"
+        >
+          Crafted for the Modern Gentleman
+        </h2>
+        <p
+          style={{ fontFamily: "ui-serif" }}
+          className="text-sm sm:text-base leading-relaxed text-gray-700"
+        >
+          Discover premium men’s accessories designed to elevate your everyday
+          style. From refined Button and Broch to statement pieces that define
+          confidence, every detail is crafted for comfort, quality, and timeless
+          appeal.
         </p>
+
+        <Button
+          onPress={() => router.push("/collection")}
+          endContent={<ArrowRight size={18} />}
+          className="
+        lg:mt-2 mt-5
+        px-5 py-3
+        text-xs font-medium
+        transition-transform
+        hover:scale-105
+        bg-black rounded-full text-white 
+      "
+        >
+          Shop Now
+        </Button>
       </motion.div>
     </header>
   );

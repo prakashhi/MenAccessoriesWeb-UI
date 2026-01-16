@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, MessageCircle } from "lucide-react";
 import Nav from "@/Component/NavBar/Nav";
 import Link from "next/link";
+import { WhatsAppNumber } from "@/app/page";
 
 const container = {
   hidden: {},
@@ -96,7 +97,7 @@ export default function ContactUs() {
             </p>
 
             <Link
-              href="https://wa.me/9427599999"
+              href={`https://wa.me/${WhatsAppNumber}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Chat with us on WhatsApp"

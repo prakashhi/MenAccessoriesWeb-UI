@@ -21,7 +21,6 @@ import { useUserCart } from "@/context/UserCartContext";
 
 type BaseProduct = {
   id: string;
-  // price: number;
   name: string;
   code: string;
   sellingPrice: number;

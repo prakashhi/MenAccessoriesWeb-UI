@@ -11,6 +11,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UserCartContextProvider } from "@/context/UserCartContext";
 import { GuestUserContextProvider } from "@/context//GuestUserContext";
+import FloatingWhatsApp from "@/Component/FloatingWhatappLogo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,7 +24,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RockeRoars",
+  title: "RockeRoar",
   description:
     "Discover premium men's accessories designed for style, comfort, and everyday confidence.",
 };
@@ -54,6 +55,8 @@ export default function RootLayout({
               </UserCartContextProvider>
             </UserLikeContextProvider>
           </UserContextProvider>
+
+          <FloatingWhatsApp />
 
           <ToastContainer
             position="top-center"

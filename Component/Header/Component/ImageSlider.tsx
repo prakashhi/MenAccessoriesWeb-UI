@@ -2,14 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import BrochImg from "@/public/Images/il_680x540.7199741956_g139.jpg";
-import ButtonImg from "@/public/Images/2377a7234f6c3473822b59f53120b1ca.jpg";
-import MenNickles from "@/public/Images/a0d480b8ddd82878d54ad84298542904.jpg";
-import Cufflinks from "@/public/Images/e38d41d842b77bea875ce96014f7bbf6.jpg";
-import Cufflinks2 from "@/public/Images/a0b9682ff1a4a99bad899e8576cc1a4a.jpg";
+
+import MenNackLess from "@/public/Images/GroomNackless.jpeg";
+import MenNackLess2 from "@/public/Images/Nackless4.jpeg";
+import MenBroch from "@/public/Images/Button2.jpeg";
+import MenBroch2 from "@/public/Images/Button1.jpeg";
+
+import MenButton1 from "@/public/Images/Broch1.jpeg";
+import MenButton2 from "@/public/Images/Broch2.jpeg";
 
 export default function ImageSlider() {
-  const images = [MenNickles, ButtonImg, Cufflinks, Cufflinks2, BrochImg];
+  const images = [
+    MenBroch,
+    MenButton1,
+    MenBroch2,
+
+    MenNackLess,
+    MenNackLess2,
+    MenButton2,
+  ];
   const autoSlideInterval = 4000;
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -23,7 +34,7 @@ export default function ImageSlider() {
 
   return (
     <div className="relative w-full left-0 md:left-10 overflow-hidden  md:rounded-xl">
-      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
+      <div className="relative w-full h-[400px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
         <AnimatePresence initial={false}>
           {images.map((img, idx) => (
             <motion.img

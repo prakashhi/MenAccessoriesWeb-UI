@@ -1,7 +1,6 @@
 import { Facebook, Instagram, Linkedin, MessageCircle } from "lucide-react";
 import Link from "next/link";
-
- 
+import { WhatsAppNumber } from "@/app/page";
 
 export default function SocialIcons() {
   const icons = [
@@ -23,17 +22,18 @@ export default function SocialIcons() {
     {
       Icon: MessageCircle,
       label: "WhatsApp",
-      link: "https://wa.me/9427599999",
+      link: `https://wa.me/${WhatsAppNumber}`,
     },
   ];
 
   return (
     <div className="flex gap-3 mt-6">
-      {icons.map(({ Icon, label ,link}, i) => (
+      {icons.map(({ Icon, label, link }, i) => (
         <Link
           key={i}
           href={link}
           aria-label={label}
+          target={"_blank"}
           className="
             group
             w-9 h-9
