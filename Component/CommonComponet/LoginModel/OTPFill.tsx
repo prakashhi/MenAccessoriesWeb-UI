@@ -173,12 +173,6 @@ export default function OTPModal({
         //if UserNot is Exist
         onIfUserCreate();
         onClose();
-        let redirectPathAvailable = localStorage.getItem("postLoginRedirect");
-
-        if (redirectPathAvailable) {
-          router.push(`${redirectPathAvailable}`);
-          localStorage.removeItem("postLoginRedirect");
-        }
       }
     } else {
       notify({
@@ -223,8 +217,8 @@ export default function OTPModal({
       classNames={{
         backdrop: "bg-black/70 backdrop-blur-sm backdrop-saturate-150",
         base: "m-0 sm:mx-0 sm:max-w-md", // Removed mx-4, added m-0 for mobile
-        wrapper: "p-0 sm:p-4", // Added padding for mobile wrapper
-        body: "p-0",
+        wrapper: "p-0 sm:p-4 ", // Added padding for mobile wrapper
+        body: "p-0 ",
       }}
       scrollBehavior="inside"
       motionProps={{

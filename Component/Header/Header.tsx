@@ -107,7 +107,7 @@ export default function Header() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.6 }}
-        className="lg:hidden flex flex-col items-center mt-4 px-3 overflow-hidden py-5 text-center"
+        className="lg:hidden flex flex-col items-center mt-4 px-3 overflow-hidden py-3 lg:py-5 text-center"
       >
         <h2
           style={{ fontFamily: "'Playfair Display', serif" }}

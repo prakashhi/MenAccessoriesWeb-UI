@@ -1,20 +1,17 @@
 "use client";
 
 import { useApi } from "@/app/useApi";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { notify } from "@/Component/ToastComponent";
 import Image from "next/image";
 import Loader from "@/public/svg/tube-spinner.svg";
-import API from "@/app/api";
-
 import { EditUserObjType } from "@/Type/UserDetailType";
-
 import { Modal, ModalContent, ModalBody, ModalHeader } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
 import { UserLoginCredential } from "@/Component/CommonComponet/LoginModel/utilFunction.ts";
 import { X, User, Mail, Phone, CheckCircle, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function UserCreateForm({
   open,
@@ -27,6 +24,7 @@ export default function UserCreateForm({
 }) {
   const { CreateUser } = UsePanel();
   const { loginUser } = UserLoginCredential();
+  const router = useRouter();
 
   const {
     register,
@@ -45,7 +43,7 @@ export default function UserCreateForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit: SubmitHandler<EditUserObjType> = async (
-    info: EditUserObjType
+    info: EditUserObjType,
   ) => {
     setIsSubmitting(true);
     try {
@@ -57,6 +55,12 @@ export default function UserCreateForm({
         });
         loginUser(res?.data, res?.data?.jwtToken);
         onClose();
+        let redirectPathAvailable = localStorage.getItem("postLoginRedirect");
+
+        if (redirectPathAvailable) {
+          router.push(`${redirectPathAvailable}`);
+          localStorage.removeItem("postLoginRedirect");
+        }
       }
     } catch (err: any) {
       notify({
@@ -109,7 +113,7 @@ export default function UserCreateForm({
           <ModalHeader className="absolute top-6 right-6 p-0 z-20">
             <button
               onClick={onClose}
-              className="w-8 cursor-pointer h-8 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-gray-600 hover:text-black hover:bg-white/40 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="w-7 cursor-pointer h-7 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-gray-600 hover:text-black hover:bg-white/40 transition-all duration-200 shadow-sm hover:shadow-md"
               aria-label="Close"
             >
               <X size={20} />
@@ -270,12 +274,13 @@ export default function UserCreateForm({
                     placeholder="9876543210"
                     {...register("contactNumber", {
                       required: "Mobile number is required",
-                      // pattern: {
-                      //   value: /^[6-9][0-9]{9}$/,
-                      //   message: "Enter a valid 10-digit mobile number",
-                      // },
+                      pattern: {
+                        value: /^\+?[0-9]{7,15}$/,
+                        message: "Enter a valid mobile number",
+                      },
                     })}
                   />
+
                   {formValues.contactNumber && !errors.contactNumber && (
                     <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
                   )}

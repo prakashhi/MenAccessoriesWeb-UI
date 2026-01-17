@@ -105,7 +105,6 @@ export default function Page() {
     }, 0);
   }, [cartListData, user]);
 
-  console.log(loading);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
@@ -128,7 +127,7 @@ export default function Page() {
           <div
             className=" flex-1 scroll-m-0
   overflow-y-auto 
-  max-h-[70vh]
+  max-h-[75vh] py-2
   sm:max-h-none
   "
           >

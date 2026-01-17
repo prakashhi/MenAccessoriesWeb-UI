@@ -13,7 +13,7 @@ export function PaymentAddressSelect({
   setSelectedAddressIndex: (index: number) => void;
   selectedAddressIndex: number;
 }) {
-  const { userDataContext} = UsePanel();
+  const { userDataContext } = UsePanel();
 
   const [stateModel, setStateModel] = useState({
     CreateAddress: false,
@@ -63,7 +63,10 @@ export function PaymentAddressSelect({
                 return (
                   <div
                     key={index}
-                    onClick={() => setSelectedAddressIndex(index)}
+                    onClick={() => {
+                      setSelectedAddressIndex(index);
+                      onClose();
+                    }}
                     className={`
     cursor-pointer flex flex-col justify-between
     rounded-2xl border

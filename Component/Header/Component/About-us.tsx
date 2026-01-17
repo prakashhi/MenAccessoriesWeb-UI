@@ -73,8 +73,9 @@ export function AboutUsComponent() {
           className="
             mx-auto mt-6
             inline-flex items-center gap-3
-            px-9 py-3
-            text-sm sm:text-base font-medium tracking-wide
+            lg:px-9 lg:py-3
+            px-5 py-3
+            text-xs sm:text-base font-medium tracking-wide
             bg-black text-white rounded-full
             transition-all duration-300
             cursor-pointer

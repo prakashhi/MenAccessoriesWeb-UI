@@ -26,9 +26,9 @@ export default function CartProductShowModel({
   user: any;
   setCartListData: React.Dispatch<React.SetStateAction<CartListItem[]>>;
 }) {
-  const { CartProductList, RemoveCartProduct } = useUserCart();
+  const {  RemoveCartProduct } = useUserCart();
 
-  const { guestCart, RemoveGuestCartProduct } = useGuestUser();
+  const {  RemoveGuestCartProduct } = useGuestUser();
   const { setUserCountData } = UsePanel();
 
   const handleRemove = async (item: any) => {
@@ -105,7 +105,7 @@ export default function CartProductShowModel({
         <div
           className="
       relative
-      w-full h-40
+      w-full h-55
       sm:w-28 sm:h-28
       rounded-lg
       overflow-hidden
@@ -131,7 +131,7 @@ export default function CartProductShowModel({
         </div>
 
         {/* CONTENT */}
-        <div className="flex flex-col justify-between gap-1">
+        <div className="flex flex-col justify-between lg:gap-1 gap-3">
           {/* TITLE */}
           <div className="flex flex-col gap-1">
             <h3 className="text-sm font-medium text-neutral-900 line-clamp-2">

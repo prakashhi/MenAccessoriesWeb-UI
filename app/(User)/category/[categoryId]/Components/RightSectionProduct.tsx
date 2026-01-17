@@ -6,7 +6,7 @@ import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useRef, useState } from "react";
 import EmptyTableComponent from "./EmptyTableComponents";
 import { FiFilter, FiChevronDown } from "react-icons/fi";
-import { Data, menProductData } from "@/Type/Types";
+import { Data,} from "@/Type/Types";
 import { CartItem } from "@/Type/CartType";
 import { LikeProductType } from "@/Type/LikeType";
 import { getUserFromStorage } from "@/context/utils";
@@ -14,8 +14,8 @@ import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { TbAlphabetLatin } from "react-icons/tb";
 import { useInfiniteProductsOffset } from "@/app/(User)/collection/Component/infinityScrollProduct";
-
 import { ProductSkeletonGrid } from "@/app/(User)/collection/Component/Skeleton";
+
 
 export default function RightSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
@@ -114,7 +114,9 @@ export default function RightSection() {
     return () => clearTimeout(t);
   }, [menProductFilter.sortBy, menProductFilter.sortOrder]);
 
-  const { fetchProducts, products, hasMore, loading, totalProduct } =
+  const { loading } = UsePanel();
+
+  const { fetchProducts, products, hasMore, totalProduct } =
     useInfiniteProductsOffset();
 
   const ProductData = products;
@@ -225,10 +227,9 @@ export default function RightSection() {
 
       {/* ===== PRODUCT GRID ===== */}
       <div className="p-4 sm:p-6">
-        {loading && ProductData.length === 0 && (
+        {loading && ProductData.length === 0 ? (
           <ProductSkeletonGrid count={8} />
-        )}
-        {ProductData.length > 0 ? (
+        ) : ProductData?.length > 0 ? (
           <>
             <motion.div
               variants={containerVariants}

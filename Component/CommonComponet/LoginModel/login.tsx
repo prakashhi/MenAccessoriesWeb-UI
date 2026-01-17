@@ -4,13 +4,7 @@ import { useApi } from "@/app/useApi";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 import { Modal, ModalContent, Button } from "@heroui/react";
-import {
-  X,
-  Smartphone,
-  ArrowRight,
-  ChevronDown,
-  Search,
-} from "lucide-react";
+import { X, Smartphone, ArrowRight, ChevronDown, Search } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { CountryCode } from "@/utils/CountryCode"; // Adjust import path
 import { notify } from "@/Component/ToastComponent";
@@ -25,7 +19,7 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
   const [inputValue, setInputValue] = useState("");
   const [displayValue, setDisplayValue] = useState("");
   const [selectedCountry, setSelectedCountry] = useState(
-    CountryCode.find((c) => c.dial_code === "+91")!
+    CountryCode.find((c) => c.dial_code === "+91")!,
   ); // Default to India
   const [showCountryList, setShowCountryList] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,7 +62,7 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
     (country) =>
       country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       country.dial_code.includes(searchQuery) ||
-      country.code.toLowerCase().includes(searchQuery.toLowerCase())
+      country.code.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Handle click outside to close country list
@@ -296,7 +290,10 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
                   type="hidden"
                   {...register("contactNumber", {
                     required: "Phone number is required",
-                    // validate: validatePhoneNumber,
+                    pattern: {
+                      value: /^\+?[0-9]{7,15}$/,
+                      message: "Enter a valid mobile number",
+                    },
                   })}
                 />
               </div>

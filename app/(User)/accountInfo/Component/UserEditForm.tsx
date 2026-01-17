@@ -139,10 +139,11 @@ export default function UserEditForm({
           <label className="text-sm text-gray-500">Phone</label>
           <input
             {...register("contactNumber", {
-              pattern: {
-                value: /^[6-9][0-9]{9}$/,
-                message: "Enter valid Mobile No",
-              },
+              required: "ContactNumber is required",
+                pattern: {
+                  value: /^\+?[0-9]{7,15}$/,
+                  message: "Enter a valid mobile number",
+                },
             })}
             className="profile-input"
           />

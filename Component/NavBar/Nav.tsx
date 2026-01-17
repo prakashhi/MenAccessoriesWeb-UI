@@ -4,9 +4,7 @@ import Link from "next/link";
 import { Heart, User, ShoppingBag, Search } from "lucide-react";
 import { UsePanel } from "@/context/Context";
 import { motion } from "framer-motion";
-
 import SearchInput from "@/Component/NavBar/Component/SearchInput";
-
 import { useEffect, useRef, useState } from "react";
 import { notify } from "../ToastComponent";
 import { useGuestUser } from "@/context/GuestUserContext";
@@ -15,7 +13,6 @@ import { useUserLike } from "@/context/UserLikeContext";
 import MobileNumberLogin from "../CommonComponet/LoginModel/login";
 import OTPModal from "../CommonComponet/LoginModel/OTPFill";
 import UserCreateForm from "../CommonComponet/UserCreateFrom/UserCreateForm";
-import { LayoutGrid } from "lucide-react";
 import MobileMenuModal from "./Component/MobileMoreMenu";
 import { usePathname } from "next/navigation";
 
@@ -45,10 +42,9 @@ export default function Nav() {
   });
 
   const pathname = usePathname();
-
   const isSearchPage = pathname.startsWith("/search");
 
-  const { GuestUserDataLength, guestCart } = useGuestUser();
+  const { GuestUserDataLength} = useGuestUser();
   const { AddCartProduct } = useUserCart();
   const { AddLikeProduct } = useUserLike();
 
@@ -90,8 +86,8 @@ export default function Nav() {
       // ---- CART MERGE ----
       const cartResults = await Promise.allSettled(
         cartItems.map((item: any) =>
-          AddCartProduct(item.id, item.variantSizeId)
-        )
+          AddCartProduct(item.id, item.variantSizeId),
+        ),
       );
 
       cartResults.forEach((res, index) => {
@@ -106,7 +102,7 @@ export default function Nav() {
 
       // ---- WISHLIST MERGE ----
       const likeResults = await Promise.allSettled(
-        likeItems.map((item: any) => AddLikeProduct(item))
+        likeItems.map((item: any) => AddLikeProduct(item)),
       );
 
       likeResults.forEach((res, index) => {
@@ -139,7 +135,7 @@ export default function Nav() {
           JSON.stringify({
             items: failedCart,
             likeProduct: failedLikes,
-          })
+          }),
         );
         console.warn("⚠️ Some items failed, will retry next login");
       }
@@ -187,13 +183,13 @@ export default function Nav() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  const shouldHide = isMobile && searchOpen;
 
+  const shouldHide = isMobile && searchOpen;
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   return (
     <>
-      <nav className="w-full sticky top-0 z-50 bg-white shadow-md">
+      <nav className="w-full sticky top-0 z-50 bg-white h-[62px]  lg:h-[72px] shadow-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-3  py-4">
           {/* Logo */}
 
@@ -206,11 +202,9 @@ export default function Nav() {
             </Link>
           </div>
 
-          {/* Icons */}
+          {/* MobileMenu */}
           <div
-            className={`flex items-center gap-4 ${
-              searchOpen && isMobile && "w-full"
-            }`}
+            className={`lg:hidden flex items-center ${searchOpen && "w-full"}  gap-4`}
           >
             {searchOpen ? (
               <SearchInput onClose={() => setSearchOpen(false)} />
@@ -232,72 +226,79 @@ export default function Nav() {
                 />
               </motion.div>
             )}
+            <MobileMenuModal
+              state={state}
+              mobileMenuOpen={mobileMenuOpen}
+              setMobileMenuOpen={setMobileMenuOpen}
+              setStateModel={setLoginModel}
+            />
+          </div>
 
-            {isMobile ? (
-              <>
-                <MobileMenuModal
-                  state={state}
-                  mobileMenuOpen={mobileMenuOpen}
-                  setMobileMenuOpen={setMobileMenuOpen}
-                  setStateModel={setLoginModel}
+          {/* DesktopMenu */}
+          <div className="hidden lg:flex">
+            <div className="flex items-center gap-4">
+              {searchOpen ? (
+                <SearchInput onClose={() => setSearchOpen(false)} />
+              ) : (
+                <motion.div
+                  key="search-icon"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <Search
+                    onClick={() => setSearchOpen(true)}
+                    size={20}
+                    className="text-gray-700 cursor-pointer hover:text-black transition-colors"
+                  />
+                </motion.div>
+              )}
+              <Link className="relative" href="/wishlist">
+                {state.likeProductLength > 0 && (
+                  <div className="absolute -top-1 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] flex justify-center items-center">
+                    {state.likeProductLength}
+                  </div>
+                )}
+                <Heart
+                  size={20}
+                  className="text-gray-700 hover:text-red-500 transition-colors"
                 />
-              </>
-            ) : (
-              <>
-                {searchOpen == false && (
-                  <Link
-                    href="/collection"
-                    className="flex items-center gap-2 relative text-gray-700 hover:text-black group"
-                  >
-                    <LayoutGrid size={18} />
-                    <span>All Collections</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full" />
-                  </Link>
-                )}
+              </Link>
 
-                <Link className="relative" href="/wishlist">
-                  {state.likeProductLength > 0 && (
-                    <div className="absolute -top-1 -right-2 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] flex justify-center items-center">
-                      {state.likeProductLength}
-                    </div>
-                  )}
-                  <Heart
+              {userDataContext.info !== null ? (
+                <Link href={"/accountInfo"}>
+                  <User
                     size={20}
-                    className="text-gray-700 hover:text-red-500 transition-colors"
+                    className="text-gray-700 hover:text-black transition-colors cursor-pointer"
                   />
                 </Link>
+              ) : (
+                <button
+                  onClick={() =>
+                    setLoginModel((prev) => ({ ...prev, LoginModel: true }))
+                  }
+                  className="flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-gray-700 hover:text-black transition-colors"
+                >
+                  Login
+                </button>
+              )}
 
-                {userDataContext.info !== null ? (
-                  <Link href={"/accountInfo"}>
-                    <User
-                      size={20}
-                      className="text-gray-700 hover:text-black transition-colors cursor-pointer"
-                    />
-                  </Link>
-                ) : (
-                  <button
-                    onClick={() =>
-                      setLoginModel((prev) => ({ ...prev, LoginModel: true }))
-                    }
-                    className="flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-gray-700 hover:text-black transition-colors"
-                  >
-                    Login
-                  </button>
+              <Link className="relative" href="/cart">
+                {state.CartProductLength > 0 && (
+                  <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
+                    {state.CartProductLength}
+                  </div>
                 )}
-
-                <Link className="relative" href="/cart">
-                  {state.CartProductLength > 0 && (
-                    <div className="absolute -top-1 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex justify-center items-center">
-                      {state.CartProductLength}
-                    </div>
-                  )}
-                  <ShoppingBag
-                    size={20}
-                    className="text-gray-700 hover:text-black transition-colors"
-                  />
-                </Link>
-              </>
-            )}
+                <ShoppingBag
+                  size={20}
+                  className="text-gray-700 hover:text-black transition-colors"
+                />
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
