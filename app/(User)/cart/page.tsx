@@ -15,6 +15,7 @@ import { useGuestUser } from "@/context/GuestUserContext";
 import CartProductShowModel from "./component/CartProductShowModel";
 import { TotalSummaryModel } from "./component/TotalSummaryModel";
 import { PriceShowFunction } from "@/utils/FormatCurrency";
+import SkelatonCart from "@/app/(User)/cart/component/SkelatonCart";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
 
@@ -27,8 +28,13 @@ export type modelTypes = {
 };
 
 export default function Page() {
-  const { setUserCountData, refreshKey, userCountData, userDataContext } =
-    UsePanel();
+  const {
+    setUserCountData,
+    refreshKey,
+    userCountData,
+    userDataContext,
+    loading,
+  } = UsePanel();
   const user = userDataContext.info;
 
   const { CartProductList } = useUserCart();
@@ -37,6 +43,8 @@ export default function Page() {
   const [cartListData, setCartListData] = useState<CartListItem[]>([]);
 
   const [isEmptyStock, seIsEmptyStock] = useState(false);
+
+  
 
   const TaxPercentage = 3;
 
@@ -67,14 +75,13 @@ export default function Page() {
   useEffect(() => {
     let value =
       cartListData.filter((val: any) =>
-        user ? val?.product?.stock <= 0 : val.stock <= 0
+        user ? val?.product?.stock <= 0 : val.stock <= 0,
       ).length > 0
         ? true
         : false;
 
     seIsEmptyStock(value);
   }, [cartListData]);
-
 
   useEffect(() => {
     if (user) return;
@@ -97,6 +104,8 @@ export default function Page() {
       return sum + price * Number(item.quantity);
     }, 0);
   }, [cartListData, user]);
+
+  console.log(loading);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
@@ -124,7 +133,9 @@ export default function Page() {
   "
           >
             <AnimatePresence>
-              {cartListData.length > 0 ? (
+              {loading  && cartListData.length === 0 ? (
+                <SkelatonCart />
+              ) : cartListData.length > 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -150,6 +161,8 @@ export default function Page() {
                 />
               )}
             </AnimatePresence>
+
+
           </div>
 
           {/* SUMMARY */}

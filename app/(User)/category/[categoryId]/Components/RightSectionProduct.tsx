@@ -67,7 +67,6 @@ export default function RightSection() {
         case "Z → A":
           return { ...prev, sortBy: "alphabetical", sortOrder: "desc" };
 
-          
         default:
           return prev;
       }
@@ -83,8 +82,9 @@ export default function RightSection() {
         ]);
 
         let cartData =
-          category.status === "fulfilled" ? category.value.data ?? [] : [];
-        let likeData = like.status === "fulfilled" ? like.value.data ?? [] : [];
+          category.status === "fulfilled" ? (category.value.data ?? []) : [];
+        let likeData =
+          like.status === "fulfilled" ? (like.value.data ?? []) : [];
 
         const cartMap: Record<string, CartItem> = {};
         cartData.forEach((item: CartItem) => {
@@ -131,7 +131,7 @@ export default function RightSection() {
           fetchProducts();
         }
       },
-      { rootMargin: "200px" }
+      { rootMargin: "200px" },
     );
 
     observer.observe(bottomRef.current);
@@ -246,7 +246,7 @@ export default function RightSection() {
             >
               <CardModel
                 CustomWH="
-                  min-w-[300px]
+                  min-w-[100px]
                   sm:min-w-[260px]
                   md:min-w-[300px]
                   lg:min-w-[320px]
