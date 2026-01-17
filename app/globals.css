@@ -113,34 +113,21 @@ html {
 }
 
  /* ImageCarouselImg CSS */
-@keyframes fadeUp {
+@keyframes revealUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes imageReveal {
-  from {
-    opacity: 0;
-    transform: translateY(60px) scale(0.96);
-    filter: blur(6px);
+    transform: translateY(40px) scale(0.98);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 
-.animate-fade-up {
-  animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+.animate-on-scroll {
+  animation: revealUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-timeline: view();
+  animation-range: entry 20% cover 35%;
 }
 
-.animate-image-reveal {
-  animation: imageReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
+

@@ -27,17 +27,28 @@ export default function Page() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="flex justify-center  lg:mt-2 py-6 "
+            className="flex justify-center  lg:mt-2 lg:py-6 py-2"
           >
-            <h2
-              className="text-xl lg:text-3xl   tracking-wide text-blue-950"
-              style={{
-                fontFamily: "ui-serif",
-                fontWeight: 800,
-              }}
-            >
-              {products?.[0]?.categoryName}
-            </h2>
+
+            <div className="flex flex-col items-center text-center ">
+              <h2
+                className="
+      mt-4
+      text-3xl sm:text-4xl lg:text-5xl
+      text-gray-900
+      tracking-tight
+      leading-tight
+    "
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontWeight: 600,
+                }}
+              >
+                {products?.[0]?.categoryName}
+              </h2>
+
+              <div className="lg:mt-6 mt-3 h-0.5 w-16 bg-gray-300 rounded-full" />
+            </div>
           </motion.div>
 
           {/* CONTENT GRID */}

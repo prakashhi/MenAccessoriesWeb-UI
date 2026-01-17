@@ -77,6 +77,7 @@ export function AboutUsComponent() {
             text-sm sm:text-base font-medium tracking-wide
             bg-black text-white rounded-full
             transition-all duration-300
+            cursor-pointer
             hover:scale-105
           "
         >

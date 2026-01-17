@@ -133,7 +133,7 @@ export default function Product() {
             className="flex flex-col items-center text-center  sm:mb-10"
           >
             <h2
-              className="lg:text-3xl text-xl flex text-blue-950 items-center flex-col mb-20   lg:mb-10"
+              className="lg:text-3xl text-xl flex text-blue-950 items-center flex-col  mb-10"
               style={{ fontFamily: "ui-serif, serif", fontWeight: 800 }}
             >
               Explore Collection

@@ -32,7 +32,7 @@ export default function ImageCarousel() {
     <section className="w-full px-2 sm:px-6 lg:px-10 my-10 bg-[#FAFAFA]">
       <section className="w-full py-16">
         {/* ===== HEADER ===== */}
-        <div className="mb-10 flex items-end justify-between animate-fade-up">
+        <div className="mb-10 flex items-end justify-between animate-on-scroll">
           <div>
             <h2
               className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-gray-900"
@@ -53,10 +53,10 @@ export default function ImageCarousel() {
               key={index}
               style={{ animationDelay: `${index * 120}ms` }}
               className="
-                relative mb-4 break-inside-avoid rounded-2xl overflow-hidden
-                shadow-md bg-gray-100 group
-                animate-image-reveal
-              "
+      relative mb-4 break-inside-avoid rounded-2xl overflow-hidden
+      shadow-md bg-gray-100 group
+      animate-on-scroll
+    "
             >
               <Image
                 src={src}
@@ -65,7 +65,7 @@ export default function ImageCarousel() {
                 height={800}
                 placeholder="blur"
                 className="
-                  w-full h-auto object-cover
+                  w-full h-auto cursor-pointer object-cover
                   transition-transform duration-500 ease-out
                   group-hover:scale-[1.05]
                 "
@@ -78,7 +78,7 @@ export default function ImageCarousel() {
         </div>
 
         {/* ===== VIEW MORE BUTTON ===== */}
-        <div className="flex justify-center mt-14 animate-fade-up delay-700">
+        <div className="flex justify-center mt-14 animate-on-scroll">
           <Link
             href="/collection"
             className="group inline-flex items-center gap-3 px-8 py-3 text-sm sm:text-base font-medium transition"

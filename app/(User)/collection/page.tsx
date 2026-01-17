@@ -26,12 +26,25 @@ export default function Page() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="flex justify-center mt-8 "
           >
-            <h2
-              className="text-2xl sm:text-3xl lg:text-4xl text-black tracking-wide text-center"
-              style={{ fontFamily: "ui-serif", fontWeight: 800 }}
-            >
-              All Collections
-            </h2>
+            <div className="flex flex-col items-center text-center">
+              <h2
+                className="
+      mt-4
+      text-3xl sm:text-4xl lg:text-5xl
+      text-gray-900
+      tracking-tight
+      leading-tight
+    "
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontWeight: 600,
+                }}
+              >
+                All Collections
+              </h2>
+
+              <div className="lg:mt-6 mt-3 h-0.5 w-16 bg-gray-300 rounded-full" />
+            </div>
           </motion.div>
 
           {/* CONTENT GRID */}

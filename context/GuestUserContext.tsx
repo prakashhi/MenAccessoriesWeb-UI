@@ -209,7 +209,7 @@ export function GuestUserContextProvider({
     });
 
     if (shouldNotify) {
-      toastActions.addToWishlist(`${Product.name}`);
+      toastActions.addToWishlist();
     }
   };
 
@@ -262,7 +262,7 @@ export function GuestUserContextProvider({
       if (!prev) return prev;
 
       const item = prev.items[productId];
-      if (!item || item.quantity && item.quantity <= 1) return prev;
+      if (!item || (item.quantity && item.quantity <= 1)) return prev;
 
       return {
         ...prev,

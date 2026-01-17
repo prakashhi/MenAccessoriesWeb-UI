@@ -101,7 +101,7 @@ export default function ImageSlider() {
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`w-2 h-2 cursor-pointer rounded-full transition-all duration-300 ${
               idx === currentIndex ? "bg-black scale-125" : "bg-gray-300"
             }`}
           />
