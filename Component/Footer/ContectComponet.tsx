@@ -33,12 +33,12 @@ export default function ContactComponent() {
         {/* PHONE */}
         <li className="flex gap-3 items-center">
           <Phone size={16} strokeWidth={1.4} className="text-gray-400" />
-          <a
+          <Link
             href="tel:+919427599999"
             className="hover:text-black transition-colors"
           >
             +91 94275 99999
-          </a>
+          </Link>
         </li>
 
         {/* EMAIL */}

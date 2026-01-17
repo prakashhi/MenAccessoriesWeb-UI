@@ -5,7 +5,6 @@ import Footer from "@/Component/Footer/Footer";
 import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getUserFromStorage } from "@/context/utils";
 import { FiShoppingBag } from "react-icons/fi";
 import EmptyDataModel from "@/Component/CommonComponet/EmptyDataModel";
 import { CartItem } from "@/Type/CartType";

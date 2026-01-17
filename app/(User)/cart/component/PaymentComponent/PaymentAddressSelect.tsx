@@ -13,7 +13,7 @@ export function PaymentAddressSelect({
   setSelectedAddressIndex: (index: number) => void;
   selectedAddressIndex: number;
 }) {
-  const { userDataContext, createSalesFunction, loading } = UsePanel();
+  const { userDataContext} = UsePanel();
 
   const [stateModel, setStateModel] = useState({
     CreateAddress: false,

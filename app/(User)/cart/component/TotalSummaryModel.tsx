@@ -18,6 +18,7 @@ import { calculateShippingCharge } from "@/utils/shippingFees";
 import { CreateSaleProductListType } from "@/Type/UserDetailType";
 import Loader from "@/public/svg/tube-spinner.svg";
 import { ProductsListAPi } from "@/Type/ProductType";
+import { useRouter } from "next/navigation";
 
 export const TotalSummaryModel = ({
   subTotal,
@@ -40,6 +41,7 @@ export const TotalSummaryModel = ({
 
   //Functions
   const user = useMemo(() => getUserFromStorage(), []);
+  const router = useRouter();
 
   const { setLoginModel, userDataContext, createSalesFunction, loading } =
     UsePanel();
@@ -50,7 +52,7 @@ export const TotalSummaryModel = ({
   const ShippingCharge: number = useMemo(() => {
     return calculateShippingCharge(
       subTotal,
-      userDataContext.AddressList[selectedAddressIndex]?.country || "INDIA"
+      userDataContext.AddressList[selectedAddressIndex]?.country || "INDIA",
     );
   }, [subTotal, selectedAddressIndex]);
 
@@ -65,7 +67,7 @@ export const TotalSummaryModel = ({
 
     return cartListData.reduce(
       (sum: number, item: any) => sum + Number(item.quantity),
-      0
+      0,
     );
   }, [cartListData]);
 
@@ -108,7 +110,7 @@ export const TotalSummaryModel = ({
         TotalAmount: ShippingWithTax,
         TotalProductQty: TotalQty,
         TotalTax: Math.ceil(
-          ((subTotal + ShippingCharge) * TaxPercentage) / 100
+          ((subTotal + ShippingCharge) * TaxPercentage) / 100,
         ),
         shippingFee: ShippingCharge,
         OrderProductList: productsList,
@@ -189,47 +191,71 @@ export const TotalSummaryModel = ({
               {calculateShippingCharge(
                 subTotal,
                 userDataContext.AddressList[selectedAddressIndex]?.country ||
-                  "INDIA"
+                  "INDIA",
               )}
               .00
             </span>
           </div>
 
           {/* Default Shipping Address with Change button */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 bg-gray-50 p-3 rounded-md border border-gray-200">
-            {/* Address */}
-            <div className="text-xs text-gray-700 leading-relaxed wrap-break-words sm:max-w-[75%]">
-              <p className="font-bold">Shipping address</p>
-              {userDataContext.AddressList?.[selectedAddressIndex] ? (
-                <p className="line-clamp-2">
-                  {`${
-                    userDataContext.AddressList[selectedAddressIndex]
-                      ?.addressLine1
-                  }, 
+          {userDataContext.info &&
+            (userDataContext.AddressList.length > 0 ? (
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 bg-gray-50 p-3 rounded-md border border-gray-200">
+                {/* Address */}
+                <div className="text-xs text-gray-700 leading-relaxed wrap-break-words sm:max-w-[75%]">
+                  <p className="font-bold">Shipping address</p>
+                  {userDataContext.AddressList?.[selectedAddressIndex] ? (
+                    <p className="line-clamp-2">
+                      {`${
+                        userDataContext.AddressList[selectedAddressIndex]
+                          ?.addressLine1
+                      }, 
         ${
           userDataContext.AddressList[selectedAddressIndex]?.addressLine2 ?? ""
         } 
         ${userDataContext.AddressList[selectedAddressIndex]?.city}, 
         ${userDataContext.AddressList[selectedAddressIndex]?.state}, 
         ${userDataContext.AddressList[selectedAddressIndex]?.country}`}
-                </p>
-              ) : (
-                <span className="text-gray-400">
-                  No default shipping address
-                </span>
-              )}
-            </div>
+                    </p>
+                  ) : (
+                    <span className="text-gray-400">
+                      No default shipping address
+                    </span>
+                  )}
+                </div>
 
-            {/* Change Button */}
-            <div className="flex justify-end sm:justify-start">
+                {/* Change Button */}
+                <div className="flex justify-end sm:justify-start">
+                  <Button
+                    onPress={AddressSelect}
+                    className="text-blue-600 text-xs font-medium px-2 py-1 hover:underline whitespace-nowrap"
+                  >
+                    Change
+                  </Button>
+                </div>
+              </div>
+            ) : (
               <Button
-                onPress={AddressSelect}
-                className="text-blue-600 text-xs font-medium px-2 py-1 hover:underline whitespace-nowrap"
+                type="button"
+                onPress={() => {
+                  router.push("/accountInfo?tab=Addresses");
+                  localStorage.setItem("postLoginRedirect", "/cart");
+                }}
+                className="
+    w-full h-11 rounded-xl
+    border border-dashed border-gray-300
+    bg-white
+    text-sm font-semibold
+    text-gray-800
+    hover:border-gray-900 hover:text-gray-900
+    hover:bg-gray-50
+    active:scale-95
+    transition-all duration-200
+  "
               >
-                Change
+                + Add Delivery Address
               </Button>
-            </div>
-          </div>
+            ))}
 
           {/* Tax */}
           <div className="flex justify-between text-sm tracking-wide">
@@ -251,14 +277,18 @@ export const TotalSummaryModel = ({
           </div>
 
           {/* Checkout */}
-          {isEmptyStock ? (
+          {isEmptyStock ||
+          (userDataContext.AddressList.length <= 0 && userDataContext.info) ? (
             <Button
-              onPress={() =>
+              onPress={() => {
+                let msg = isEmptyStock
+                  ? "Remove Out of stock Product"
+                  : "Please Add Your Address";
                 notify({
-                  message: "Remove Out of stock Product",
+                  message: msg,
                   type: "warning",
-                })
-              }
+                });
+              }}
               className="w-full bg-gray-400 text-white py-4 text-xs tracking-[0.3em] cursor-not-allowed transition"
             >
               CHECKOUT

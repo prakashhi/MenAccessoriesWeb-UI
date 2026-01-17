@@ -2,8 +2,25 @@ import SocialIcons from "./IconsComponet";
 import ContactComponent from "./ContectComponet";
 import { UsePanel } from "@/context/Context";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 export default function Footer() {
-  const { CateMateListState } = UsePanel();
+  const { CateMateListState, userDataContext, setLoginModel } = UsePanel();
+
+  const router = useRouter();
+
+  const handleOrderTrack = (e: React.MouseEvent) => {
+    if (userDataContext.info) {
+      router.push("/accountInfo?tab=orders");
+    } else {
+      // ✅ Save redirect path
+      localStorage.setItem("postLoginRedirect", "/accountInfo?tab=orders");
+
+      setLoginModel((prev) => ({
+        ...prev,
+        LoginModel: true,
+      }));
+    }
+  };
   return (
     <>
       <footer className="bg-white text-black pt-12 pb-6 border-t border-gray-200">
@@ -40,25 +57,29 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-3">Support</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              {/* <li>
-                <a href="#" className="hover:text-black transition">
-                  FAQs
-                </a>
-              </li> */}
               <li>
-                <a href="/accountInfo?tab=orders" className="hover:text-black transition">
+                <button
+                  onClick={handleOrderTrack}
+                  className="hover:text-black cursor-pointer transition"
+                >
                   Order Tracking
-                </a>
+                </button>
               </li>
               <li>
-                <a href="/return-policy" className="hover:text-black transition">
+                <Link
+                  href="/return-policy"
+                  className="hover:text-black transition"
+                >
                   Return Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/contact-us" className="hover:text-black transition">
+                <Link
+                  href="/contact-us"
+                  className="hover:text-black transition"
+                >
                   Contact Us
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

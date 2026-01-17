@@ -14,6 +14,7 @@ import { notify } from "@/Component/ToastComponent";
 import { mobileConfigType } from "@/Component/NavBar/Nav";
 import { UsePanel } from "@/context/Context";
 import { UserLoginCredential } from "./utilFunction.ts";
+import { useRouter } from "next/navigation.js";
 type OTPModalProps = {
   open: boolean;
   onClose: () => void;
@@ -42,6 +43,8 @@ export default function OTPModal({
 
   const { loginUser } = UserLoginCredential();
 
+  const router = useRouter();
+
   // Resend OTP timer countdown
   useEffect(() => {
     if (!open) return;
@@ -63,7 +66,7 @@ export default function OTPModal({
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     const value = e.target.value.replace(/\D/g, ""); // numeric only
     if (!value) return;
@@ -80,7 +83,7 @@ export default function OTPModal({
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     // Handle arrow keys
     if (e.key === "ArrowLeft" && index > 0) {
@@ -106,6 +109,8 @@ export default function OTPModal({
       const newOtp = [...otp];
       newOtp[index] = "";
       setOtp(newOtp);
+    } else if (e.key === "Enter") {
+      handleSubmit();
     }
   };
 
@@ -122,11 +127,10 @@ export default function OTPModal({
         setTimeout(() => {
           inputsRef.current[emptyIndex]?.classList.remove(
             "ring-2",
-            "ring-red-500"
+            "ring-red-500",
           );
         }, 1000);
       }
-
       return;
     }
     setLoading(true);
@@ -156,12 +160,25 @@ export default function OTPModal({
             loginUser(userData, jwtToken);
             triggerRefresh();
             onClose();
+            let redirectPathAvailable =
+              localStorage.getItem("postLoginRedirect");
+
+            if (redirectPathAvailable) {
+              router.push(`${redirectPathAvailable}`);
+              localStorage.removeItem("postLoginRedirect");
+            }
           }
         }
       } catch (error: any) {
         //if UserNot is Exist
         onIfUserCreate();
         onClose();
+        let redirectPathAvailable = localStorage.getItem("postLoginRedirect");
+
+        if (redirectPathAvailable) {
+          router.push(`${redirectPathAvailable}`);
+          localStorage.removeItem("postLoginRedirect");
+        }
       }
     } else {
       notify({

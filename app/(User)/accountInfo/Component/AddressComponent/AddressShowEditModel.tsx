@@ -6,13 +6,14 @@ import { CountryListWithState } from "@/utils/CountryListWithState";
 import { ArrowLeft } from "lucide-react";
 import Loader from "@/public/svg/tube-spinner.svg";
 import Image from "next/image";
-import { Button} from "@heroui/react";
+import { Button } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
 
 import { FormValueAddressCreate } from "./CreateEditConfigAddressForm";
 
 import { getUserFromStorage } from "@/context/utils";
 import { notify } from "@/Component/ToastComponent";
+import { useRouter } from "next/navigation";
 
 type GridConfig = {
   country?: string;
@@ -50,14 +51,14 @@ export default function AddressShowEditModel({
   handleSubmit,
   EditAddressId,
 }: Props) {
-  const { CreateUserAddress, UserTrigger, userDataContext, EditUserAddress } =
-    UsePanel();
+  const { CreateUserAddress, UserTrigger, EditUserAddress } = UsePanel();
+  const router = useRouter();
   const userData = useMemo(() => getUserFromStorage(), []);
   const countryName = watch("country");
 
   const countryObj = useMemo(
     () => CountryListWithState.find((c) => c.name === countryName),
-    [countryName]
+    [countryName],
   );
 
   useEffect(() => {
@@ -95,6 +96,12 @@ export default function AddressShowEditModel({
 
           UserTrigger();
           onClose();
+          let redirectPathAvailable = localStorage.getItem("postLoginRedirect");
+
+          if (redirectPathAvailable) {
+            router.push(`${redirectPathAvailable}`);
+            localStorage.removeItem("postLoginRedirect");
+          }
         }
       } catch (err: any) {
         notify({
