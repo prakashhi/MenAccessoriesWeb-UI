@@ -6,6 +6,7 @@ import Footer from "@/Component/Footer/Footer";
 import MobileFilterDrawer from "@/app/(User)/category/[categoryId]/Components/MobileFilterDrawer";
 import { motion } from "framer-motion";
 import { UsePanel } from "@/context/Context";
+import GoToTop from "@/Component/GoToTop";
 
 export default function Page() {
   const { menProductFilter } = UsePanel();
@@ -64,6 +65,7 @@ export default function Page() {
           </motion.div>
         </div>
       </motion.main>
+      <GoToTop/>
 
       <MobileFilterDrawer />
 

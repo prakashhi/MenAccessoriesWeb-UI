@@ -6,10 +6,10 @@ import Footer from "@/Component/Footer/Footer";
 import MobileFilterDrawer from "./Components/MobileFilterDrawer";
 import { motion } from "framer-motion";
 import { useInfiniteProductsOffset } from "../../collection/Component/infinityScrollProduct";
+import GoToTop from "@/Component/GoToTop";
 
 export default function Page() {
   const { products } = useInfiniteProductsOffset();
-
   return (
     <>
       <Nav />
@@ -29,7 +29,6 @@ export default function Page() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="flex justify-center  lg:mt-2 lg:py-6 py-2"
           >
-
             <div className="flex flex-col items-center text-center ">
               <h2
                 className="
@@ -78,6 +77,8 @@ export default function Page() {
           </motion.div>
         </div>
       </motion.main>
+
+      <GoToTop />
 
       <MobileFilterDrawer />
       <Footer />

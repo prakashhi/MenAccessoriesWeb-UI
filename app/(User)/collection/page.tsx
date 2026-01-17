@@ -5,6 +5,7 @@ import RightSection from "@/app/(User)/category/[categoryId]/Components/RightSec
 import Footer from "@/Component/Footer/Footer";
 import MobileFilterDrawer from "@/app/(User)/category/[categoryId]/Components/MobileFilterDrawer";
 import { motion } from "framer-motion";
+import GoToTop from "@/Component/GoToTop";
 
 export default function Page() {
   return (
@@ -74,6 +75,7 @@ export default function Page() {
           </motion.div>
         </div>
       </motion.main>
+      <GoToTop />
 
       <MobileFilterDrawer />
 
