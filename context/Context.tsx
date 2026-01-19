@@ -118,7 +118,6 @@ export type UserContextType = {
 };
 
 import { useDisclosure } from "@heroui/react";
-import { address } from "framer-motion/client";
 
 const UserContext = createContext<UserContextType | null>(null);
 

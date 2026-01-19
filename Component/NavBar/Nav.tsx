@@ -15,6 +15,7 @@ import OTPModal from "../CommonComponet/LoginModel/OTPFill";
 import UserCreateForm from "../CommonComponet/UserCreateFrom/UserCreateForm";
 import MobileMenuModal from "./Component/MobileMoreMenu";
 import { usePathname } from "next/navigation";
+import { LayoutGrid } from "lucide-react";
 
 export type length = {
   likeProductLength: number;
@@ -44,7 +45,7 @@ export default function Nav() {
   const pathname = usePathname();
   const isSearchPage = pathname.startsWith("/search");
 
-  const { GuestUserDataLength} = useGuestUser();
+  const { GuestUserDataLength } = useGuestUser();
   const { AddCartProduct } = useUserCart();
   const { AddLikeProduct } = useUserLike();
 
@@ -256,6 +257,16 @@ export default function Nav() {
                     className="text-gray-700 cursor-pointer hover:text-black transition-colors"
                   />
                 </motion.div>
+              )}
+              {searchOpen == false && (
+                <Link
+                  href="/collection"
+                  className="flex items-center gap-2 relative text-gray-700 hover:text-black group"
+                >
+                  <LayoutGrid size={18} />
+                  <span>All Collections</span>
+                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full" />
+                </Link>
               )}
               <Link className="relative" href="/wishlist">
                 {state.likeProductLength > 0 && (

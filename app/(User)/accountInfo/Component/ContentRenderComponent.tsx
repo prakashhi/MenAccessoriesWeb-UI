@@ -43,7 +43,6 @@ export default function ContentRenderer({
     },
   });
   const [editOpen, setEditOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
 
   const [editAddressData, setEditAddressData] = useState<UserAddressListType>({

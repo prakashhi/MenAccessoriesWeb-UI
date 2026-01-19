@@ -8,9 +8,8 @@ import Loader from "@/public/svg/tube-spinner.svg";
 import Image from "next/image";
 import { Button } from "@heroui/react";
 import { UsePanel } from "@/context/Context";
-
+import { parsePhoneNumber } from "awesome-phonenumber";
 import { FormValueAddressCreate } from "./CreateEditConfigAddressForm";
-
 import { getUserFromStorage } from "@/context/utils";
 import { notify } from "@/Component/ToastComponent";
 import { useRouter } from "next/navigation";
@@ -191,9 +190,14 @@ export default function AddressShowEditModel({
             <input
               {...register("contactNumber", {
                 required: "ContactNumber is required",
-                pattern: {
-                  value: /^\+?[0-9]{7,15}$/,
-                  message: "Enter a valid mobile number",
+                validate: (value: string) => {
+                  const pn = parsePhoneNumber(value, {
+                    regionCode: countryObj?.iso2,
+                  });
+                  if ((pn.valid || pn.possible) && pn.typeIsMobile) {
+                    return true;
+                  }
+                  return "Please enter a valid mobile number";
                 },
               })}
               className="profile-input"

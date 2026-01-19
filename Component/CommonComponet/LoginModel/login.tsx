@@ -2,7 +2,7 @@
 
 import { useApi } from "@/app/useApi";
 import { useForm, SubmitHandler } from "react-hook-form";
-
+import { parsePhoneNumber } from "awesome-phonenumber";
 import { Modal, ModalContent, Button } from "@heroui/react";
 import { X, Smartphone, ArrowRight, ChevronDown, Search } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
@@ -290,9 +290,14 @@ export default function MobileNumberLogin({ onClose, open, onConfirm }: Props) {
                   type="hidden"
                   {...register("contactNumber", {
                     required: "Phone number is required",
-                    pattern: {
-                      value: /^\+?[0-9]{7,15}$/,
-                      message: "Enter a valid mobile number",
+                    validate: (value) => {
+                      const pn = parsePhoneNumber(value, {
+                        regionCode: selectedCountry.code,
+                      });
+                      if ((pn.valid || pn.possible) && pn.typeIsMobile) {
+                        return true;
+                      }
+                      return "Please enter a valid mobile number";
                     },
                   })}
                 />
