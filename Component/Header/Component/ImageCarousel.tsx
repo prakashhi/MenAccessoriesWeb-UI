@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -7,21 +8,22 @@ import ButtonImg from "@/public/Images/Brouch8.jpeg";
 import MenNickles from "@/public/Images/Nackless1.jpeg";
 import Cufflinks2 from "@/public/Images/Brouch4.jpeg";
 import NAckless from "@/public/Images/Nackless3.jpeg";
-
 import ButtonImg2 from "@/public/Images/ButtonImg3.jpg";
 import ButtonImg3 from "@/public/Images/B67WK4225-with-qr.jpg";
 import CuflineImg2 from "@/public/Images/C0PBWF4012-with-qr.jpg";
 import BrouchImg2 from "@/public/Images/018GWBK540-with-qr.jpg";
 import BrouchImg3 from "@/public/Images/00RGOK543-with-qr.jpg";
+import kalgiImg1 from "@/public/Images/KalgiImg3.jpg"
 
 const images = [
   BrouchImg2,
   CuflineImg2,
-  BrochImg,
+  // BrochImg,
   ButtonImg,
   MenNickles,
   ButtonImg3,
   ButtonImg2,
+  kalgiImg1,
   Cufflinks2,
   NAckless,
   BrouchImg3,

@@ -145,7 +145,9 @@ export default function OTPModal({
       });
 
       try {
-        let res = await GetUserFromContactNumber(mobileData.mobileNumber);
+        let res = await GetUserFromContactNumber(
+          `${mobileData.CountryCode}${mobileData.mobileNumber}`,
+        );
 
         if (res.success == true && res.data) {
           //if UserNumber is Exist

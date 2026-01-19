@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -7,21 +6,21 @@ import MenNackLess from "@/public/Images/GroomNackless.jpeg";
 import MenNackLess2 from "@/public/Images/Nackless4.jpeg";
 import MenBroch from "@/public/Images/Button2.jpeg";
 import MenBroch2 from "@/public/Images/Button1.jpeg";
-import MenButton2 from "@/public/Images/Broch2.jpeg";
 import ButtonImg1 from "@/public/Images/ButtonImg1.jpg";
 import CuflineImg1 from "@/public/Images/CuflineImg1.jpg";
 import BrouchImg1 from "@/public/Images/BrouchImg1.jpg";
+import KalgiImg1 from "@/public/Images/KalgiImg2.jpg";
 
 export default function ImageSlider() {
   const images = [
     MenBroch,
     ButtonImg1,
+    KalgiImg1,
     MenBroch2,
     CuflineImg1,
     BrouchImg1,
     MenNackLess,
     MenNackLess2,
-    MenButton2,
   ];
 
   const autoSlideInterval = 4000;
@@ -37,8 +36,7 @@ export default function ImageSlider() {
   const prevSlide = () =>
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
 
-  const nextSlide = () =>
-    setCurrentIndex((prev) => (prev + 1) % images.length);
+  const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length);
 
   return (
     <div className="relative w-full left-0 md:left-10 overflow-hidden md:rounded-xl group">
