@@ -46,7 +46,8 @@ export default function Nav() {
   const isSearchPage = pathname.startsWith("/search");
 
   const { GuestUserDataLength } = useGuestUser();
-  const { AddCartProduct } = useUserCart();
+  const { AddCartProduct, incrementCartProduct, CartProductList } =
+    useUserCart();
   const { AddLikeProduct } = useUserLike();
 
   const [isMerging, setIsMerging] = useState(false);
@@ -101,6 +102,8 @@ export default function Nav() {
         }
       });
 
+      let res = await MergeCartQuantity(cartItems);
+
       // ---- WISHLIST MERGE ----
       const likeResults = await Promise.allSettled(
         likeItems.map((item: any) => AddLikeProduct(item)),
@@ -146,6 +149,26 @@ export default function Nav() {
       localStorage.removeItem("guest_cart_merge_in_progress");
       setIsMerging(false);
     }
+  };
+
+  const MergeCartQuantity = async (GuestCart: any[]) => {
+    // Guest ProductQuantity In Cart
+    if (!user?.id) return;
+
+    const cartList = await CartProductList(user.id);
+    const CartData = cartList?.data ?? [];
+
+    const promises = GuestCart.map(async (guestItem) => {
+      const cartItem = CartData.find(
+        (c: any) => c.product.productId === guestItem.id,
+      );
+
+      if (!cartItem) return;
+      return incrementCartProduct(cartItem.id, guestItem.quantity);
+    });
+
+
+    return await Promise.allSettled(promises);
   };
 
   useEffect(() => {

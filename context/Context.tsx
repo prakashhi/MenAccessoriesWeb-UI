@@ -20,6 +20,7 @@ import {
 } from "@/Type/Types";
 import { LikeProductType } from "@/Type/LikeType";
 import { CartItem } from "@/Type/CartType";
+import { ProductInfoType } from "@/Type/ProductType";
 
 import type {
   CountStateType,
@@ -61,35 +62,35 @@ export type UserContextType = {
   GetUserData: (userid: string) => Promise<ApiResponse<UserGetDetailType>>;
 
   MenCategoryList: (
-    filterOption: menProductFilter
+    filterOption: menProductFilter,
   ) => Promise<ApiResponse<menProductListType>>;
 
   GetUserOrderList: (userId: string) => Promise<ApiResponse<OrderDetailType[]>>;
   GetAllUserAddress: (
-    userid: string
+    userid: string,
   ) => Promise<ApiResponse<UserAddressListType[]>>;
 
   CreateUser: (
-    userDataObj: EditUserObjType
+    userDataObj: EditUserObjType,
   ) => Promise<ApiResponse<UserGetDetailType>>;
 
   EditUserDetail: (
     userid: string,
-    editDataObj: EditUserObjType
+    editDataObj: EditUserObjType,
   ) => Promise<ApiResponse<APiNoDataREsponse>>;
 
   CreateUserAddress: (
     DataObj: CreateAddressPostObjType,
-    userid: string
+    userid: string,
   ) => Promise<ApiResponse<UserAddressListType>>;
 
   EditUserAddress: (
     addressId: string,
-    EditAddressObj: CreateAddressPostObjType
+    EditAddressObj: CreateAddressPostObjType,
   ) => Promise<ApiResponse<APiNoDataREsponse>>;
 
   DeleteAddressProfile: (
-    addressId: string
+    addressId: string,
   ) => Promise<ApiResponse<APiNoDataREsponse>>;
 
   userDataContext: accountInfoStateType;
@@ -99,22 +100,25 @@ export type UserContextType = {
   menProductFilter: menProductFilter;
   MenAllSubCategoryList: () => Promise<ApiResponse<MenSubCategoryResponse[]>>;
   MaterialAllList: (
-    Params?: materialListParams
+    Params?: materialListParams,
   ) => Promise<ApiResponse<materialListResponse[]>>;
 
   CateLogProducts: () => Promise<ApiResponse<CateLogResponse[]>>;
   setMenProductFilter: React.Dispatch<React.SetStateAction<menProductFilter>>;
   CateMateListState: MenCategoryMartialState;
   createSalesFunction: (
-    CreateSaleConfig: createSaleConfigType
+    CreateSaleConfig: createSaleConfigType,
   ) => Promise<ApiResponse<SaleResponseType>>;
 
   loginModel: loginModelType;
 
   setLoginModel: React.Dispatch<React.SetStateAction<loginModelType>>;
   GetUserFromContactNumber: (
-    contactNumber: string
+    contactNumber: string,
   ) => Promise<ApiResponse<{ id: string }>>;
+  GetProductDetailsById: (
+    ProductId: string,
+  ) => Promise<ApiResponse<ProductInfoType>>;
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -176,7 +180,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
   //User Functions
   const CreateUser = async (
-    userDataObj: EditUserObjType
+    userDataObj: EditUserObjType,
   ): Promise<ApiResponse<UserGetDetailType>> => {
     try {
       return await callApi("post", `/9rock/users/create-user`, {
@@ -192,7 +196,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   const GetUserData = async (
-    userid: string
+    userid: string,
   ): Promise<ApiResponse<UserGetDetailType>> => {
     try {
       return await callApi("get", `/9rock/users/${userid}`);
@@ -206,7 +210,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
   const EditUserDetail = async (
     userid: string,
-    editDataObj: EditUserObjType
+    editDataObj: EditUserObjType,
   ): Promise<ApiResponse<APiNoDataREsponse>> => {
     try {
       return await callApi("put", `/9rock/users/${userid}`, {
@@ -221,7 +225,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   const GetUserOrderList = async (
-    userId: string
+    userId: string,
   ): Promise<ApiResponse<OrderDetailType[]>> => {
     try {
       return await callApi("get", `/sales/customer/${userId}?type=ROCKROAR`);
@@ -234,12 +238,12 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   const GetUserFromContactNumber = async (
-    contactNumber: string
+    contactNumber: string,
   ): Promise<ApiResponse<{ id: string }>> => {
     try {
       return await callApi(
         "get",
-        `/9rock/users/contact-number/${contactNumber}`
+        `/9rock/users/contact-number/${contactNumber}`,
       );
     } catch (error: any) {
       throw {
@@ -262,7 +266,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   const MenCategoryList = async (
-    filterOption: menProductFilter
+    filterOption: menProductFilter,
   ): Promise<ApiResponse<menProductListType>> => {
     try {
       return await callApi("get", `/9rock/get-products`, {
@@ -291,7 +295,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   const MaterialAllList = async (
-    Params?: materialListParams
+    Params?: materialListParams,
   ): Promise<ApiResponse<materialListResponse[]>> => {
     try {
       return await callApi("get", `/material-list`, { params: Params });
@@ -303,9 +307,22 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const GetProductDetailsById = async (
+    ProductId: string,
+  ): Promise<ApiResponse<ProductInfoType>> => {
+    try {
+      return await callApi("get", `/product/${ProductId}`);
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
+  };
+
   //Address Functions
   const GetAllUserAddress = async (
-    userid: string
+    userid: string,
   ): Promise<ApiResponse<UserAddressListType[]>> => {
     try {
       return await callApi("get", `/9rock/users/${userid}/addresses`);
@@ -319,7 +336,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
   const CreateUserAddress = async (
     DataObj: CreateAddressPostObjType,
-    userid: string
+    userid: string,
   ): Promise<ApiResponse<UserAddressListType>> => {
     try {
       return await callApi("post", `/9rock/users/address`, {
@@ -335,7 +352,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
   const EditUserAddress = async (
     addressId: string,
-    EditAddressObj: CreateAddressPostObjType
+    EditAddressObj: CreateAddressPostObjType,
   ): Promise<ApiResponse<APiNoDataREsponse>> => {
     try {
       return await callApi("put", `/9rock/users/address/${addressId}`, {
@@ -350,7 +367,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   };
 
   const DeleteAddressProfile = async (
-    addressId: string
+    addressId: string,
   ): Promise<ApiResponse<APiNoDataREsponse>> => {
     try {
       return await callApi("delete", `/9rock/users/address/${addressId}`);
@@ -364,7 +381,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
   // sales Function
   const createSalesFunction = async (
-    CreateSaleConfig: createSaleConfigType
+    CreateSaleConfig: createSaleConfigType,
   ): Promise<ApiResponse<SaleResponseType>> => {
     try {
       let date = new Date().toISOString();
@@ -449,11 +466,11 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
         const category =
           CategoryList.status == "fulfilled"
-            ? CategoryList.value.data ?? []
+            ? (CategoryList.value.data ?? [])
             : [];
         const material =
           MaterialList.status == "fulfilled"
-            ? MaterialList.value.data ?? []
+            ? (MaterialList.value.data ?? [])
             : [];
 
         setCateMateLisState({
@@ -469,7 +486,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
       if (user?.id) {
         const [Like, Cart]: [
           PromiseSettledResult<ApiResponse<LikeProductType[]>>,
-          PromiseSettledResult<ApiResponse<CartItem[]>>
+          PromiseSettledResult<ApiResponse<CartItem[]>>,
         ] = await Promise.allSettled([
           callApi("get", `/9rock/likes/${userData.id}`),
           callApi("get", `/9rock/cart/${userData.id}`),
@@ -477,12 +494,12 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
         const likeCount =
           Like.status === "fulfilled" && Like.value?.success
-            ? Like.value.data?.length ?? 0
+            ? (Like.value.data?.length ?? 0)
             : 0;
 
         const cartCount: number =
           Cart.status === "fulfilled" && Cart.value?.success
-            ? Cart.value.data?.length ?? 0
+            ? (Cart.value.data?.length ?? 0)
             : 0;
 
         setUserCountData((prev) => ({
@@ -572,6 +589,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
         setLoginModel,
 
         GetUserFromContactNumber,
+        GetProductDetailsById
       }}
     >
       {children}

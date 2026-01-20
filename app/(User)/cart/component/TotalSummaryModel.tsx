@@ -19,6 +19,7 @@ import { CreateSaleProductListType } from "@/Type/UserDetailType";
 import Loader from "@/public/svg/tube-spinner.svg";
 import { ProductsListAPi } from "@/Type/ProductType";
 import { useRouter } from "next/navigation";
+import { useGuestUser } from "@/context/GuestUserContext";
 
 export const TotalSummaryModel = ({
   subTotal,
@@ -48,6 +49,7 @@ export const TotalSummaryModel = ({
   const [paymentData, setPaymentData] = useState<any>(null);
 
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number>(0);
+  const { GuestCartProductStockCheck, guestCart } = useGuestUser();
 
   const ShippingCharge: number = useMemo(() => {
     return calculateShippingCharge(
@@ -156,6 +158,7 @@ export const TotalSummaryModel = ({
   const handleCheckout = async () => {
     try {
       if (!user || !user.id) {
+        GuestCartProductStockCheck(guestCart);
         setLoginModel((prev) => ({ ...prev, LoginModel: true }));
       } else {
         handleSaleCreate();

@@ -9,6 +9,7 @@ export type GuestCartItem = ProductInfoType & {
   quantity?: number;
   variantSizeId?: string | null;
   size?: string | null;
+  VariantStock?: number;
 };
 
 export type GuestCart = {

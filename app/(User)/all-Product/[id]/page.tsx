@@ -48,7 +48,7 @@ export default function ProductPage() {
   const user = useMemo(() => getUserFromStorage(), []);
   const params = useParams();
   const { callApi } = useApi();
-  const { setUserCountData } = UsePanel();
+  const { setUserCountData, GetProductDetailsById } = UsePanel();
 
   const { AddLikeProduct, LikeProductList } = useUserLike();
   const { CartProductList, AddCartProduct } = useUserCart();
@@ -81,9 +81,9 @@ export default function ProductPage() {
 
     const loadProduct = async () => {
       try {
-        const product = await callApi("get", `/product/${params.id}`);
+        const product = await GetProductDetailsById(`${params.id}`);
 
-        const productData = product?.data ?? product ?? {};
+        const productData = product?.data 
 
         if (product?.data?.isHaveSizeVariants === true) {
           if (product.data.variantId == null) {
@@ -92,7 +92,7 @@ export default function ProductPage() {
               "get",
               `/variants/size/product/${
                 selectedVariant ? selectedVariant : params.id
-              }`
+              }`,
             );
 
             const sizeData = size?.data ?? size ?? {};
@@ -105,7 +105,7 @@ export default function ProductPage() {
                 "get",
                 `/variants/size/product/${
                   selectedVariant ? selectedVariant : params.id
-                }`
+                }`,
               ),
             ]);
 
@@ -147,9 +147,9 @@ export default function ProductPage() {
           ]);
 
           let likeList =
-            LikeData.status === "fulfilled" ? LikeData.value.data ?? [] : [];
+            LikeData.status === "fulfilled" ? (LikeData.value.data ?? []) : [];
           let cartList =
-            CartData.status === "fulfilled" ? CartData?.value.data ?? [] : [];
+            CartData.status === "fulfilled" ? (CartData?.value.data ?? []) : [];
 
           if (!active) return;
 
@@ -203,11 +203,11 @@ export default function ProductPage() {
             ...prev,
             Cart: Boolean(
               guestCart?.items?.[product.id] ||
-                guestCart?.items?.[product.id]?.variantSizeId
+              guestCart?.items?.[product.id]?.variantSizeId,
             ),
             Like: Boolean(
               guestCart?.likeProduct?.[product.id] ||
-                guestCart?.likeProduct?.[product.id]?.variantSizeId
+              guestCart?.likeProduct?.[product.id]?.variantSizeId,
             ),
           }));
         }
@@ -252,7 +252,7 @@ export default function ProductPage() {
   const addToCartHandle = async (
     variantSizeId: string | null,
     Size: string | null,
-    variantSizeStock: number
+    variantSizeStock: number,
   ) => {
     setAdding(true);
     try {
@@ -450,7 +450,7 @@ export default function ProductPage() {
                         {String(value)}
                       </dd>
                     </div>
-                  )
+                  ),
                 )}
 
               {extraInfo &&
@@ -468,7 +468,7 @@ export default function ProductPage() {
                           {value}
                         </dd>
                       </div>
-                    )
+                    ),
                 )}
             </dl>
 
@@ -479,14 +479,16 @@ export default function ProductPage() {
                   cartId={user && state?.CartData?.id}
                   productId={product.id}
                   quantity={
-                    user ? state.CartData?.quantity ?? 1 : iscart?.quantity ?? 1
+                    user
+                      ? (state.CartData?.quantity ?? 1)
+                      : (iscart?.quantity ?? 1)
                   }
                   stock={product.stock}
                   setState={user && setState}
                   VariantStock={
                     user
                       ? state.CartData?.variantSize?.variantSizeStock
-                      : selectedSize?.stock ?? null
+                      : (selectedSize?.stock ?? null)
                   }
                   stateChangeQuantity={changeStateQuantity}
                 />
@@ -503,7 +505,7 @@ export default function ProductPage() {
                       addToCartHandle(
                         selectedSize?.id ?? null,
                         selectedSize?.size ?? null,
-                        selectedSize?.stock ?? null
+                        selectedSize?.stock ?? null,
                       )
                     }
                     initial={{ opacity: 0.9 }}

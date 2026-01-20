@@ -276,7 +276,7 @@ function AccordionSection({
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="px-5 pb-5 pt-4 space-y-2"
             >
-              {Array.isArray(items) &&
+              {Array.isArray(items) && items.length > 0 ? (
                 items.map((item: any) => (
                   <label
                     key={item.id}
@@ -336,7 +336,12 @@ function AccordionSection({
                       {item.name.toUpperCase()}
                     </span>
                   </label>
-                ))}
+                ))
+              ) : (
+                <div className="flex items-center justify-center py-3 lg:py-6 text-sm text-gray-500">
+                  No data available
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

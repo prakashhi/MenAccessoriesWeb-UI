@@ -95,7 +95,6 @@ export default function UserEditForm({
     }
   };
 
-  console.log("countryObj", countryObj, CountryCode);
 
   return (
     <>

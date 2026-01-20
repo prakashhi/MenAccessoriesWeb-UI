@@ -12,7 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { UserCartContextProvider } from "@/context/UserCartContext";
 import { GuestUserContextProvider } from "@/context//GuestUserContext";
 import FloatingWhatsApp from "@/Component/FloatingWhatappLogo";
-
+import { CartInit } from "@/Component/CartInit";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -48,10 +48,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <HeroProvider>
+      
           <UserContextProvider>
             <UserLikeContextProvider>
               <UserCartContextProvider>
-                <GuestUserContextProvider>{children}</GuestUserContextProvider>
+                <GuestUserContextProvider><CartInit/>{children}</GuestUserContextProvider>
               </UserCartContextProvider>
             </UserLikeContextProvider>
           </UserContextProvider>

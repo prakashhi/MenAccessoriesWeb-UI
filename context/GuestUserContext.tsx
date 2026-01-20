@@ -7,23 +7,21 @@ import {
   useMemo,
   useRef,
 } from "react";
-import { product, Like } from "@/Type/GuestType";
 
 import { notify, toastActions } from "@/Component/ToastComponent";
-import { getUserFromStorage, getGuestCart } from "./utils";
+import { getGuestCart } from "./utils";
 
-import { GuestCart, GuestCartItem } from "@/Type/GuestType";
-
-import { RemoveCartResponse, CartItem } from "@/Type/CartType";
-import { getProduct, getProductId } from "@/utils/getProductId";
+import { GuestCart } from "@/Type/GuestType";
+import { getProduct } from "@/utils/getProductId";
 import { ProductInfoType } from "@/Type/ProductType";
+import { useApi } from "@/app/useApi";
 
 type PanelContextType = {
   AddCartProductGuest: (
     Product: ProductInfoType,
     variantSizeId?: string | null,
     size?: string | null,
-    VariantStock?: number
+    VariantStock?: number,
   ) => void;
   RemoveGuestCartProduct: (ProductId: string) => void;
 
@@ -31,7 +29,7 @@ type PanelContextType = {
 
   AddGuestLikeProduct: (
     Product: ProductInfoType,
-    variantSizeId?: string | null | undefined
+    variantSizeId?: string | null | undefined,
   ) => void;
   RemoveGuestLikeProduct: (ProductId: string) => void;
 
@@ -43,6 +41,7 @@ type PanelContextType = {
   guestTriggerRefresh: () => void;
 
   guestDataClear: () => void;
+  GuestCartProductStockCheck: (GuestCart: GuestCart) => void;
 };
 
 const GuestUserContext = createContext<PanelContextType | null>(null);
@@ -51,7 +50,7 @@ export const useGuestUser = (): PanelContextType => {
   const context = useContext(GuestUserContext);
   if (!context) {
     throw new Error(
-      "useGuestUser must be used within SearchPanelContextProvider"
+      "useGuestUser must be used within SearchPanelContextProvider",
     );
   }
 
@@ -73,6 +72,7 @@ export function GuestUserContextProvider({
   const [guestRefresh, setGuestRefresh] = useState<number>(0);
 
   const [mounted, setMounted] = useState(false);
+  const { callApi } = useApi();
 
   // 1️⃣ Mark client mount
   useEffect(() => {
@@ -121,7 +121,7 @@ export function GuestUserContextProvider({
     Product: ProductInfoType,
     variantSizeId?: string | null,
     size?: string | null,
-    VariantStock?: number
+    VariantStock?: number,
   ) => {
     let productData = getProduct(Product);
 
@@ -187,7 +187,7 @@ export function GuestUserContextProvider({
   //******Like Functions*******
   const AddGuestLikeProduct = (
     Product: ProductInfoType,
-    variantSizeId?: string | null
+    variantSizeId?: string | null,
   ) => {
     let productData = getProduct(Product);
     let productId = productData.id;
@@ -308,6 +308,51 @@ export function GuestUserContextProvider({
     }));
   };
 
+  const GuestCartProductStockCheck = async (GuestCart: GuestCart) => {
+    const response = await Promise.allSettled(
+      Object.values(GuestCart.items).map((val) =>
+        callApi("get", `/product/${val.id}`),
+      ),
+    );
+
+    setGuestCart((prev) => {
+      if (!prev) return prev;
+
+      const updatedItems = { ...prev.items };
+
+      response.forEach((res) => {
+        if (res.status !== "fulfilled") return;
+
+        const newProduct = res.value.data;
+        const productId = newProduct._id;
+
+        const item = updatedItems[productId];
+        if (!item) return;
+
+        let Quantity: number = item.quantity ?? 1;
+
+        const quantity =
+          newProduct.stock === 0
+            ? 0
+            : Math.max(1, Math.min(Quantity, newProduct.stock));
+
+        updatedItems[productId] = {
+          ...newProduct,
+          quantity: quantity,
+          variantSizeId: item.variantSizeId ?? null,
+          size: item.size ?? null,
+          VariantStock: item.VariantStock ?? null,
+        };
+      });
+
+      return {
+        ...prev,
+        items: updatedItems,
+      };
+    });
+
+  };
+
   return (
     <GuestUserContext.Provider
       value={{
@@ -323,6 +368,7 @@ export function GuestUserContextProvider({
         guestTriggerRefresh,
 
         guestDataClear,
+        GuestCartProductStockCheck,
       }}
     >
       {children}

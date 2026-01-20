@@ -31,20 +31,17 @@ export default function Page() {
   const {
     setUserCountData,
     refreshKey,
-    userCountData,
     userDataContext,
     loading,
   } = UsePanel();
   const user = userDataContext.info;
 
   const { CartProductList } = useUserCart();
-  const { guestCart } = useGuestUser();
+  const { guestCart, GuestCartProductStockCheck } = useGuestUser();
 
   const [cartListData, setCartListData] = useState<CartListItem[]>([]);
 
   const [isEmptyStock, seIsEmptyStock] = useState(false);
-
-  
 
   const TaxPercentage = 3;
 
@@ -85,8 +82,16 @@ export default function Page() {
 
   useEffect(() => {
     if (user) return;
+
     setCartListData(Object.values(guestCart.items));
   }, [guestCart]);
+
+
+  useEffect(() => {
+    if (guestCart) {
+      GuestCartProductStockCheck(guestCart);
+    }
+  }, []);
 
   const total: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
@@ -104,7 +109,6 @@ export default function Page() {
       return sum + price * Number(item.quantity);
     }, 0);
   }, [cartListData, user]);
-
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111]">
@@ -132,7 +136,7 @@ export default function Page() {
   "
           >
             <AnimatePresence>
-              {loading  && cartListData.length === 0 ? (
+              {loading && cartListData.length === 0 ? (
                 <SkelatonCart />
               ) : cartListData.length > 0 ? (
                 <motion.div
@@ -160,8 +164,6 @@ export default function Page() {
                 />
               )}
             </AnimatePresence>
-
-
           </div>
 
           {/* SUMMARY */}
