@@ -347,7 +347,7 @@ export default function Nav() {
       {loginModel.UserCreateModel == true && (
         <UserCreateForm
           open={loginModel.UserCreateModel}
-          mobileNumber={mobileConfig.mobileNumber}
+          mobileNumber={`${mobileConfig.CountryCode}${mobileConfig.mobileNumber}`}
           onClose={() =>
             setLoginModel((prev) => ({
               ...prev,

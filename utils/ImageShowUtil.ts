@@ -22,4 +22,9 @@ export const ImageShowUtil = (imgData?: string | null): string => {
 
   return `${process.env.NEXT_PUBLIC_IMG_URL}${firstImage}`;
 };
+export const hasCountryCode = (number: string) => {
+  // starts with + and has 1–3 digit country code
+  return /^\+\d{1,3}/.test(number);
+};
+
 

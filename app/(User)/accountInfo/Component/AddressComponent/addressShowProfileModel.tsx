@@ -14,6 +14,7 @@ import { notify } from "@/Component/ToastComponent";
 import { useState } from "react";
 
 import { DeleteAddressAskModel } from "../DeleteAddressAskModel";
+import { hasCountryCode } from "@/utils/ImageShowUtil";
 
 type Props = {
   openCreateAddressModel: () => void;
@@ -94,7 +95,7 @@ export default function AddressShowProfileModel({
             .sort(
               (a, b) =>
                 new Date(a.updatedAt).getTime() -
-                new Date(b.updatedAt).getTime()
+                new Date(b.updatedAt).getTime(),
             )
             .map((address: UserAddressListType) => (
               <div
@@ -142,7 +143,13 @@ export default function AddressShowProfileModel({
                         {address.contactNumber && (
                           <div className="flex items-center gap-2 sm:justify-end">
                             <FiPhone size={14} />
-                            <span>{address.contactNumber}</span>
+                            {/* <span>{address.countryCode} {address.contactNumber}</span> */}
+
+                            <span>
+                              {hasCountryCode(address.contactNumber)
+                                ? address.contactNumber
+                                : `${address.countryCode} ${address.contactNumber}`}
+                            </span>
                           </div>
                         )}
                       </div>
