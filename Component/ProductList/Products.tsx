@@ -19,7 +19,7 @@ import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { notify } from "../ToastComponent";
 
-import ImageCarousel from "../Header/Component/ImageCarousel";
+
 import { AboutUsComponent } from "@/Component/Header/Component/About-us";
 import WhyChooseUs from "@/Component/Header/Component/WhyChooseUs";
 
@@ -122,7 +122,7 @@ export default function Product() {
 
   return (
     <>
-      <ImageCarousel />
+  
       <AboutUsComponent />
       <section className="pt-12 lg:pt-39 px-4 lg:overflow-x-hidden sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
         <div className="flex justify-center">

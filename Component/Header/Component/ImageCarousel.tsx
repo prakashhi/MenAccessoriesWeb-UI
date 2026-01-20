@@ -1,9 +1,9 @@
 
+"use server"
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import BrochImg from "@/public/Images/GroomNackless.jpeg";
 import ButtonImg from "@/public/Images/Brouch8.jpeg";
 import MenNickles from "@/public/Images/Nackless1.jpeg";
 import Cufflinks2 from "@/public/Images/Brouch4.jpeg";
@@ -14,22 +14,24 @@ import CuflineImg2 from "@/public/Images/C0PBWF4012-with-qr.jpg";
 import BrouchImg2 from "@/public/Images/018GWBK540-with-qr.jpg";
 import BrouchImg3 from "@/public/Images/00RGOK543-with-qr.jpg";
 import kalgiImg1 from "@/public/Images/KalgiImg3.jpg"
+import kadaImg1 from "@/public/Images/KadaImg1.jpg"
 
 const images = [
   BrouchImg2,
   CuflineImg2,
-  // BrochImg,
   ButtonImg,
   MenNickles,
   ButtonImg3,
   ButtonImg2,
   kalgiImg1,
+  kadaImg1,
   Cufflinks2,
   NAckless,
+  
   BrouchImg3,
 ];
 
-export default function ImageCarousel() {
+export default async function ImageCarousel() {
   return (
     <section className="w-full px-2 sm:px-6 lg:px-10 my-10 bg-[#FAFAFA]">
       <section className="w-full py-16">

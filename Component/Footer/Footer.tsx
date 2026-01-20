@@ -1,3 +1,4 @@
+"use client"
 import SocialIcons from "./IconsComponet";
 import ContactComponent from "./ContectComponet";
 import { UsePanel } from "@/context/Context";
