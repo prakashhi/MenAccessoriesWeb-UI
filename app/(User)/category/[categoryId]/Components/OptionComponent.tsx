@@ -5,13 +5,12 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
 import { UsePanel } from "@/context/Context";
 import { usePathname } from "next/navigation";
-import { formatIndianPrice } from "@/utils/FormatCurrency";
+import { PriceSlider } from "./OptionComponent/PriceSlider";
 
 export default function OptionComponent({ onClose }: { onClose: () => void }) {
   const [open, setOpen] = useState<Record<number, boolean>>({});
   const { CateMateListState, setMenProductFilter, menProductFilter } =
     UsePanel();
-  const [price, setPrice] = useState<number>(0);
 
   const toggle = (index: number) => {
     setOpen((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -43,8 +42,6 @@ export default function OptionComponent({ onClose }: { onClose: () => void }) {
     { label: "₹25,000+", min: 25000, max: 100000 },
   ];
 
-  const maxLimit = 500000;
-
   const handlePriceChange = (min: number, max: number, label: string) => {
     setMenProductFilter((prev) => ({
       ...prev,
@@ -55,20 +52,6 @@ export default function OptionComponent({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
-  // update price when slider moves
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = Number(e.target.value);
-    setPrice(value);
-
-    setMenProductFilter((prev) => ({
-      ...prev,
-      minPrice: 0,
-      maxPrice: value,
-    }));
-  };
-  const percentage = (menProductFilter.maxPrice / maxLimit) * 100;
-  const Price = menProductFilter.maxPrice;
-
   const resetFilter = () => {
     setMenProductFilter({
       minPrice: 0,
@@ -77,7 +60,7 @@ export default function OptionComponent({ onClose }: { onClose: () => void }) {
       categoryIds: [],
       materialIds: [],
     });
-    setPrice(0);
+    onClose();
   };
   return (
     <>
@@ -133,7 +116,7 @@ export default function OptionComponent({ onClose }: { onClose: () => void }) {
           {/* Hidden checkbox */}
           <input
             type="checkbox"
-            checked={!!menProductFilter.showInStockProducts} // controlled
+            checked={!!menProductFilter.showInStockProducts}
             onChange={(e) => {
               setMenProductFilter((prev) => ({
                 ...prev,
@@ -183,41 +166,7 @@ export default function OptionComponent({ onClose }: { onClose: () => void }) {
         </label>
 
         {/* Price Sidler */}
-        <h3 className="text-xs tracking-widest uppercase text-gray-500 mb-4">
-          Price Range
-        </h3>
-        <div className="px-5 py-4 flex flex-col gap-4">
-          {/* Slider */}
-          <input
-            type="range"
-            min={0}
-            max={maxLimit}
-            value={menProductFilter.maxPrice}
-            onChange={handleChange}
-            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
-            style={{
-              background: `linear-gradient(to right, #000 ${percentage}%, #e5e7eb ${percentage}%)`,
-            }}
-          />
-
-          {/* Show current selected price */}
-          <div className="text-sm text-gray-700 flex items-center justify-between">
-            <span>
-              Selected Price:
-              <strong className="ml-1 text-gray-900">
-                ₹
-                {Price === maxLimit
-                  ? `${formatIndianPrice(maxLimit)}+`
-                  : formatIndianPrice(Price)}
-              </strong>
-            </span>
-          </div>
-
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>₹0</span>
-            <span>₹{formatIndianPrice(maxLimit)}</span>
-          </div>
-        </div>
+        <PriceSlider onClose={onClose} />
 
         <button
           onClick={resetFilter}
