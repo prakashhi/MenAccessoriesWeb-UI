@@ -324,7 +324,7 @@ export function GuestUserContextProvider({
         if (res.status !== "fulfilled") return;
 
         const newProduct = res.value.data;
-        const productId = newProduct._id;
+        const productId = newProduct.id;
 
         const item = updatedItems[productId];
         if (!item) return;
