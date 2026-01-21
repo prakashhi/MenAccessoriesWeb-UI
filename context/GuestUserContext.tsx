@@ -340,7 +340,7 @@ export function GuestUserContextProvider({
           ...newProduct,
           quantity: quantity,
           variantSizeId: item.variantSizeId,
-          // size: item.size,
+          size: item.size,
           VariantStock: item.VariantStock,
         };
       });

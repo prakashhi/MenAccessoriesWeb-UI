@@ -98,8 +98,10 @@ export function useInfiniteProductsOffset() {
         ? [`${params.categoryId}`]
         : menCategoryId;
 
+        const { priceLabel, ...queryParams } = menProductFilter;
+
     const res = await MenCategoryList({
-      ...menProductFilter,
+      ...queryParams,
       categoryIds,
       offset: offset,
       limit: LIMIT,

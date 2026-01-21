@@ -97,6 +97,8 @@ export default function ProductPage() {
 
             const sizeData = size?.data ?? size ?? {};
             setSizeData(sizeData);
+            setSelectedSize(sizeData[0])
+          
           } else {
             // if variantId and Size available
             const [variants, size] = await Promise.all([
@@ -114,6 +116,9 @@ export default function ProductPage() {
 
             setVariants(variantsData);
             setSizeData(sizeData);
+            setSelectedSize(sizeData[0])
+         
+            // setSelectedVariant(variantsData[0].size)
           }
         }
         if (!active) return;
@@ -335,6 +340,8 @@ export default function ProductPage() {
     });
   };
 
+      console.log(selectedSize)
+
   return (
     <>
       <Nav />
@@ -406,7 +413,7 @@ export default function ProductPage() {
             </div>
             <SizeSelector
               sizes={size}
-              selectedId={selectedSize?.id}
+              selectedId={selectedSize?.id || selectedSize}
               onSelect={setSelectedSize}
               sizeCart={
                 user

@@ -303,7 +303,7 @@ export default function Nav() {
                 />
               </Link>
 
-              {userDataContext.info !== null ? (
+              {user?.id !== null ? (
                 <Link href={"/accountInfo"}>
                   <User
                     size={20}

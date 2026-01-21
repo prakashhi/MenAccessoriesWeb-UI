@@ -91,7 +91,7 @@ export const TotalSummaryModel = ({
       quantity,
       price,
       totalPrice: quantity * price,
-      variantSize: variantSize?.variantSizeId ?? null,
+      variantSize: variantSize?.variantSizeName ?? null,
     });
 
     return acc;

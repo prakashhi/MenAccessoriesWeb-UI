@@ -60,7 +60,7 @@ export const useRazorpayPayment = () => {
 
       const invoiceRes = await CreateInVoice(InVoiceConfig);
 
-      if (!invoiceRes.success) {
+      if (!invoiceRes.success|| !invoiceRes.data?.invoiceId ) {
         notify({
           message: "Failed to create invoice",
           type: "error",
@@ -68,10 +68,7 @@ export const useRazorpayPayment = () => {
         return;
       }
 
-      let InvoiceId: string =
-        invoiceRes.success == true &&
-        invoiceRes.data &&
-        invoiceRes.data.invoiceId;
+      let InvoiceId: string = invoiceRes.data.invoiceId;
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
@@ -93,7 +90,6 @@ export const useRazorpayPayment = () => {
               razorpaySignature: response.razorpay_signature,
             });
 
-            console.log("res", res);
 
             if (res.success === true) {
               notify({

@@ -16,6 +16,7 @@ import CartProductShowModel from "./component/CartProductShowModel";
 import { TotalSummaryModel } from "./component/TotalSummaryModel";
 import { PriceShowFunction } from "@/utils/FormatCurrency";
 import SkelatonCart from "@/app/(User)/cart/component/SkelatonCart";
+import { getUserFromStorage } from "@/context/utils";
 
 type GuestCartItem = ProductInfoType & { quantity?: number };
 
@@ -30,7 +31,9 @@ export default function Page() {
     userDataContext,
     loading,
   } = UsePanel();
-  const user = userDataContext.info;
+
+  
+  const user = useMemo(()=> getUserFromStorage(),[]);
 
   const { CartProductList } = useUserCart();
   const { guestCart, GuestCartProductStockCheck } = useGuestUser();
