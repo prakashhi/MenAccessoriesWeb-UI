@@ -146,8 +146,8 @@ export default function CartProductShowModel({
             <p className="text-xs text-neutral-400">
               {user ? item.product?.categoryName : item.categoryName}
             </p>
-            {item.size && (
-              <p className="text-xs text-neutral-500 mt-1">Size: {item.size}</p>
+            {item.size || item.variantSize && (
+              <p className="text-xs text-neutral-500 mt-1">Size: { user ? item.variantSize?.variantSizeName : item.size}</p>
             )}
           </div>
 

@@ -162,7 +162,7 @@ export function GuestUserContextProvider({
     }
 
     if (added) {
-      toastActions.addToCart(`${Product.name}`);
+      toastActions.addToCart();
     }
   };
 
@@ -339,9 +339,9 @@ export function GuestUserContextProvider({
         updatedItems[productId] = {
           ...newProduct,
           quantity: quantity,
-          variantSizeId: item.variantSizeId ?? null,
-          size: item.size ?? null,
-          VariantStock: item.VariantStock ?? null,
+          variantSizeId: item.variantSizeId,
+          // size: item.size,
+          VariantStock: item.VariantStock,
         };
       });
 

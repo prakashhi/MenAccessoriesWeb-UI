@@ -32,6 +32,9 @@ import type {
   MenCategoryMartialState,
   SaleResponseType,
   loginModelType,
+  CreateInVoiceConfigType,
+  InvoiceCreateResponse,
+  modelTypes,
 } from "@/Type/Types";
 import {
   UserGetDetailType,
@@ -111,14 +114,23 @@ export type UserContextType = {
   ) => Promise<ApiResponse<SaleResponseType>>;
 
   loginModel: loginModelType;
-
   setLoginModel: React.Dispatch<React.SetStateAction<loginModelType>>;
+
+  setOpenModel: React.Dispatch<React.SetStateAction<modelTypes>>;
+  openModel: modelTypes;
+
+  setPaymentData:React.Dispatch<React.SetStateAction<any>>
+  paymentData:any
+
   GetUserFromContactNumber: (
     contactNumber: string,
   ) => Promise<ApiResponse<{ id: string }>>;
   GetProductDetailsById: (
     ProductId: string,
   ) => Promise<ApiResponse<ProductInfoType>>;
+  CreateInVoice: (
+    CreateConfig: CreateInVoiceConfigType,
+  ) => Promise<ApiResponse<InvoiceCreateResponse>>;
 };
 
 import { useDisclosure } from "@heroui/react";
@@ -140,10 +152,18 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [user, setUser] = useState<UserGetDetailType | null>(null);
 
+  const [paymentData, setPaymentData] = useState<any>(null);
+
   const [loginModel, setLoginModel] = useState<loginModelType>({
     LoginModel: false,
     OTPFillModel: false,
     UserCreateModel: false,
+  });
+
+  const [openModel, setOpenModel] = useState<modelTypes>({
+    PaymentAddressSelect: false,
+    PaymentSuccessModel: false,
+    PaymentFailModel: false,
   });
 
   const [menProductFilter, setMenProductFilter] = useState<menProductFilter>({
@@ -400,8 +420,12 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
           country: CreateSaleConfig.customerCountry,
           state: CreateSaleConfig.customerState,
 
-          invoiceId: generateOrderId("INVOICE"),
-          orderId: generateOrderId("ORD"),
+          // invoiceId: generateOrderId("INVOICE"),
+          // orderId: generateOrderId("ORD"),
+
+          invoiceId: CreateSaleConfig.invoiceId,
+          orderId: CreateSaleConfig.orderId,
+
           salesStatus: "PENDING",
           salesDate: date,
 
@@ -412,8 +436,13 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
           paymentMethod: "RAZORPAY",
           paymentStatus: "PAID",
           paymentAmount: Math.ceil(CreateSaleConfig.TotalAmount),
-          transactionId: generateOrderId("TRAN"),
-          orderId: generateOrderId("ORD"),
+
+          // transactionId: generateOrderId("TRAN"),
+          // orderId: generateOrderId("ORD"),
+
+          transactionId: CreateSaleConfig.transactionId,
+          orderId: CreateSaleConfig.orderId,
+
           razorpayOrderId: CreateSaleConfig.razorpayOrderId,
           razorpayPaymentId: CreateSaleConfig.razorpayPaymentId,
           razorpaySignature: CreateSaleConfig.razorpaySignature,
@@ -439,6 +468,20 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
       };
 
       return await callApi("post", "/sales", { data: salesConfig });
+    } catch (error: any) {
+      throw {
+        message: error?.response?.data?.message || "Something is wrong",
+        status: error?.response?.status,
+      };
+    }
+  };
+
+  //Invoice Function
+  const CreateInVoice = async (
+    CreateConfig: CreateInVoiceConfigType,
+  ): Promise<ApiResponse<InvoiceCreateResponse>> => {
+    try {
+      return await callApi("post", "/invoice", { data: CreateConfig });
     } catch (error: any) {
       throw {
         message: error?.response?.data?.message || "Something is wrong",
@@ -587,9 +630,15 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
 
         loginModel,
         setLoginModel,
+        openModel,
+        setOpenModel,
+
+         setPaymentData,
+         paymentData,
 
         GetUserFromContactNumber,
-        GetProductDetailsById
+        GetProductDetailsById,
+        CreateInVoice,
       }}
     >
       {children}

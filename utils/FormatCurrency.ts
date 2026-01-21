@@ -12,7 +12,9 @@ export function PriceShowFunction(
   qty: number = 1,
   NumberTypeReturn: boolean = false
 ) {
-  const basePrice = code && code.trim() !== "" ? Number(code) * 10 : price;
+  // const basePrice = code && code.trim() !== "" ? Number(code) * 10 : price;
+
+  const basePrice = price ? price : Number(code) * 10;
 
   if (NumberTypeReturn === true) {
     return basePrice * qty;

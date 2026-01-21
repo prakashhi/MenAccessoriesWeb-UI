@@ -48,11 +48,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <HeroProvider>
-      
           <UserContextProvider>
             <UserLikeContextProvider>
               <UserCartContextProvider>
-                <GuestUserContextProvider><CartInit/>{children}</GuestUserContextProvider>
+                <GuestUserContextProvider>
+                  <CartInit />
+                  {children}
+                </GuestUserContextProvider>
               </UserCartContextProvider>
             </UserLikeContextProvider>
           </UserContextProvider>
@@ -73,6 +75,7 @@ export default function RootLayout({
             // transition={'Bounce'}
           />
         </HeroProvider>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
       </body>
     </html>
   );

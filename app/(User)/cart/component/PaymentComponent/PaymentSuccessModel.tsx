@@ -7,8 +7,6 @@ import { UsePanel } from "@/context/Context";
 
 interface PaymentSuccessModalProps {
   onClose: () => void;
-  amount?: number;
-  PaymentData: any;
 }
 
 const DetailRow = ({
@@ -36,15 +34,13 @@ const DetailRow = ({
 
 export default function PaymentSuccessModal({
   onClose,
-  amount = 0,
-  PaymentData,
 }: PaymentSuccessModalProps) {
   const staggerContainer = {
     hidden: {},
     show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
   };
 
-  const { triggerRefresh } = UsePanel();
+  const { triggerRefresh ,paymentData} = UsePanel();
 
   const fadeUp: Variants = {
     hidden: {
@@ -121,7 +117,7 @@ export default function PaymentSuccessModal({
                 className="mt-2 text-3xl sm:text-4xl font-semibold 
         text-gray-900 dark:text-white"
               >
-                ₹{PaymentData.totalPrice.toLocaleString("en-IN")}
+                ₹{paymentData.totalPrice.toLocaleString("en-IN")}
               </p>
               <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                 (Including all taxes)
@@ -136,7 +132,7 @@ export default function PaymentSuccessModal({
             >
               <DetailRow
                 label="Transaction ID"
-                value={PaymentData.payments[0].transactionId}
+                value={paymentData.payments[0].transactionId}
                 valueClass="text-gray-800     dark:text-gray-200 "
               />
 
@@ -144,7 +140,7 @@ export default function PaymentSuccessModal({
 
               <DetailRow
                 label="Payment Method"
-                value={PaymentData.payments[0].paymentMethod}
+                value={paymentData.payments[0].paymentMethod}
                 valueClass="text-gray-800 dark:text-gray-200"
               />
 
@@ -152,7 +148,7 @@ export default function PaymentSuccessModal({
 
               <DetailRow
                 label="Status"
-                value={PaymentData.payments[0].paymentStatus}
+                value={paymentData.payments[0].paymentStatus}
                 success
                 valueClass="font-medium text-emerald-600 dark:text-emerald-400"
               />
@@ -161,8 +157,8 @@ export default function PaymentSuccessModal({
 
               <DetailRow
                 label="Items Ordered"
-                value={`${PaymentData.totalQuantity} item${
-                  PaymentData.totalQuantity > 1 ? "s" : ""
+                value={`${paymentData.totalQuantity} item${
+                  paymentData.totalQuantity > 1 ? "s" : ""
                 }`}
                 valueClass="text-gray-800 dark:text-gray-200"
               />

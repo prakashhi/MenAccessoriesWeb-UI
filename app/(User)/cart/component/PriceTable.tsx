@@ -13,7 +13,7 @@ export const PriceTable = ({ item, user }: any) => (
         <p className="font-medium text-neutral-900 whitespace-nowrap">
           ₹{" "}
           {user
-            ? formatIndianPrice(Number(item.product?.productPrice) * 10)
+            ? formatIndianPrice(Number(item.product?.productPrice))
             : PriceShowFunction(item.code, item.sellingPrice)}
           .00
         </p>
@@ -25,7 +25,7 @@ export const PriceTable = ({ item, user }: any) => (
           ₹{" "}
           {user
             ? formatIndianPrice(
-                Number(item.product?.productPrice) * 10 * item.quantity
+                Number(item.product?.productPrice)  * item.quantity
               )
             : PriceShowFunction(item.code, item.sellingPrice, item.quantity)}
           .00

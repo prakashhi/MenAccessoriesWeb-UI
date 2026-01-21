@@ -206,9 +206,12 @@ export type createSaleConfigType = {
   TotalTax: number;
   shippingFee: number;
   OrderProductList: CreateSaleProductListType[];
-  razorpayOrderId: string | null;
-  razorpayPaymentId: string | null;
-  razorpaySignature: string | null;
+  razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
+  razorpaySignature?: string | null;
+  invoiceId?:string;
+  orderId?:string;
+  transactionId?:string;
 
   customerName: string;
   customerEmail: string;

@@ -11,7 +11,6 @@ import { notify } from "@/Component/ToastComponent";
 import { UsePanel } from "@/context/Context";
 import { CartListItem } from "../page";
 import { PaymentAddressSelect } from "@/app/(User)/cart/component/PaymentComponent/PaymentAddressSelect";
-import { modelTypes } from "../page";
 import { CartItem } from "@/Type/CartType";
 import { ProductInfoType } from "@/Type/ProductType";
 import { calculateShippingCharge } from "@/utils/shippingFees";
@@ -20,33 +19,32 @@ import Loader from "@/public/svg/tube-spinner.svg";
 import { ProductsListAPi } from "@/Type/ProductType";
 import { useRouter } from "next/navigation";
 import { useGuestUser } from "@/context/GuestUserContext";
+import { useRazorpayPayment } from "../util/razorPayFunction";
 
 export const TotalSummaryModel = ({
   subTotal,
   TaxPercentage,
   isEmptyStock,
-  openModel,
-  setOpenModel,
   cartListData,
 }: {
   subTotal: number;
   TaxPercentage: number;
   isEmptyStock: boolean;
-  openModel: modelTypes;
-  setOpenModel: React.Dispatch<React.SetStateAction<modelTypes>>;
   cartListData: CartListItem[];
 }) => {
   // Type
   type GuestCartItem = ProductInfoType & { quantity?: number };
   type CartListItem = GuestCartItem | CartItem;
 
+  const { handleRazorpayPayment } = useRazorpayPayment();
+
   //Functions
   const user = useMemo(() => getUserFromStorage(), []);
   const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const { setLoginModel, userDataContext, createSalesFunction, loading } =
-    UsePanel();
-  const [paymentData, setPaymentData] = useState<any>(null);
+  const { setLoginModel, userDataContext ,openModel,setOpenModel} = UsePanel();
+  // const [paymentData, setPaymentData] = useState<any>(null);
 
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number>(0);
   const { GuestCartProductStockCheck, guestCart } = useGuestUser();
@@ -73,13 +71,6 @@ export const TotalSummaryModel = ({
     );
   }, [cartListData]);
 
-  const PaymentSuccess = () => {
-    setOpenModel((prev) => ({ ...prev, PaymentSuccessModel: true }));
-  };
-
-  const PaymentFail = () => {
-    setOpenModel((prev) => ({ ...prev, PaymentFailModel: true }));
-  };
 
   const AddressSelect = () => {
     setOpenModel((prev) => ({ ...prev, PaymentAddressSelect: true }));
@@ -89,7 +80,7 @@ export const TotalSummaryModel = ({
   const productsList: CreateSaleProductListType[] = List.reduce((acc, val) => {
     const { product, quantity, variantSize } = val;
     if (!product || quantity <= 0) return acc;
-    const price = Number(product.productPrice) * 10;
+    const price = Number(product.productPrice);
     acc.push({
       productId: product.productId,
       productName: product.productName,
@@ -107,19 +98,16 @@ export const TotalSummaryModel = ({
   }, [] as ProductsListAPi[]);
 
   const handleSaleCreate = async () => {
+    setLoading(true);
     try {
       let saleConfigObj = {
-        TotalAmount: ShippingWithTax,
+        TotalAmount: Math.ceil(ShippingWithTax),
         TotalProductQty: TotalQty,
         TotalTax: Math.ceil(
           ((subTotal + ShippingCharge) * TaxPercentage) / 100,
         ),
         shippingFee: ShippingCharge,
         OrderProductList: productsList,
-        razorpayOrderId: "ye56672g3dy3d7cdewffrev73vcye7ff",
-        razorpayPaymentId: "ye56672g3dyfefefedde3d7cv73vcye7fffefr",
-        razorpaySignature: "gwgr3ugrug32urgu3grueguerwrewrwe",
-
         customerName: `${userDataContext.info?.userFirstName} ${userDataContext.info?.userLastName} `,
         customerAddress: `${userDataContext.AddressList[selectedAddressIndex].addressLine1}  ${userDataContext.AddressList[selectedAddressIndex].addressLine2}`,
         customerState: userDataContext.AddressList[selectedAddressIndex].state,
@@ -134,24 +122,16 @@ export const TotalSummaryModel = ({
         customerPhone:
           userDataContext.AddressList[selectedAddressIndex].contactNumber,
       };
-      let res = await createSalesFunction(saleConfigObj);
+      let response = await handleRazorpayPayment(saleConfigObj);
 
-      if (res.success === true) {
-        notify({
-          message: "Payment successful! Your order has been placed.",
-          type: "success",
-        });
-
-        PaymentSuccess();
-        setPaymentData(res.data);
-      } else {
-        PaymentFail();
-      }
+      console.log("responseAll", response);
     } catch (error: any) {
       notify({
         message: error.message,
         type: "error",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,8 +142,6 @@ export const TotalSummaryModel = ({
         setLoginModel((prev) => ({ ...prev, LoginModel: true }));
       } else {
         handleSaleCreate();
-        //PaymentSuccess();
-        //PaymentFail();
       }
     } catch (err) {
       console.log(err);
@@ -342,7 +320,6 @@ export const TotalSummaryModel = ({
           }
           children={
             <PaymentSuccessModal
-              PaymentData={paymentData}
               onClose={() =>
                 setOpenModel((prev) => ({
                   ...prev,

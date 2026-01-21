@@ -21,11 +21,7 @@ type GuestCartItem = ProductInfoType & { quantity?: number };
 
 export type CartListItem = GuestCartItem | CartItem;
 
-export type modelTypes = {
-  PaymentAddressSelect: boolean;
-  PaymentSuccessModel: boolean;
-  PaymentFailModel: boolean;
-};
+
 
 export default function Page() {
   const {
@@ -44,12 +40,6 @@ export default function Page() {
   const [isEmptyStock, seIsEmptyStock] = useState(false);
 
   const TaxPercentage = 3;
-
-  const [openModel, setOpenModel] = useState<modelTypes>({
-    PaymentAddressSelect: false,
-    PaymentSuccessModel: false,
-    PaymentFailModel: false,
-  });
 
   useEffect(() => {
     if (!user) return;
@@ -93,6 +83,7 @@ export default function Page() {
     }
   }, []);
 
+
   const total: number = useMemo(() => {
     if (!Array.isArray(cartListData) || cartListData.length === 0) return 0;
 
@@ -103,7 +94,7 @@ export default function Page() {
 
       const price =
         user && item?.product?.productPrice
-          ? Number(item.product?.productPrice) * 10
+          ? Number(item.product?.productPrice)
           : Number(PriceShowFunction(item.code, item.sellingPrice, 1, true));
 
       return sum + price * Number(item.quantity);
@@ -169,8 +160,6 @@ export default function Page() {
           {/* SUMMARY */}
           {total > 0 && (
             <TotalSummaryModel
-              openModel={openModel}
-              setOpenModel={setOpenModel}
               isEmptyStock={isEmptyStock}
               subTotal={total}
               TaxPercentage={TaxPercentage}

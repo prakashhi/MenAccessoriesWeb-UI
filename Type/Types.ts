@@ -216,3 +216,32 @@ export type loginModelType = {
   OTPFillModel: boolean;
   UserCreateModel: boolean;
 };
+
+export type CreateInVoiceConfigType = {
+  invoiceId: string;
+  userId?: string;
+  nineRockUserId: string;
+  productIds: string;
+  productQuantity: number;
+  tax: number;
+  shippingFee: number;
+  totalPrice: number;
+};
+
+export type InvoiceCreateResponse = {
+  id: string;
+  invoiceId: string;
+  userId: string;
+  productIds: string;
+  productQuantity: number;
+  tax: number;
+  shippingFee: number;
+  totalPrice: number;
+  createdAt: string;
+};
+
+export type modelTypes = {
+  PaymentAddressSelect: boolean;
+  PaymentSuccessModel: boolean;
+  PaymentFailModel: boolean;
+};
