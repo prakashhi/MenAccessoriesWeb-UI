@@ -124,7 +124,6 @@ export const TotalSummaryModel = ({
       };
       let response = await handleRazorpayPayment(saleConfigObj);
 
-      console.log("responseAll", response);
     } catch (error: any) {
       notify({
         message: error.message,

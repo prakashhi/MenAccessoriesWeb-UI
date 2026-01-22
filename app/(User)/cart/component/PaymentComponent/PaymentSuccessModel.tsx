@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RiCheckLine } from "react-icons/ri";
 import { Variants } from "framer-motion";
 import { UsePanel } from "@/context/Context";
+import { useRouter } from "next/navigation";
 
 interface PaymentSuccessModalProps {
   onClose: () => void;
@@ -41,6 +42,7 @@ export default function PaymentSuccessModal({
   };
 
   const { triggerRefresh ,paymentData} = UsePanel();
+  const router = useRouter();
 
   const fadeUp: Variants = {
     hidden: {
@@ -169,6 +171,7 @@ export default function PaymentSuccessModal({
               onClick={() => {
                 onClose();
                 triggerRefresh();
+                router.push("/accountInfo?tab=orders");
               }}
               className="mt-7 sm:mt-8 w-full py-3.5 sm:py-4 cursor-pointer rounded-xl
         bg-black dark:bg-gray-900 text-white font-medium 

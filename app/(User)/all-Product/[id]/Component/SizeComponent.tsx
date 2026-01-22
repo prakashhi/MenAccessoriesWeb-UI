@@ -15,7 +15,6 @@ export default function SizeSelector({
   sizeCart,
 }: Props) {
 
-   console.log("selectedId",selectedId)
 
   return (
     <div className="flex flex-wrap gap-2">
