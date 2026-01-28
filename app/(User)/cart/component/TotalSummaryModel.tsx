@@ -43,7 +43,8 @@ export const TotalSummaryModel = ({
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { setLoginModel, userDataContext ,openModel,setOpenModel} = UsePanel();
+  const { setLoginModel, userDataContext, openModel, setOpenModel } =
+    UsePanel();
   // const [paymentData, setPaymentData] = useState<any>(null);
 
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number>(0);
@@ -70,7 +71,6 @@ export const TotalSummaryModel = ({
       0,
     );
   }, [cartListData]);
-
 
   const AddressSelect = () => {
     setOpenModel((prev) => ({ ...prev, PaymentAddressSelect: true }));
@@ -123,7 +123,6 @@ export const TotalSummaryModel = ({
           userDataContext.AddressList[selectedAddressIndex].contactNumber,
       };
       let response = await handleRazorpayPayment(saleConfigObj);
-
     } catch (error: any) {
       notify({
         message: error.message,
@@ -157,24 +156,27 @@ export const TotalSummaryModel = ({
         <div className="bg-white rounded-xl border border-[#ECECEC] p-6 sticky top-24 space-y-4">
           {/* Subtotal */}
           <div className="flex justify-between text-sm tracking-wide">
-            <span>Subtotal</span>
-            <span className="font-semibold">
+            <span style={{fontFamily:"initial"}} className="font-bold">Subtotal</span>
+            <span className="font-bold">
               ₹{formatIndianPrice(subTotal)}.00
             </span>
           </div>
 
           {/* Shipping */}
           <div className="flex justify-between text-sm tracking-wide">
-            <span>Shipping</span>
-            <span className="font-semibold">
-              ₹
-              {calculateShippingCharge(
-                subTotal,
-                userDataContext.AddressList[selectedAddressIndex]?.country ||
-                  "INDIA",
-              )}
-              .00
-            </span>
+            <div className="flex flex-col">
+               <span style={{fontFamily:"initial"}} className="font-bold">Shipping</span>
+              <span className="text-[10px] text-gray-500">Calculated based on your delivery address</span>
+            </div>
+             <span className="font-bold">
+                ₹
+                {calculateShippingCharge(
+                  subTotal,
+                  userDataContext.AddressList[selectedAddressIndex]?.country ||
+                    "INDIA",
+                )}
+                .00
+              </span>
           </div>
 
           {/* Default Shipping Address with Change button */}
@@ -239,8 +241,13 @@ export const TotalSummaryModel = ({
 
           {/* Tax */}
           <div className="flex justify-between text-sm tracking-wide">
-            <span>Tax</span>
-            <span className="font-semibold text-sm">
+            
+
+            <div className="flex flex-col">
+              <span style={{fontFamily:"initial"}} className="font-bold">Tax(3%)</span>
+              <span className="text-[10px] text-gray-500">Applied on subtotal + shipping</span>
+            </div>
+            <span className="font-bold text-sm">
               ₹{Math.ceil(((subTotal + ShippingCharge) * TaxPercentage) / 100)}
               .00
             </span>
@@ -250,8 +257,12 @@ export const TotalSummaryModel = ({
 
           {/* Total */}
           <div className="flex justify-between text-sm tracking-wide">
-            <span>Total</span>
-            <span className="font-semibold">
+            <div className="flex flex-col">
+              <span style={{fontFamily:"initial"}} className="font-bold">Total</span>
+            <span className="text-[10px] text-gray-500">Taxes & shipping included</span>
+
+            </div>
+            <span className="font-bold">
               ₹{formatIndianPrice(ShippingWithTax)}.00
             </span>
           </div>
@@ -276,12 +287,12 @@ export const TotalSummaryModel = ({
           ) : (
             <Button
               onPress={handleCheckout}
-              className="w-full bg-black text-white py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition"
+              className="w-full bg-black text-white rounded-md py-4 text-xs tracking-[0.3em] hover:bg-neutral-900 transition"
             >
               {loading ? (
                 <Image width={20} height={20} alt="Loading" src={Loader} />
               ) : (
-                "Continue"
+                "CHECKOUT"
               )}
             </Button>
           )}

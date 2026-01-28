@@ -183,7 +183,7 @@ export default function CartProductShowModel({
           {/* REMOVE */}
           <button
             onClick={() => handleRemove(item)}
-            className="text-[11px] md:mt-0 mt-5 cursor-pointer uppercase tracking-widest text-neutral-400 hover:text-neutral-900 w-fit"
+            className="text-[11px] text-red-600 md:mt-0 mt-5 cursor-pointer uppercase tracking-widest  hover:text-neutral-900 w-fit"
           >
             Remove
           </button>

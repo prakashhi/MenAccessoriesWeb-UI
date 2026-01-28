@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { UserRoundPen } from 'lucide-react';
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { OrderDetailType, UserAddressListType } from "@/Type/UserDetailType";
@@ -78,9 +78,10 @@ export default function ContentRenderer({
         {modelState.EditAddressModel == false && (
           <section className="flex flex-col gap-5">
             <div className="flex flex-col gap-3 lg:mb-5 mb-6 lg:items-center  sm:flex-row sm:items-center sm:justify-between">
+           
               <h3 className="text-xl font-semibold ">
                 {editOpen == true
-                  ? "Edit Personal Information"
+                  ? (  <><div className="flex flex-row gap-2 items-center"><UserRoundPen size={20} /> <span>Edit Personal Information</span></div></>)
                   : "Personal Information"}
               </h3>
 
