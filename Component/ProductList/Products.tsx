@@ -19,7 +19,6 @@ import { useUserLike } from "@/context/UserLikeContext";
 import { useUserCart } from "@/context/UserCartContext";
 import { notify } from "../ToastComponent";
 
-
 import { AboutUsComponent } from "@/Component/Header/Component/About-us";
 import WhyChooseUs from "@/Component/Header/Component/WhyChooseUs";
 
@@ -33,7 +32,7 @@ export default function Product() {
   const router = useRouter();
 
   const [visibleSections, setVisibleSections] = useState<Set<number>>(
-    new Set()
+    new Set(),
   );
 
   const [product, setProduct] = useState<CateLogResponse[]>([]);
@@ -58,9 +57,9 @@ export default function Product() {
         ]);
 
         const LikeData =
-          like.status == "fulfilled" ? like.value?.data ?? [] : [];
+          like.status == "fulfilled" ? (like.value?.data ?? []) : [];
         const CartData =
-          cart.status == "fulfilled" ? cart.value?.data ?? [] : [];
+          cart.status == "fulfilled" ? (cart.value?.data ?? []) : [];
 
         const cartMap: Record<string, CartItem> = {};
 
@@ -108,12 +107,12 @@ export default function Product() {
         },
         {
           threshold: 0.25, // 25% visible
-        }
+        },
       );
 
       observer.observe(el);
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -122,7 +121,6 @@ export default function Product() {
 
   return (
     <>
-  
       <AboutUsComponent />
       <section className="pt-12 lg:pt-39 px-4 lg:overflow-x-hidden sm:px-6 md:px-10 lg:px-16 bg-[#FAFAFA]">
         <div className="flex justify-center">
@@ -294,11 +292,11 @@ export default function Product() {
           ))}
         {/* view all collection */}
 
-        <motion.div
-          className="flex justify-center mt-0 lg:mt-14"
-        >
+        <motion.div className="flex justify-center mt-0 lg:mt-14">
           <Link
             href="/collection"
+            target="_blank"
+            rel="noopener noreferrer"
             className="group relative inline-flex items-center gap-3 px-8 py-3 lg:px-8 lg:py-4 rounded-full
       bg-black text-white text-sm sm:text-base font-medium
       overflow-hidden hover:bg-gray-900 transition"

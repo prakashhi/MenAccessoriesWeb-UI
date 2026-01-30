@@ -281,7 +281,7 @@ export default function CardModel<T extends BaseProduct>({
 
               {/* INFO */}
               <div className="px-4 py-3 text-center space-y-1">
-                <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
+                <h3 style={{fontFamily:"sans-serif"}} className="text-sm font-semibold text-gray-900 line-clamp-1">
                   {product.name.trim() !== "" ? product.name : categoryName ?? product.categoryName}
                 </h3>
 

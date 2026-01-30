@@ -20,6 +20,7 @@ import { ProductsListAPi } from "@/Type/ProductType";
 import { useRouter } from "next/navigation";
 import { useGuestUser } from "@/context/GuestUserContext";
 import { useRazorpayPayment } from "../util/razorPayFunction";
+import { Logs  } from 'lucide-react';
 
 export const TotalSummaryModel = ({
   subTotal,
@@ -155,28 +156,36 @@ export const TotalSummaryModel = ({
       >
         <div className="bg-white rounded-xl border border-[#ECECEC] p-6 sticky top-24 space-y-4">
           {/* Subtotal */}
+            <div className="flex flex-row items-center gap-2 mb-7">
+               <Logs  size={15} />
+              <span style={{fontFamily:"ui-sans-serif",fontSize:"18px"}} className="font-extrabold">Order Breakdown</span>
+            </div>
           <div className="flex justify-between text-sm tracking-wide">
-            <span style={{fontFamily:"initial"}} className="font-bold">Subtotal</span>
-            <span className="font-bold">
-              ₹{formatIndianPrice(subTotal)}.00
+            <span style={{ fontFamily: "initial" }} className="font-bold">
+              Subtotal
             </span>
+            <span className="font-bold">₹{formatIndianPrice(subTotal)}.00</span>
           </div>
 
           {/* Shipping */}
           <div className="flex justify-between text-sm tracking-wide">
             <div className="flex flex-col">
-               <span style={{fontFamily:"initial"}} className="font-bold">Shipping</span>
-              <span className="text-[10px] text-gray-500">Calculated based on your delivery address</span>
-            </div>
-             <span className="font-bold">
-                ₹
-                {calculateShippingCharge(
-                  subTotal,
-                  userDataContext.AddressList[selectedAddressIndex]?.country ||
-                    "INDIA",
-                )}
-                .00
+              <span style={{ fontFamily: "initial" }} className="font-bold">
+                Shipping
               </span>
+              <span className="text-[10px] text-gray-500">
+                Calculated based on your delivery address
+              </span>
+            </div>
+            <span className="font-bold">
+              ₹
+              {calculateShippingCharge(
+                subTotal,
+                userDataContext.AddressList[selectedAddressIndex]?.country ||
+                  "INDIA",
+              )}
+              .00
+            </span>
           </div>
 
           {/* Default Shipping Address with Change button */}
@@ -241,11 +250,13 @@ export const TotalSummaryModel = ({
 
           {/* Tax */}
           <div className="flex justify-between text-sm tracking-wide">
-            
-
             <div className="flex flex-col">
-              <span style={{fontFamily:"initial"}} className="font-bold">Tax(3%)</span>
-              <span className="text-[10px] text-gray-500">Applied on subtotal + shipping</span>
+              <span style={{ fontFamily: "initial" }} className="font-bold">
+                Tax(3%)
+              </span>
+              <span className="text-[10px] text-gray-500">
+                Applied on subtotal + shipping
+              </span>
             </div>
             <span className="font-bold text-sm">
               ₹{Math.ceil(((subTotal + ShippingCharge) * TaxPercentage) / 100)}
@@ -258,9 +269,12 @@ export const TotalSummaryModel = ({
           {/* Total */}
           <div className="flex justify-between text-sm tracking-wide">
             <div className="flex flex-col">
-              <span style={{fontFamily:"initial"}} className="font-bold">Total</span>
-            <span className="text-[10px] text-gray-500">Taxes & shipping included</span>
-
+              <span style={{ fontFamily: "initial" }} className="font-bold">
+                Total
+              </span>
+              <span className="text-[10px] text-gray-500">
+                Taxes & shipping included
+              </span>
             </div>
             <span className="font-bold">
               ₹{formatIndianPrice(ShippingWithTax)}.00

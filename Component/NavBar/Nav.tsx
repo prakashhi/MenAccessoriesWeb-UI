@@ -167,7 +167,6 @@ export default function Nav() {
       return incrementCartProduct(cartItem.id, guestItem.quantity);
     });
 
-
     return await Promise.allSettled(promises);
   };
 
@@ -284,6 +283,8 @@ export default function Nav() {
               {searchOpen == false && (
                 <Link
                   href="/collection"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-2 relative text-gray-700 hover:text-black group"
                 >
                   <LayoutGrid size={18} />
@@ -303,7 +304,7 @@ export default function Nav() {
                 />
               </Link>
 
-              {user?.id  && user ? (
+              {user?.id && user ? (
                 <Link href={"/accountInfo"}>
                   <User
                     size={20}
