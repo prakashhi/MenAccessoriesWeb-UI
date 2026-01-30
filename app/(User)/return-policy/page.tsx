@@ -1,4 +1,11 @@
 import Nav from "@/Component/NavBar/Nav";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Return & Refund Policy | RockRoars",
+  description:
+    "Read RockRoars return and refund policy. Learn about eligibility, timelines, refunds, exchanges, and how to request a return.",
+};
 
 export default function NoReturnPolicy() {
   return (

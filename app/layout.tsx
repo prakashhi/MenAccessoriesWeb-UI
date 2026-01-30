@@ -24,9 +24,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RockeRoar",
+  title: "RockRoars",
   description:
-    "Discover premium men's accessories designed for style, comfort, and everyday confidence.",
+    "RockRoars - Discover premium men's accessories designed for style, comfort, and everyday confidence.",
 };
 
 export default function RootLayout({
