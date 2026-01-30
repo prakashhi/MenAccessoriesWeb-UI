@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { WhatsAppNumber } from "@/app/page";
+import WhatsLogo from "@/public/icons/WhatsApp.svg"
 
 const MESSAGE = "Hello, I am interested in your products";
 
@@ -45,7 +46,7 @@ export default function FloatingWhatsApp() {
         "
       >
         <Image
-          src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+          src={WhatsLogo}
           alt="WhatsApp"
           width={28}
           height={28}

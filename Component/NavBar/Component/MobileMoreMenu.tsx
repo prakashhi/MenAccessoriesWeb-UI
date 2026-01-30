@@ -25,18 +25,22 @@ export default function MobileMenuModal({
 
   return (
     <>
-      <Link
-        href="/collection"
-        className="flex items-center gap-2 relative text-gray-700 hover:text-black group"
-      >
-        <LayoutGrid size={18} />
+     <Link
+  href="/collection"
+  className="group flex items-center gap-2 relative text-gray-700 hover:text-black"
+>
+  <LayoutGrid size={18} aria-hidden="true" />
 
-        <span className="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full" />
-      </Link>
+  <span className="sr-only">Collections</span>
+
+  <span className="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full" />
+</Link>
+
       <div className="relative">
         {/* Menu Icon */}
         <button
           onClick={() => setMobileMenuOpen((prev: any) => !prev)}
+           aria-label="Open mobile menu"
           className="p-2 cursor-pointer rounded-full hover:bg-gray-100"
         >
           <MoreVertical size={20} className="text-gray-700" />

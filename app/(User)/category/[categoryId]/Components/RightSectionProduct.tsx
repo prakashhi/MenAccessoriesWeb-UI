@@ -6,7 +6,7 @@ import { UsePanel } from "@/context/Context";
 import { useEffect, useMemo, useRef, useState } from "react";
 import EmptyTableComponent from "./EmptyTableComponents";
 import { FiFilter, FiChevronDown } from "react-icons/fi";
-import { Data,} from "@/Type/Types";
+import { Data } from "@/Type/Types";
 import { CartItem } from "@/Type/CartType";
 import { LikeProductType } from "@/Type/LikeType";
 import { getUserFromStorage } from "@/context/utils";
@@ -15,7 +15,6 @@ import { useUserCart } from "@/context/UserCartContext";
 import { TbAlphabetLatin } from "react-icons/tb";
 import { useInfiniteProductsOffset } from "@/app/(User)/collection/Component/infinityScrollProduct";
 import { ProductSkeletonGrid } from "@/app/(User)/collection/Component/Skeleton";
-
 
 export default function RightSection() {
   const userData = useMemo(() => getUserFromStorage(), []);
@@ -173,7 +172,7 @@ export default function RightSection() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 max-w-7xl mx-auto">
           {/* Results Count */}
           <div className="text-sm text-gray-600 font-light">
-            {totalProduct} <span className="text-gray-400">products</span>
+            {totalProduct} <span className="text-gray-500">products</span>
           </div>
 
           {/* Controls */}
@@ -201,7 +200,11 @@ export default function RightSection() {
 
             {/* Sort Dropdown */}
             <div className="relative flex-1 sm:flex-none min-w-[200px]">
+              <label htmlFor="sort" className="sr-only">
+                Sort products
+              </label>
               <select
+                id="sort"
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
                 className="w-full  px-4 cursor-pointer py-2.5 bg-white border border-gray-200 text-sm font-medium rounded-lg appearance-none focus:outline-none focus:border-gray-800 transition-colors pr-10"
@@ -295,6 +298,7 @@ export default function RightSection() {
         animate={{ opacity: 1, y: 0 }}
         whileTap={{ scale: 0.9 }}
         onClick={onOpen}
+        aria-label="Open filters"
         className="sm:hidden fixed bottom-6 right-6 w-14 h-14 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-xl z-50"
       >
         <FiFilter size={20} />

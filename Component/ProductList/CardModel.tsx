@@ -248,6 +248,7 @@ export default function CardModel<T extends BaseProduct>({
                   priority
                   sizes="(max-width: 640px) 100vw,(max-width: 1024px) 50vw,33vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  
                 />
 
                 {/* Gradient */}
@@ -270,6 +271,7 @@ export default function CardModel<T extends BaseProduct>({
                       e.stopPropagation();
                       handleAddToLike(product.id);
                     }}
+                     aria-label="Add to wishlist"
                     className="absolute cursor-pointer top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
                   >
                     <FcLikePlaceholder className="text-xl" />
@@ -345,7 +347,7 @@ export default function CardModel<T extends BaseProduct>({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
                         transition={{ duration: 0.4, ease: "easeOut" }}
-                        className="flex  text-gray-400  items-center gap-2 cursor-not-allowed"
+                        className="flex  text-gray-600  items-center gap-2 cursor-not-allowed"
                       >
                         OUT OF STOCK
                       </motion.span>
@@ -358,7 +360,7 @@ export default function CardModel<T extends BaseProduct>({
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -6 }}
                             transition={{ duration: 0.4, ease: "easeOut" }}
-                            className="flex  text-gray-400 items-center gap-2 cursor-pointer"
+                            className="flex  text-gray-700 items-center gap-2 cursor-pointer"
                           >
                             <RiShoppingCart2Line size={16} />
                             ADD TO CART
