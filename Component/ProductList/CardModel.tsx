@@ -11,13 +11,14 @@ import { CircleCheck } from "lucide-react";
 import { RiShoppingCart2Line } from "react-icons/ri";
 
 import { Heart } from "lucide-react";
-import { Data} from "@/Type/Types";
+import { Data } from "@/Type/Types";
 import { ProductInfoType } from "@/Type/ProductType";
 import { ImageShowUtil } from "@/utils/ImageShowUtil";
 import { notify, toastActions } from "../ToastComponent";
 import { useUserLike } from "@/context/UserLikeContext";
 import { useGuestUser } from "@/context/GuestUserContext";
 import { useUserCart } from "@/context/UserCartContext";
+import Link from "next/link";
 
 type BaseProduct = {
   id: string;
@@ -71,7 +72,7 @@ export default function CardModel<T extends BaseProduct>({
     try {
       let product: ProductInfoType = await callApi(
         "get",
-        `/product/${productId}`
+        `/product/${productId}`,
       );
 
       if (isUser == true) {
@@ -225,7 +226,9 @@ export default function CardModel<T extends BaseProduct>({
             : !!guestCart?.likeProduct?.[product.id];
 
           return (
-            <div
+            <Link
+              href={`/all-Product/${product.id}`}
+              target="_blank"
               key={index}
               className={`
             group relative bg-white rounded-2xl overflow-hidden
@@ -237,10 +240,7 @@ export default function CardModel<T extends BaseProduct>({
             >
               {/* IMAGE */}
 
-              <div
-                onClick={() => router.push(`/all-Product/${product.id}`)}
-                className="relative w-full h-82 cursor-pointer overflow-hidden"
-              >
+              <div className="relative w-full h-82 cursor-pointer overflow-hidden">
                 <Image
                   src={ImageShowUtil(product?.image)}
                   alt={product.name}
@@ -248,7 +248,6 @@ export default function CardModel<T extends BaseProduct>({
                   priority
                   sizes="(max-width: 640px) 100vw,(max-width: 1024px) 50vw,33vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  
                 />
 
                 {/* Gradient */}
@@ -259,6 +258,7 @@ export default function CardModel<T extends BaseProduct>({
                   <div className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition">
                     <Heart
                       onClick={(e) => {
+                         e.preventDefault();
                         e.stopPropagation();
                         handleUnLike(product.id);
                       }}
@@ -268,10 +268,11 @@ export default function CardModel<T extends BaseProduct>({
                 ) : (
                   <button
                     onClick={(e) => {
+                       e.preventDefault();
                       e.stopPropagation();
                       handleAddToLike(product.id);
                     }}
-                     aria-label="Add to wishlist"
+                    aria-label="Add to wishlist"
                     className="absolute cursor-pointer top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-md hover:scale-110 transition"
                   >
                     <FcLikePlaceholder className="text-xl" />
@@ -283,8 +284,13 @@ export default function CardModel<T extends BaseProduct>({
 
               {/* INFO */}
               <div className="px-4 py-3 text-center space-y-1">
-                <h3 style={{fontFamily:"sans-serif"}} className="text-sm font-semibold text-gray-900 line-clamp-1">
-                  {product.name.trim() !== "" ? product.name : categoryName ?? product.categoryName}
+                <h3
+                  style={{ fontFamily: "sans-serif" }}
+                  className="text-sm font-semibold text-gray-900 line-clamp-1"
+                >
+                  {product.name.trim() !== ""
+                    ? product.name
+                    : (categoryName ?? product.categoryName)}
                 </h3>
 
                 <div className="flex justify-center gap-2 items-center">
@@ -305,6 +311,7 @@ export default function CardModel<T extends BaseProduct>({
                     whileTap={{ scale: 0.96 }}
                     transition={{ duration: 0.3 }}
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
 
                       let stock = product.stock ?? null; // if stock is undefined, set null
@@ -389,7 +396,7 @@ export default function CardModel<T extends BaseProduct>({
                   </motion.button>
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
     </>
