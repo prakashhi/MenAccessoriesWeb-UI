@@ -25,9 +25,8 @@ export async function generateMetadata({
   const { id } = await params;
 
   let response = await getProduct(id);
-  const product = response.data;
+  const product = response?.data;
 
-  console
 
 
   if (!product) {
@@ -38,7 +37,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${product.name ? product.name : product.categoryName}`,
+    title: `${product.name ? product.name : product.categoryName} | RockRoars`,
     description: product.description,
   };
 }

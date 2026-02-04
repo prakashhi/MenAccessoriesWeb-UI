@@ -171,8 +171,8 @@ export default function RightSection() {
       >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 max-w-7xl mx-auto">
           {/* Results Count */}
-          <div className="text-sm text-gray-600 font-light">
-            {totalProduct} <span className="text-gray-500">products</span>
+          <div className="text-md text-gray-600 font-light">
+            <span className="text-md" style={{fontWeight:800,fontFamily:"ui-monospace"}}>Total : {totalProduct} products</span>
           </div>
 
           {/* Controls */}

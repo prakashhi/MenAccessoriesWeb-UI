@@ -124,7 +124,7 @@ export default function ProductPage() {
         if (!active) return;
         setProduct(productData);
       } catch (err) {
-        console.error("Product fetch failed", err);
+         console.log("Product fetch failed", err);
       } finally {
         if (active) setMounted(true);
       }
