@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageShowUtil } from "@/utils/ImageShowUtil";
-import { Play } from "lucide-react";
+import { Play, X } from "lucide-react";
+import { createPortal } from "react-dom";
 
 interface ProductGalleryProps {
   images?: (string | null | undefined)[];
@@ -16,7 +17,7 @@ type MediaItem =
   | { type: "image"; url: string }
   | { type: "video"; url: string };
 
-const FALLBACK_IMAGE = "/placeholder.png"; // put in /public
+const FALLBACK_IMAGE = "/placeholder.png";
 
 export default function ProductGallery({
   images = [],
@@ -40,6 +41,22 @@ export default function ProductGallery({
   /* ---------------- STATE ---------------- */
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+  setMounted(true);
+}, []);
+
+  /* ---------------- LOCK SCROLL WHEN MODAL OPEN ---------------- */
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isOpen]);
 
   /* ---------------- EMPTY STATE ---------------- */
 
@@ -73,32 +90,34 @@ export default function ProductGallery({
           ) : (
             <motion.div
               key={active.url}
-              className="absolute inset-0"
+              layoutId={`product-${active.url}`}
+              className="absolute inset-0 cursor-zoom-in"
               initial={{ opacity: 0.2 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(true)}
             >
               <Image
                 src={ImageShowUtil(active.url) || FALLBACK_IMAGE}
                 alt={name}
                 fill
                 priority
-                className="object-cover"
+                className="object-cover transition-transform duration-500 hover:scale-105"
               />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* THUMBNAILS (ALWAYS SHOWN) */}
+      {/* THUMBNAILS */}
       <div
         className={`flex gap-3 overflow-x-auto py-2 ${
-          media.length == 1
+          media.length === 1
             ? "justify-center"
             : media.length > 1
-            ? "justify-evenly"
-            : "justify-between"
-        } `}
+              ? "justify-evenly"
+              : "justify-between"
+        }`}
       >
         {media.map((item, idx) => (
           <button
@@ -127,6 +146,49 @@ export default function ProductGallery({
           </button>
         ))}
       </div>
+
+      {/* FULLSCREEN MODAL */}
+    {/* FULLSCREEN MODAL */}
+{mounted &&
+  isOpen &&
+  active.type === "image" &&
+  createPortal(
+    <AnimatePresence>
+      <motion.div
+        key="modal"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-xl flex items-center justify-center"
+        onClick={() => setIsOpen(false)}
+      >
+        {/* Close Button */}
+        <button
+          onClick={() => setIsOpen(false)}
+          className="absolute cursor-pointer top-6 right-6 text-white z-[10000]"
+        >
+          <X size={32} />
+        </button>
+
+        <motion.div
+          layoutId={`product-${active.url}`}
+          className="relative flex items-center justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Image
+            src={ImageShowUtil(active.url) || FALLBACK_IMAGE}
+            alt={name}
+            width={1200}
+            height={1200}
+            className="object-contain max-w-[95vw] max-h-[90vh] rounded-xl"
+            priority
+          />
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>,
+    document.body
+  )}
     </div>
   );
 }

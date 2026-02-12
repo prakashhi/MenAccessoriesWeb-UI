@@ -64,6 +64,7 @@ export default function ProductPage() {
   const [mounted, setMounted] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [selectedSize, setSelectedSize] = useState<any | null>(null);
@@ -80,10 +81,11 @@ export default function ProductPage() {
     let active = true;
 
     const loadProduct = async () => {
+      if (!active) return;
+      setLoading(true);
       try {
         const product = await GetProductDetailsById(`${params.id}`);
-
-        const productData = product?.data 
+        const productData = product?.data;
 
         if (product?.data?.isHaveSizeVariants === true) {
           if (product.data.variantId == null) {
@@ -97,8 +99,7 @@ export default function ProductPage() {
 
             const sizeData = size?.data ?? size ?? {};
             setSizeData(sizeData);
-            setSelectedSize(sizeData[0])
-          
+            setSelectedSize(sizeData[0]);
           } else {
             // if variantId and Size available
             const [variants, size] = await Promise.all([
@@ -116,17 +117,20 @@ export default function ProductPage() {
 
             setVariants(variantsData);
             setSizeData(sizeData);
-            setSelectedSize(sizeData[0])
-         
+            setSelectedSize(sizeData[0]);
             // setSelectedVariant(variantsData[0].size)
           }
         }
         if (!active) return;
         setProduct(productData);
       } catch (err) {
-         console.log("Product fetch failed", err);
+        console.log("Product fetch failed", err);
       } finally {
-        if (active) setMounted(true);
+        // if (active) setMounted(true);
+        if (active) {
+          setLoading(false);
+          setMounted(true);
+        }
       }
     };
 
@@ -241,13 +245,20 @@ export default function ProductPage() {
 
   if (!mounted) return null;
 
-  if (!product)
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen text-gray-400">
         Loading product…
       </div>
     );
-
+  }
+  if (!product) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-red-400">
+        Product not found
+      </div>
+    );
+  }
   const extraInfo = {
     Color: product.color,
     // Material: product.materialUsedName,
@@ -340,7 +351,6 @@ export default function ProductPage() {
     });
   };
 
-
   return (
     <>
       <Nav />
@@ -349,29 +359,31 @@ export default function ProductPage() {
       <section className="max-w-7xl mx-auto px-4 lg:px-12 py-12">
         <div className="grid relative lg:grid-cols-2 gap-12 items-start">
           {/* LEFT – GALLERY */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="lg:sticky lg:top-0 cursor-pointer"
-          >
-            <PictureGallery
-              images={[
-                product.image,
-                product.nineRockImage,
-                // add more if backend sends later
-              ]}
-              video={product.video}
-              name={product.name}
-            />
-          </motion.div>
 
+          <div className="lg:sticky lg:top-24">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="cursor-pointer"
+            >
+              <PictureGallery
+                images={[
+                  product.image,
+                  product.nineRockImage,
+                  // add more if backend sends later
+                ]}
+                video={product.video}
+                name={product.name}
+              />
+            </motion.div>
+          </div>
           {/* RIGHT – INFO */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut", delay: 0.15 }}
-            className="flex flex-col gap-8 lg:sticky lg:top-24"
+            className="flex flex-col gap-8  lg:top-24"
           >
             {/* TITLE */}
             <motion.div
